@@ -1,8 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/background"
     tools:context=".ui.auth.LoginActivity">
 
     <LinearLayout
@@ -12,52 +14,65 @@
         android:padding="24dp">
 
         <TextView
-            android:id="@+id/tvLoginTitle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="48dp"
-            android:text="Giriş Yap"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="40dp"
+            android:text="Dijital Raf"
+            android:textColor="@color/primary_dark"
             android:textSize="28sp"
             android:textStyle="bold" />
 
         <TextView
-            android:id="@+id/tvLoginSubtitle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
             android:layout_marginTop="8dp"
-            android:text="Dijital kütüphane hesabınıza giriş yapın"
-            android:textSize="16sp" />
+            android:layout_marginBottom="30dp"
+            android:text="Giriş Yap"
+            android:textColor="@color/primary"
+            android:textSize="22sp"
+            android:textStyle="bold" />
 
         <EditText
             android:id="@+id/etEmail"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="32dp"
+            android:layout_height="55dp"
+            android:layout_marginBottom="12dp"
+            android:background="@android:drawable/edit_text"
             android:hint="E-posta"
-            android:inputType="textEmailAddress" />
+            android:inputType="textEmailAddress"
+            android:padding="12dp" />
 
         <EditText
             android:id="@+id/etPassword"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
+            android:layout_height="55dp"
+            android:layout_marginBottom="20dp"
+            android:background="@android:drawable/edit_text"
             android:hint="Şifre"
-            android:inputType="textPassword" />
+            android:inputType="textPassword"
+            android:padding="12dp" />
 
         <Button
             android:id="@+id/btnLogin"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="24dp"
-            android:text="Giriş Yap" />
+            android:layout_height="55dp"
+            android:backgroundTint="@color/primary"
+            android:text="Giriş Yap"
+            android:textColor="@color/white"
+            android:textStyle="bold" />
 
         <TextView
             android:id="@+id/tvGoToRegister"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
             android:layout_marginTop="20dp"
-            android:text="Hesabın yok mu? Kayıt ol"
+            android:text="Hesabın yok mu? Kayıt Ol"
+            android:textColor="@color/secondary"
             android:textStyle="bold" />
 
     </LinearLayout>
+
 </ScrollView>
