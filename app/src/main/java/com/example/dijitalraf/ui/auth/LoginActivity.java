@@ -9,11 +9,8 @@ import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.graphics.Insets;
-import androidx.core.view.ViewCompat;
-import androidx.core.view.WindowInsetsCompat;
-
 import com.example.dijitalraf.R;
+import com.example.dijitalraf.ui.home.HomeActivity;
 
 public class LoginActivity extends AppCompatActivity {
 
@@ -26,12 +23,6 @@ public class LoginActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_login);
-
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
-            Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
-            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
-            return insets;
-        });
 
         etEmail = findViewById(R.id.etEmail);
         etPassword = findViewById(R.id.etPassword);
@@ -58,8 +49,11 @@ public class LoginActivity extends AppCompatActivity {
                 etPassword.requestFocus();
                 return;
             }
+            Intent intent = new Intent(LoginActivity.this, HomeActivity.class);
+            startActivity(intent);
+            finish();
 
-            Toast.makeText(LoginActivity.this, "Login kontrolü başarılı", Toast.LENGTH_SHORT).show();
+
         });
     }
 }
