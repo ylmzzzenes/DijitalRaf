@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "97977108627",
+    "project_id": "dijitalraf-ec149",
+    "storage_bucket": "dijitalraf-ec149.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:97977108627:android:f783b77de4cb697f9c2566",
+        "android_client_info": {
+          "package_name": "com.example.dijitalraf"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC14vny1Frn4xGN4VKIoyu6UX-BoFjXKfM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
