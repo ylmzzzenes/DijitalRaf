@@ -35,7 +35,7 @@
             android:textStyle="bold" />
 
         <EditText
-            android:id="@+id/etName"
+            android:id="@+id/etFullName"
             android:layout_width="match_parent"
             android:layout_height="55dp"
             android:layout_marginBottom="12dp"
@@ -65,7 +65,7 @@
             android:padding="12dp" />
 
         <EditText
-            android:id="@+id/etPasswordAgain"
+            android:id="@+id/etConfirmPassword"
             android:layout_width="match_parent"
             android:layout_height="55dp"
             android:layout_marginBottom="20dp"
@@ -84,7 +84,7 @@
             android:textStyle="bold" />
 
         <TextView
-            android:id="@+id/tvGoLogin"
+            android:id="@+id/tvGoToLogin"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"
