@@ -2,6 +2,7 @@ package com.example.dijitalraf.ui.auth;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
@@ -9,18 +10,16 @@ import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.graphics.Insets;
-import androidx.core.view.ViewCompat;
-import androidx.core.view.WindowInsetsCompat;
-import com.google.firebase.auth.FirebaseAuth;
 
 import com.example.dijitalraf.R;
+import com.example.dijitalraf.ui.home.HomeActivity;
+import com.google.firebase.auth.FirebaseAuth;
 
 public class RegisterActivity extends AppCompatActivity {
 
-    private EditText etName, etEmail, etPassword, etPasswordAgain;
+    private EditText etFullName, etEmail, etPassword, etConfirmPassword;
     private Button btnRegister;
-    private TextView tvGoLogin;
+    private TextView tvGoToLogin;
     private FirebaseAuth mAuth;
 
     @Override
@@ -29,82 +28,89 @@ public class RegisterActivity extends AppCompatActivity {
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_register);
 
+        initComponents();
+        registerEventHandlers();
+    }
+
+    private void initComponents() {
         mAuth = FirebaseAuth.getInstance();
 
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
-            Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
-            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
-            return insets;
-        });
-
-
-        etName = findViewById(R.id.etName);
+        etFullName = findViewById(R.id.etFullName);
         etEmail = findViewById(R.id.etEmail);
         etPassword = findViewById(R.id.etPassword);
-        etPasswordAgain = findViewById(R.id.etPasswordAgain);
+        etConfirmPassword = findViewById(R.id.etConfirmPassword);
+
         btnRegister = findViewById(R.id.btnRegister);
-        tvGoLogin = findViewById(R.id.tvGoLogin);
+        tvGoToLogin = findViewById(R.id.tvGoToLogin);
+    }
 
+    private void registerEventHandlers() {
+        btnRegister.setOnClickListener(v -> registerUser());
 
-        btnRegister.setOnClickListener(v -> {
-            String name = etName.getText().toString().trim();
-            String email = etEmail.getText().toString().trim();
-            String password = etPassword.getText().toString().trim();
-            String passwordAgain = etPasswordAgain.getText().toString().trim();
-
-            if (name.isEmpty()) {
-                etName.setError("Ad Soyad zorunludur");
-                etName.requestFocus();
-                return;
-            }
-
-            if (email.isEmpty()) {
-                etEmail.setError("E-posta zorunludur");
-                etEmail.requestFocus();
-                return;
-            }
-
-            if (password.isEmpty()) {
-                etPassword.setError("Şifre zorunludur");
-                etPassword.requestFocus();
-                return;
-            }
-
-            if (passwordAgain.isEmpty()) {
-                etPasswordAgain.setError("Şifre tekrarı zorunludur");
-                etPasswordAgain.requestFocus();
-                return;
-            }
-
-            if (!password.equals(passwordAgain)) {
-                etPasswordAgain.setError("Şifreler eşleşmiyor");
-                etPasswordAgain.requestFocus();
-                return;
-            }
-
-            mAuth.createUserWithEmailAndPassword(email, password)
-                        .addOnCompleteListener(this, task -> {
-                            if(task.isSuccessful())
-                            {
-                                Toast.makeText(RegisterActivity.this, "Kayıt Başarılı", Toast.LENGTH_SHORT).show();
-
-                                Intent intent = new Intent(RegisterActivity.this, LoginActivity.class);
-                                startActivity(intent);
-                                finish();
-                            }
-                            else
-                            {
-                                Toast.makeText(RegisterActivity.this, "Kayıt Başarısız:" + task.getException().getMessage(), Toast.LENGTH_SHORT).show();
-                            }
-                        });
-
-
-        });
-
-        tvGoLogin.setOnClickListener(v -> {
+        tvGoToLogin.setOnClickListener(v -> {
             Intent intent = new Intent(RegisterActivity.this, LoginActivity.class);
             startActivity(intent);
             finish();
         });
+    }
+
+    private void registerUser() {
+        String fullName = etFullName.getText().toString().trim();
+        String email = etEmail.getText().toString().trim();
+        String password = etPassword.getText().toString().trim();
+        String confirmPassword = etConfirmPassword.getText().toString().trim();
+
+        if (TextUtils.isEmpty(fullName)) {
+            etFullName.setError("Ad soyad boş olamaz");
+            etFullName.requestFocus();
+            return;
+        }
+
+        if (TextUtils.isEmpty(email)) {
+            etEmail.setError("Email boş olamaz");
+            etEmail.requestFocus();
+            return;
+        }
+
+        if (TextUtils.isEmpty(password)) {
+            etPassword.setError("Şifre boş olamaz");
+            etPassword.requestFocus();
+            return;
+        }
+
+        if (password.length() < 6) {
+            etPassword.setError("Şifre en az 6 karakter olmalı");
+            etPassword.requestFocus();
+            return;
+        }
+
+        if (TextUtils.isEmpty(confirmPassword)) {
+            etConfirmPassword.setError("Şifre tekrarı boş olamaz");
+            etConfirmPassword.requestFocus();
+            return;
+        }
+
+        if (!password.equals(confirmPassword)) {
+            etConfirmPassword.setError("Şifreler eşleşmiyor");
+            etConfirmPassword.requestFocus();
+            return;
+        }
+
+        mAuth.createUserWithEmailAndPassword(email, password)
+                .addOnCompleteListener(this, task -> {
+                    if (task.isSuccessful()) {
+                        Toast.makeText(RegisterActivity.this, "Kayıt başarılı", Toast.LENGTH_SHORT).show();
+
+                        Intent intent = new Intent(RegisterActivity.this, HomeActivity.class);
+                        startActivity(intent);
+                        finish();
+                    } else {
+                        Toast.makeText(
+                                RegisterActivity.this,
+                                "Kayıt başarısız: " + task.getException().getMessage(),
+                                Toast.LENGTH_LONG
+                        ).show();
+                    }
+                });
     }
 }
