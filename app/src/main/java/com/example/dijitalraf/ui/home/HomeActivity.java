@@ -16,7 +16,10 @@ public class HomeActivity extends AppCompatActivity {
     private FirebaseAuth mAuth;
     private Button btnLogout;
 
-    private MaterialCardView cardMyBooks, cardAddBook, cardFavorites, cardReadingList;
+    private MaterialCardView cardMyBooks;
+    private MaterialCardView cardAddBook;
+    private MaterialCardView cardFavorites;
+    private MaterialCardView cardReadingList;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -31,7 +34,6 @@ public class HomeActivity extends AppCompatActivity {
 
     private void initViews() {
         btnLogout = findViewById(R.id.btnLogout);
-
         cardMyBooks = findViewById(R.id.cardMyBooks);
         cardAddBook = findViewById(R.id.cardAddBook);
         cardFavorites = findViewById(R.id.cardFavorites);
@@ -39,37 +41,33 @@ public class HomeActivity extends AppCompatActivity {
     }
 
     private void setupListeners() {
+        btnLogout.setOnClickListener(v -> logoutUser());
 
-        // Çıkış
-        btnLogout.setOnClickListener(v -> {
-            mAuth.signOut();
-
-            Intent intent = new Intent(HomeActivity.this, LoginActivity.class);
-            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-            startActivity(intent);
-            finish();
-        });
-
-        // Kitaplarım
         cardMyBooks.setOnClickListener(v -> {
             Intent intent = new Intent(HomeActivity.this, KitaplarimActivity.class);
             startActivity(intent);
         });
 
-        // Kitap Ekle
         cardAddBook.setOnClickListener(v -> {
             Intent intent = new Intent(HomeActivity.this, KitapEkleActivity.class);
             startActivity(intent);
         });
 
-        // Favoriler (şimdilik boş bırakabiliriz)
         cardFavorites.setOnClickListener(v -> {
-            // ileride ekleyeceğiz
+            // Favoriler ekranı daha sonra eklenecek
         });
 
-        // Okuma Listem (şimdilik boş)
         cardReadingList.setOnClickListener(v -> {
-            // ileride ekleyeceğiz
+            // Okuma listem ekranı daha sonra eklenecek
         });
+    }
+
+    private void logoutUser() {
+        mAuth.signOut();
+
+        Intent intent = new Intent(HomeActivity.this, LoginActivity.class);
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        startActivity(intent);
+        finish();
     }
 }

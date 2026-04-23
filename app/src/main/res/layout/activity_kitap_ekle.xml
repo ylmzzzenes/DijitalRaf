@@ -1,10 +1,57 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/main"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".ui.KitapEkleActivity">
+    android:padding="16dp"
+    android:background="@color/background">
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Kitap Ekle"
+            android:textSize="24sp"
+            android:textStyle="bold"
+            android:textColor="@color/text_primary"
+            android:layout_marginBottom="20dp" />
+
+        <EditText
+            android:id="@+id/etKitapAdi"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Kitap Adı"
+            android:layout_marginBottom="12dp" />
+
+        <Button
+            android:id="@+id/btnAra"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="API ile Ara"
+            android:layout_marginBottom="16dp" />
+
+        <EditText
+            android:id="@+id/etYazar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Yazar"
+            android:layout_marginBottom="12dp" />
+
+        <EditText
+            android:id="@+id/etTur"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Tür"
+            android:layout_marginBottom="20dp" />
+
+        <Button
+            android:id="@+id/btnKaydet"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Kaydet" />
+
+    </LinearLayout>
+</ScrollView>
