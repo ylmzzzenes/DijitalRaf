@@ -9,6 +9,7 @@ import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.dijitalraf.R;
+import com.google.android.material.appbar.MaterialToolbar;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import org.json.JSONArray;
@@ -28,6 +29,7 @@ public class KitapEkleActivity extends AppCompatActivity {
 
     private static final String TAG = "KitapEkleActivity";
 
+    private MaterialToolbar toolbar;
     private EditText etKitapAdi, etYazar, etTur;
     private Button btnKaydet, btnAra;
     private FirebaseFirestore db;
@@ -38,21 +40,31 @@ public class KitapEkleActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_kitap_ekle);
 
+        initViews();
+        setupToolbar();
+
         db = FirebaseFirestore.getInstance();
         client = new OkHttpClient();
 
+        btnKaydet.setOnClickListener(v -> {
+            kitapKaydet();
+        });
+
+        btnAra.setOnClickListener(v -> kitapAra());
+    }
+
+    private void initViews() {
+        toolbar = findViewById(R.id.toolbar);
         etKitapAdi = findViewById(R.id.etKitapAdi);
         etYazar = findViewById(R.id.etYazar);
         etTur = findViewById(R.id.etTur);
         btnKaydet = findViewById(R.id.btnKaydet);
         btnAra = findViewById(R.id.btnAra);
+    }
 
-        btnKaydet.setOnClickListener(v -> {
-            Toast.makeText(KitapEkleActivity.this, "Kaydet butonuna basıldı", Toast.LENGTH_SHORT).show();
-            kitapKaydet();
-        });
-
-        btnAra.setOnClickListener(v -> kitapAra());
+    private void setupToolbar() {
+        setSupportActionBar(toolbar);
+        toolbar.setNavigationOnClickListener(v -> finish());
     }
 
     private void kitapAra() {
@@ -142,9 +154,6 @@ public class KitapEkleActivity extends AppCompatActivity {
         String tur = etTur.getText().toString().trim();
 
         Log.d(TAG, "Kaydet başladı");
-        Log.d(TAG, "kitapAdi: " + kitapAdi);
-        Log.d(TAG, "yazar: " + yazar);
-        Log.d(TAG, "tur: " + tur);
 
         if (kitapAdi.isEmpty() || yazar.isEmpty() || tur.isEmpty()) {
             Toast.makeText(this, "Tüm alanları doldurun", Toast.LENGTH_SHORT).show();
@@ -159,12 +168,10 @@ public class KitapEkleActivity extends AppCompatActivity {
         db.collection("kitaplar")
                 .add(kitap)
                 .addOnSuccessListener(documentReference -> {
-                    Log.d(TAG, "Firestore kayıt başarılı: " + documentReference.getId());
                     Toast.makeText(KitapEkleActivity.this, "Kitap eklendi", Toast.LENGTH_SHORT).show();
                     finish();
                 })
                 .addOnFailureListener(e -> {
-                    Log.e(TAG, "Firestore hata: ", e);
                     Toast.makeText(KitapEkleActivity.this, "Hata: " + e.getMessage(), Toast.LENGTH_LONG).show();
                 });
     }
