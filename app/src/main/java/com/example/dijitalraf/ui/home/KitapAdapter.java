@@ -1,23 +1,39 @@
 package com.example.dijitalraf.ui.home;
 
+import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.dijitalraf.R;
+import com.example.dijitalraf.data.FavoritesHelper;
+import com.google.android.material.chip.Chip;
 
 import java.util.List;
 
 public class KitapAdapter extends RecyclerView.Adapter<KitapAdapter.KitapViewHolder> {
 
-    private List<Kitap> kitapListesi;
+    public interface OnFavoriteChangedListener {
+        void onFavoriteChanged(Kitap kitap, int position);
+    }
 
-    public KitapAdapter(List<Kitap> kitapListesi) {
+    private final Context appContext;
+    private final List<Kitap> kitapListesi;
+    private OnFavoriteChangedListener favoriteChangedListener;
+
+    public KitapAdapter(Context context, List<Kitap> kitapListesi) {
+        this.appContext = context.getApplicationContext();
         this.kitapListesi = kitapListesi;
+    }
+
+    public void setOnFavoriteChangedListener(OnFavoriteChangedListener listener) {
+        this.favoriteChangedListener = listener;
     }
 
     @NonNull
@@ -31,8 +47,27 @@ public class KitapAdapter extends RecyclerView.Adapter<KitapAdapter.KitapViewHol
     public void onBindViewHolder(@NonNull KitapViewHolder holder, int position) {
         Kitap kitap = kitapListesi.get(position);
         holder.tvKitapAdi.setText(kitap.getKitapAdi());
-        holder.tvYazar.setText("Yazar: " + kitap.getYazar());
-        holder.tvTur.setText("Tür: " + kitap.getTur());
+        holder.tvYazar.setText(kitap.getYazar());
+        String tur = kitap.getTur() != null ? kitap.getTur() : "";
+        holder.chipTur.setText(tur);
+        holder.chipTur.setVisibility(tur.isEmpty() ? View.GONE : View.VISIBLE);
+
+        boolean fav = kitap.getId() != null && FavoritesHelper.isFavorite(appContext, kitap.getId());
+        holder.ivFavorite.setImageResource(fav ? R.drawable.ic_favorite_24 : R.drawable.ic_favorite_border_24);
+
+        holder.ivFavorite.setOnClickListener(v -> {
+            if (kitap.getId() == null) {
+                return;
+            }
+            FavoritesHelper.toggle(appContext, kitap.getId());
+            int pos = holder.getBindingAdapterPosition();
+            if (pos != RecyclerView.NO_POSITION) {
+                notifyItemChanged(pos);
+            }
+            if (favoriteChangedListener != null && pos != RecyclerView.NO_POSITION) {
+                favoriteChangedListener.onFavoriteChanged(kitap, pos);
+            }
+        });
     }
 
     @Override
@@ -41,13 +76,19 @@ public class KitapAdapter extends RecyclerView.Adapter<KitapAdapter.KitapViewHol
     }
 
     public static class KitapViewHolder extends RecyclerView.ViewHolder {
-        TextView tvKitapAdi, tvYazar, tvTur;
+        final TextView tvKitapAdi;
+        final TextView tvYazar;
+        final Chip chipTur;
+        final ImageView ivCover;
+        final ImageButton ivFavorite;
 
         public KitapViewHolder(@NonNull View itemView) {
             super(itemView);
             tvKitapAdi = itemView.findViewById(R.id.tvKitapAdi);
             tvYazar = itemView.findViewById(R.id.tvYazar);
-            tvTur = itemView.findViewById(R.id.tvTur);
+            chipTur = itemView.findViewById(R.id.chipTur);
+            ivCover = itemView.findViewById(R.id.ivCover);
+            ivFavorite = itemView.findViewById(R.id.ivFavorite);
         }
     }
 }

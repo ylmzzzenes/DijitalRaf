@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_marginBottom="@dimen/grid_2"
+    android:layout_margin="@dimen/grid_1"
     app:cardBackgroundColor="@color/card_background"
     app:cardCornerRadius="@dimen/corner_medium"
     app:cardElevation="@dimen/elevation_card"
@@ -12,51 +12,46 @@
     app:strokeColor="@color/secondary_alpha_40"
     app:strokeWidth="1dp">
 
-    <androidx.constraintlayout.widget.ConstraintLayout
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:gravity="center_horizontal"
+        android:orientation="vertical"
         android:padding="@dimen/grid_2">
 
         <ImageView
             android:id="@+id/ivCover"
-            android:layout_width="@dimen/book_cover_size"
-            android:layout_height="@dimen/book_cover_size"
+            android:layout_width="@dimen/book_cover_size_grid"
+            android:layout_height="@dimen/book_cover_size_grid"
             android:background="@drawable/bg_book_cover"
             android:contentDescription="@null"
             android:padding="@dimen/grid_1"
             android:scaleType="centerInside"
             android:src="@drawable/ic_menu_book_24"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
             app:tint="@color/primary" />
 
         <TextView
             android:id="@+id/tvKitapAdi"
-            android:layout_width="0dp"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/grid_2"
+            android:layout_marginTop="@dimen/grid_2"
             android:ellipsize="end"
+            android:gravity="center"
             android:maxLines="2"
             android:textAppearance="@style/TextAppearance.DijitalRaf.Title"
-            android:textSize="18sp"
-            app:layout_constraintEnd_toStartOf="@+id/ivFavorite"
-            app:layout_constraintStart_toEndOf="@+id/ivCover"
-            app:layout_constraintTop_toTopOf="@+id/ivCover"
-            tools:text="Kitap adı" />
+            android:textSize="16sp"
+            tools:text="Başlık" />
 
         <TextView
             android:id="@+id/tvYazar"
-            android:layout_width="0dp"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/grid_2"
             android:layout_marginTop="@dimen/grid_1"
             android:ellipsize="end"
+            android:gravity="center"
             android:maxLines="1"
-            android:textAppearance="@style/TextAppearance.DijitalRaf.Subtitle"
-            android:textSize="15sp"
-            app:layout_constraintEnd_toStartOf="@+id/ivFavorite"
-            app:layout_constraintStart_toEndOf="@+id/ivCover"
-            app:layout_constraintTop_toBottomOf="@+id/tvKitapAdi"
+            android:textAppearance="@style/TextAppearance.DijitalRaf.Caption"
+            android:textSize="13sp"
             tools:text="Yazar" />
 
         <com.google.android.material.chip.Chip
@@ -64,24 +59,9 @@
             style="@style/Widget.Material3.Chip.Filter"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/grid_2"
             android:layout_marginTop="@dimen/grid_1"
             android:textColor="@color/primary_dark"
             app:chipBackgroundColor="@color/primary_alpha_12"
-            app:chipMinHeight="32dp"
-            app:layout_constraintStart_toEndOf="@+id/ivCover"
-            app:layout_constraintTop_toBottomOf="@+id/tvYazar"
-            tools:text="Tür" />
-
-        <ImageButton
-            android:id="@+id/ivFavorite"
-            android:layout_width="48dp"
-            android:layout_height="48dp"
-            android:background="?attr/selectableItemBackgroundBorderless"
-            android:contentDescription="@string/nav_favorites"
-            android:padding="@dimen/grid_1"
-            android:src="@drawable/ic_favorite_border_24"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
-    </androidx.constraintlayout.widget.ConstraintLayout>
+            tools:text="Kategori" />
+    </LinearLayout>
 </com.google.android.material.card.MaterialCardView>

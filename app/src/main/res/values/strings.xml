@@ -1,5 +1,57 @@
 <resources>
     <string name="app_name">DijitalRaf</string>
+
+    <string name="nav_home">Ana Sayfa</string>
+    <string name="nav_library">Kitaplarım</string>
+    <string name="nav_favorites">Favoriler</string>
+    <string name="nav_profile">Profil</string>
+
+    <string name="search_hint">Kitap veya yazar ara</string>
+    <string name="filter_all">Tümü</string>
+    <string name="add_book_fab">Kitap ekle</string>
+    <string name="google_books_search">Google Books ile ara</string>
+    <string name="save_book">Kaydet</string>
+    <string name="preview_title">Önizleme</string>
+    <string name="empty_library_title">Henüz kitap yok</string>
+    <string name="empty_library_message">Rafını doldurmak için sağ alttaki artı ile kitap ekleyin veya Google Books ile arayın.</string>
+    <string name="empty_favorites_title">Favori kitabınız yok</string>
+    <string name="empty_favorites_message">Kitaplarım sekmesinde sağa kaydırarak favorilere ekleyebilirsiniz.</string>
+    <string name="action_add_book">Kitap ekle</string>
+    <string name="logout">Çıkış yap</string>
+    <string name="profile_subtitle">Hesap</string>
+    <string name="swipe_delete_hint">Sola kaydır: sil · Sağa kaydır: favori</string>
+    <string name="book_deleted">Kitap silindi</string>
+    <string name="favorite_added">Favorilere eklendi</string>
+    <string name="favorite_removed">Favorilerden çıkarıldı</string>
+    <string name="loading_books">Kitaplar yükleniyor…</string>
+    <string name="hint_book_title">Kitap adı</string>
+    <string name="hint_author">Yazar</string>
+    <string name="hint_genre">Tür / kategori</string>
+    <string name="error_enter_title_first">Önce kitap adı girin</string>
+    <string name="api_error">API hatası: %1$s</string>
+    <string name="result_not_found">Sonuç alınamadı</string>
+    <string name="book_not_found">Kitap bulunamadı</string>
+    <string name="book_info_loaded">Kitap bilgileri getirildi</string>
+    <string name="data_parse_error">Veri işleme hatası</string>
+    <string name="field_required">Bu alan gerekli</string>
+    <string name="book_added">Kitap eklendi</string>
+    <string name="error_generic">Hata: %1$s</string>
+    <string name="login_title">Giriş Yap</string>
+    <string name="hint_email">E-posta</string>
+    <string name="hint_password">Şifre</string>
+    <string name="login_button">Giriş Yap</string>
+    <string name="go_register">Hesabın yok mu? Kayıt Ol</string>
+    <string name="register_title">Kayıt Ol</string>
+    <string name="hint_full_name">Ad Soyad</string>
+    <string name="hint_password_confirm">Şifre Tekrar</string>
+    <string name="register_button">Kayıt Ol</string>
+    <string name="go_login">Zaten hesabın var mı? Giriş Yap</string>
+    <string name="error_email_empty">E-posta boş olamaz</string>
+    <string name="error_password_empty">Şifre boş olamaz</string>
+    <string name="error_full_name_empty">Ad soyad boş olamaz</string>
+    <string name="error_password_short">Şifre en az 6 karakter olmalı</string>
+    <string name="error_confirm_empty">Şifre tekrarı boş olamaz</string>
+    <string name="error_password_mismatch">Şifreler eşleşmiyor</string>
     <!-- Strings used for fragments for navigation -->
     <string name="first_fragment_label">First Fragment</string>
     <string name="second_fragment_label">Second Fragment</string>
