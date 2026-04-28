@@ -2,72 +2,66 @@ package com.example.dijitalraf.ui.home;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.widget.Button;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.Fragment;
+import androidx.lifecycle.ViewModelProvider;
 
 import com.example.dijitalraf.R;
-import com.example.dijitalraf.ui.auth.LoginActivity;
-import com.google.android.material.card.MaterialCardView;
-import com.google.firebase.auth.FirebaseAuth;
+import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 public class HomeActivity extends AppCompatActivity {
-
-    private FirebaseAuth mAuth;
-    private Button btnLogout;
-
-    private MaterialCardView cardMyBooks;
-    private MaterialCardView cardAddBook;
-    private MaterialCardView cardFavorites;
-    private MaterialCardView cardReadingList;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
 
-        mAuth = FirebaseAuth.getInstance();
+        BooksViewModel viewModel = new ViewModelProvider(this).get(BooksViewModel.class);
+        viewModel.startListening();
 
-        initViews();
-        setupListeners();
+        FloatingActionButton fab = findViewById(R.id.fabAddBook);
+        BottomNavigationView bottomNav = findViewById(R.id.bottomNav);
+
+        fab.setOnClickListener(v ->
+                startActivity(new Intent(HomeActivity.this, KitapEkleActivity.class)));
+
+        bottomNav.setOnItemSelectedListener(item -> {
+            int itemId = item.getItemId();
+            if (itemId == R.id.nav_home) {
+                showFragment(new DashboardFragment());
+                fab.show();
+                return true;
+            } else if (itemId == R.id.nav_library) {
+                showFragment(new LibraryFragment());
+                fab.hide();
+                return true;
+            } else if (itemId == R.id.nav_favorites) {
+                showFragment(new FavoritesFragment());
+                fab.hide();
+                return true;
+            } else if (itemId == R.id.nav_profile) {
+                showFragment(new ProfileFragment());
+                fab.hide();
+                return true;
+            }
+            return false;
+        });
+
+        if (savedInstanceState == null) {
+            showFragment(new DashboardFragment());
+            fab.show();
+            bottomNav.setSelectedItemId(R.id.nav_home);
+        }
     }
 
-    private void initViews() {
-        btnLogout = findViewById(R.id.btnLogout);
-        cardMyBooks = findViewById(R.id.cardMyBooks);
-        cardAddBook = findViewById(R.id.cardAddBook);
-        cardFavorites = findViewById(R.id.cardFavorites);
-        cardReadingList = findViewById(R.id.cardReadingList);
-    }
-
-    private void setupListeners() {
-        btnLogout.setOnClickListener(v -> logoutUser());
-
-        cardMyBooks.setOnClickListener(v -> {
-            Intent intent = new Intent(HomeActivity.this, KitaplarimActivity.class);
-            startActivity(intent);
-        });
-
-        cardAddBook.setOnClickListener(v -> {
-            Intent intent = new Intent(HomeActivity.this, KitapEkleActivity.class);
-            startActivity(intent);
-        });
-
-        cardFavorites.setOnClickListener(v -> {
-            // Favoriler ekranı daha sonra eklenecek
-        });
-
-        cardReadingList.setOnClickListener(v -> {
-            // Okuma listem ekranı daha sonra eklenecek
-        });
-    }
-
-    private void logoutUser() {
-        mAuth.signOut();
-
-        Intent intent = new Intent(HomeActivity.this, LoginActivity.class);
-        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-        startActivity(intent);
-        finish();
+    private void showFragment(Fragment fragment) {
+        getSupportFragmentManager()
+                .beginTransaction()
+                .setReorderingAllowed(true)
+                .setCustomAnimations(android.R.anim.fade_in, android.R.anim.fade_out)
+                .replace(R.id.fragmentContainer, fragment)
+                .commit();
     }
 }
