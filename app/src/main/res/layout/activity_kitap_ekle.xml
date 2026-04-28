@@ -1,66 +1,169 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:background="@color/background">
+    android:background="@color/background"
+    android:orientation="vertical">
 
     <com.google.android.material.appbar.MaterialToolbar
         android:id="@+id/toolbar"
+        style="@style/Widget.DijitalRaf.Toolbar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="@color/background"
-        android:title="Kitap Ekle"
-        android:titleTextColor="?attr/colorOnSurface"
+        android:title="@string/action_add_book"
         app:navigationIcon="@drawable/outline_arrow_back_24"
-        app:navigationIconTint="?attr/colorPrimary" />
+        app:navigationIconTint="@color/primary" />
 
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:padding="16dp">
+        android:clipToPadding="false"
+        android:padding="@dimen/grid_2">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical">
 
-            <EditText
-                android:id="@+id/etKitapAdi"
+            <com.google.android.material.card.MaterialCardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="Kitap Adı"
-                android:layout_marginBottom="12dp" />
+                app:cardBackgroundColor="@color/card_background"
+                app:cardCornerRadius="@dimen/corner_medium"
+                app:cardElevation="@dimen/elevation_card"
+                app:strokeColor="@color/secondary_alpha_40"
+                app:strokeWidth="1dp">
 
-            <Button
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="@dimen/grid_2">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/preview_title"
+                        android:textAppearance="@style/TextAppearance.DijitalRaf.Subtitle" />
+
+                    <TextView
+                        android:id="@+id/tvPreviewTitle"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/grid_1"
+                        android:textAppearance="@style/TextAppearance.DijitalRaf.Title"
+                        android:textSize="20sp"
+                        tools:text="Kitap adı" />
+
+                    <TextView
+                        android:id="@+id/tvPreviewAuthor"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/grid_1"
+                        android:textAppearance="@style/TextAppearance.DijitalRaf.Body"
+                        android:textColor="@color/text_secondary"
+                        tools:text="Yazar" />
+
+                    <com.google.android.material.chip.Chip
+                        android:id="@+id/chipPreviewGenre"
+                        style="@style/Widget.Material3.Chip.Filter"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/grid_2"
+                        android:textColor="@color/primary_dark"
+                        app:chipBackgroundColor="@color/primary_alpha_12"
+                        tools:text="Tür" />
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/tilKitapAdi"
+                style="@style/Widget.DijitalRaf.TextInputLayout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/grid_3"
+                android:hint="@string/hint_book_title"
+                app:startIconDrawable="@drawable/ic_menu_book_24"
+                app:startIconTint="@color/primary">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/etKitapAdi"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:inputType="textCapWords" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnAra"
+                style="@style/Widget.DijitalRaf.Button.Tonal"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="API ile Ara"
-                android:layout_marginBottom="16dp" />
+                android:layout_marginTop="@dimen/grid_2"
+                android:text="@string/google_books_search"
+                app:icon="@drawable/ic_search_24"
+                app:iconGravity="textStart"
+                app:iconPadding="@dimen/grid_1"
+                app:iconTint="@color/primary_dark" />
 
-            <EditText
-                android:id="@+id/etYazar"
+            <FrameLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="Yazar"
-                android:layout_marginBottom="12dp" />
+                android:layout_marginTop="@dimen/grid_1">
 
-            <EditText
-                android:id="@+id/etTur"
+                <com.google.android.material.progressindicator.LinearProgressIndicator
+                    android:id="@+id/progressApi"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:visibility="gone"
+                    app:indicatorColor="@color/primary"
+                    tools:visibility="visible" />
+            </FrameLayout>
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/tilYazar"
+                style="@style/Widget.DijitalRaf.TextInputLayout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="Tür"
-                android:layout_marginBottom="20dp" />
+                android:layout_marginTop="@dimen/grid_2"
+                android:hint="@string/hint_author"
+                app:startIconDrawable="@drawable/ic_person_24"
+                app:startIconTint="@color/primary">
 
-            <Button
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/etYazar"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:inputType="textPersonName" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/tilTur"
+                style="@style/Widget.DijitalRaf.TextInputLayout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/grid_2"
+                android:hint="@string/hint_genre"
+                app:startIconDrawable="@drawable/ic_library_books_24"
+                app:startIconTint="@color/primary">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/etTur"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:inputType="text" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnKaydet"
+                style="@style/Widget.DijitalRaf.Button.Filled"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Kaydet" />
-
+                android:layout_marginTop="@dimen/grid_3"
+                android:layout_marginBottom="@dimen/grid_3"
+                android:text="@string/save_book" />
         </LinearLayout>
     </ScrollView>
-
 </LinearLayout>

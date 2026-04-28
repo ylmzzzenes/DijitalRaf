@@ -3,8 +3,6 @@ package com.example.dijitalraf.ui.auth;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
-import android.widget.Button;
-import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -13,12 +11,16 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.dijitalraf.R;
 import com.example.dijitalraf.ui.home.HomeActivity;
+import com.google.android.material.button.MaterialButton;
+import com.google.android.material.textfield.TextInputEditText;
+import com.google.android.material.textfield.TextInputLayout;
 import com.google.firebase.auth.FirebaseAuth;
 
 public class RegisterActivity extends AppCompatActivity {
 
-    private EditText etFullName, etEmail, etPassword, etConfirmPassword;
-    private Button btnRegister;
+    private TextInputEditText etFullName, etEmail, etPassword, etConfirmPassword;
+    private TextInputLayout tilFullName, tilEmail, tilPassword, tilConfirmPassword;
+    private MaterialButton btnRegister;
     private TextView tvGoToLogin;
     private FirebaseAuth mAuth;
 
@@ -35,6 +37,10 @@ public class RegisterActivity extends AppCompatActivity {
     private void initComponents() {
         mAuth = FirebaseAuth.getInstance();
 
+        tilFullName = findViewById(R.id.tilFullName);
+        tilEmail = findViewById(R.id.tilEmail);
+        tilPassword = findViewById(R.id.tilPassword);
+        tilConfirmPassword = findViewById(R.id.tilConfirmPassword);
         etFullName = findViewById(R.id.etFullName);
         etEmail = findViewById(R.id.etEmail);
         etPassword = findViewById(R.id.etPassword);
@@ -60,38 +66,43 @@ public class RegisterActivity extends AppCompatActivity {
         String password = etPassword.getText().toString().trim();
         String confirmPassword = etConfirmPassword.getText().toString().trim();
 
+        tilFullName.setError(null);
+        tilEmail.setError(null);
+        tilPassword.setError(null);
+        tilConfirmPassword.setError(null);
+
         if (TextUtils.isEmpty(fullName)) {
-            etFullName.setError("Ad soyad boş olamaz");
+            tilFullName.setError(getString(R.string.error_full_name_empty));
             etFullName.requestFocus();
             return;
         }
 
         if (TextUtils.isEmpty(email)) {
-            etEmail.setError("Email boş olamaz");
+            tilEmail.setError(getString(R.string.error_email_empty));
             etEmail.requestFocus();
             return;
         }
 
         if (TextUtils.isEmpty(password)) {
-            etPassword.setError("Şifre boş olamaz");
+            tilPassword.setError(getString(R.string.error_password_empty));
             etPassword.requestFocus();
             return;
         }
 
         if (password.length() < 6) {
-            etPassword.setError("Şifre en az 6 karakter olmalı");
+            tilPassword.setError(getString(R.string.error_password_short));
             etPassword.requestFocus();
             return;
         }
 
         if (TextUtils.isEmpty(confirmPassword)) {
-            etConfirmPassword.setError("Şifre tekrarı boş olamaz");
+            tilConfirmPassword.setError(getString(R.string.error_confirm_empty));
             etConfirmPassword.requestFocus();
             return;
         }
 
         if (!password.equals(confirmPassword)) {
-            etConfirmPassword.setError("Şifreler eşleşmiyor");
+            tilConfirmPassword.setError(getString(R.string.error_password_mismatch));
             etConfirmPassword.requestFocus();
             return;
         }

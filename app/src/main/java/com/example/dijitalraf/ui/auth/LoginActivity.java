@@ -3,8 +3,6 @@ package com.example.dijitalraf.ui.auth;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
-import android.widget.Button;
-import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -13,12 +11,16 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.dijitalraf.R;
 import com.example.dijitalraf.ui.home.HomeActivity;
+import com.google.android.material.button.MaterialButton;
+import com.google.android.material.textfield.TextInputEditText;
+import com.google.android.material.textfield.TextInputLayout;
 import com.google.firebase.auth.FirebaseAuth;
 
 public class LoginActivity extends AppCompatActivity {
 
-    private EditText etEmail, etPassword;
-    private Button btnLogin;
+    private TextInputEditText etEmail, etPassword;
+    private TextInputLayout tilEmail, tilPassword;
+    private MaterialButton btnLogin;
     private TextView tvGoToRegister;
     private FirebaseAuth mAuth;
 
@@ -45,6 +47,8 @@ public class LoginActivity extends AppCompatActivity {
 
     private void initComponents() {
         mAuth = FirebaseAuth.getInstance();
+        tilEmail = findViewById(R.id.tilEmail);
+        tilPassword = findViewById(R.id.tilPassword);
         etEmail = findViewById(R.id.etEmail);
         etPassword = findViewById(R.id.etPassword);
         btnLogin = findViewById(R.id.btnLogin);
@@ -64,14 +68,17 @@ public class LoginActivity extends AppCompatActivity {
         String email = etEmail.getText().toString().trim();
         String password = etPassword.getText().toString().trim();
 
+        tilEmail.setError(null);
+        tilPassword.setError(null);
+
         if (TextUtils.isEmpty(email)) {
-            etEmail.setError("Email boş olamaz");
+            tilEmail.setError(getString(R.string.error_email_empty));
             etEmail.requestFocus();
             return;
         }
 
         if (TextUtils.isEmpty(password)) {
-            etPassword.setError("Şifre boş olamaz");
+            tilPassword.setError(getString(R.string.error_password_empty));
             etPassword.requestFocus();
             return;
         }

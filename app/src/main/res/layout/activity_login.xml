@@ -1,78 +1,100 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/background"
+    android:fillViewport="true"
     tools:context=".ui.auth.LoginActivity">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:padding="24dp">
+        android:padding="@dimen/grid_3">
+
+        <ImageView
+            android:layout_width="@dimen/grid_5"
+            android:layout_height="@dimen/grid_5"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="@dimen/grid_4"
+            android:contentDescription="@null"
+            android:src="@drawable/ic_menu_book_24"
+            app:tint="@color/primary" />
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"
-            android:layout_marginTop="40dp"
-            android:text="Dijital Raf"
-            android:textColor="@color/primary_dark"
-            android:textSize="28sp"
-            android:textStyle="bold" />
+            android:layout_marginTop="@dimen/grid_2"
+            android:text="@string/app_name"
+            android:textAppearance="@style/TextAppearance.DijitalRaf.Display"
+            android:textColor="@color/primary_dark" />
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"
-            android:layout_marginTop="8dp"
-            android:layout_marginBottom="30dp"
-            android:text="Giriş Yap"
-            android:textColor="@color/primary"
-            android:textSize="22sp"
-            android:textStyle="bold" />
+            android:layout_marginTop="@dimen/grid_1"
+            android:layout_marginBottom="@dimen/grid_3"
+            android:text="@string/login_title"
+            android:textAppearance="@style/TextAppearance.DijitalRaf.Title"
+            android:textColor="@color/primary" />
 
-        <EditText
-            android:id="@+id/etEmail"
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/tilEmail"
+            style="@style/Widget.DijitalRaf.TextInputLayout"
             android:layout_width="match_parent"
-            android:layout_height="55dp"
-            android:layout_marginBottom="12dp"
-            android:background="@android:drawable/edit_text"
-            android:hint="E-posta"
-            android:inputType="textEmailAddress"
-            android:padding="12dp" />
+            android:layout_height="wrap_content"
+            android:hint="@string/hint_email"
+            app:startIconDrawable="@drawable/ic_person_24"
+            app:startIconTint="@color/primary">
 
-        <EditText
-            android:id="@+id/etPassword"
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/etEmail"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="textEmailAddress" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/tilPassword"
+            style="@style/Widget.DijitalRaf.TextInputLayout"
             android:layout_width="match_parent"
-            android:layout_height="55dp"
-            android:layout_marginBottom="20dp"
-            android:background="@android:drawable/edit_text"
-            android:hint="Şifre"
-            android:inputType="textPassword"
-            android:padding="12dp" />
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/grid_2"
+            android:hint="@string/hint_password"
+            app:endIconMode="password_toggle"
+            app:startIconDrawable="@drawable/ic_lock_24"
+            app:startIconTint="@color/primary">
 
-        <Button
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/etPassword"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="textPassword" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/btnLogin"
+            style="@style/Widget.DijitalRaf.Button.Filled"
             android:layout_width="match_parent"
-            android:layout_height="55dp"
-            android:backgroundTint="@color/primary"
-            android:text="Giriş Yap"
-            android:textColor="@color/white"
-            android:textStyle="bold" />
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/grid_3"
+            android:text="@string/login_button" />
 
         <TextView
             android:id="@+id/tvGoToRegister"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"
-            android:layout_marginTop="20dp"
-            android:text="Hesabın yok mu? Kayıt Ol"
+            android:layout_marginTop="@dimen/grid_3"
+            android:padding="@dimen/grid_1"
+            android:text="@string/go_register"
+            android:textAppearance="@style/TextAppearance.DijitalRaf.Body"
             android:textColor="@color/secondary"
             android:textStyle="bold" />
-
     </LinearLayout>
-
 </ScrollView>
