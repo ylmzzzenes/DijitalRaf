@@ -45,7 +45,9 @@ public class RegisterActivity extends AppCompatActivity {
 
     private void initComponents() {
         mAuth = FirebaseAuth.getInstance();
-        usersRef = FirebaseDatabase.getInstance().getReference("users");
+        usersRef = FirebaseDatabase
+                .getInstance("https://dijitalraf-ec149-default-rtdb.europe-west1.firebasedatabase.app")
+                .getReference("users");
 
         tilFullName = findViewById(R.id.tilFullName);
         tilEmail = findViewById(R.id.tilEmail);
@@ -119,36 +121,45 @@ public class RegisterActivity extends AppCompatActivity {
 
         mAuth.createUserWithEmailAndPassword(email, password)
                 .addOnCompleteListener(this, task -> {
-                 if(task.isSuccessful()) {
-                     FirebaseUser firebaseUser = mAuth.getCurrentUser();
+                    if (task.isSuccessful()) {
+                        FirebaseUser firebaseUser = mAuth.getCurrentUser();
 
-                     if (firebaseUser == null) {
-                         Toast.makeText(RegisterActivity.this, "Kullanıcı bilgisi alınamadı", Toast.LENGTH_LONG).show();
-                         return;
-                     }
+                        if (firebaseUser == null) {
+                            Toast.makeText(RegisterActivity.this, "Kullanıcı bilgisi alınamadı", Toast.LENGTH_LONG).show();
+                            return;
+                        }
 
-                     String uid = firebaseUser.getUid();
+                        String uid = firebaseUser.getUid();
 
-                     Map<String, Object> userMap = new HashMap<>();
-                     userMap.put("uid", uid);
-                     userMap.put("fullName", fullName);
-                     userMap.put("email", email);
-                     userMap.put("password", password);
-                     userMap.put("createdAt", System.currentTimeMillis());
+                        Map<String, Object> userMap = new HashMap<>();
+                        userMap.put("uid", uid);
+                        userMap.put("fullName", fullName);
+                        userMap.put("email", email);
+                        userMap.put("createdAt", System.currentTimeMillis());
 
-                     usersRef.child(uid).setValue(userMap)
-                             .addOnSuccessListener(unused -> {
-                                 Toast.makeText(RegisterActivity.this, "Kayıt Başarılı", Toast.LENGTH_SHORT).show();
+                        usersRef.child(uid).setValue(userMap)
+                                .addOnSuccessListener(unused -> {
+                                    Toast.makeText(RegisterActivity.this, "Kayıt başarılı", Toast.LENGTH_SHORT).show();
 
-                                 Intent intent = new Intent(RegisterActivity.this, HomeActivity.class);
-                                 startActivity(intent);
-                                 finish();
-                             })
-                             .addOnFailureListener(e ->{
-                                Toast.makeText(RegisterActivity.this, "Kullanıcı bilgileri kaydedilemedi" + e.getMessage(), Toast.LENGTH_LONG) .show();
-                             });
-                 }
+                                    Intent intent = new Intent(RegisterActivity.this, HomeActivity.class);
+                                    startActivity(intent);
+                                    finish();
+                                })
+                                .addOnFailureListener(e -> {
+                                    Toast.makeText(
+                                            RegisterActivity.this,
+                                            "Kullanıcı bilgileri kaydedilemedi: " + e.getMessage(),
+                                            Toast.LENGTH_LONG
+                                    ).show();
+                                });
 
+                    } else {
+                        Toast.makeText(
+                                RegisterActivity.this,
+                                "Kayıt başarısız: " + task.getException().getMessage(),
+                                Toast.LENGTH_LONG
+                        ).show();
+                    }
                 });
     }
 }

@@ -52,6 +52,12 @@
     <string name="error_password_short">Şifre en az 6 karakter olmalı</string>
     <string name="error_confirm_empty">Şifre tekrarı boş olamaz</string>
     <string name="error_password_mismatch">Şifreler eşleşmiyor</string>
+    <string name="register_success">Kayıt başarılı</string>
+    <string name="register_auth_failed">Kayıt başarısız: %1$s</string>
+    <string name="register_user_missing">Oturum açılamadı. Tekrar deneyin.</string>
+    <string name="profile_cloud_sync_failed">Profil buluta yazılamadı (kuralları kontrol edin): %1$s</string>
+    <string name="register_profile_saved">Profil Realtime Database üzerine kaydedildi</string>
+    <string name="register_profile_write_failed">Hesap oluştu ancak Realtime Database yazısı reddedildi (kuralları kontrol edin). %1$s — Giriş ekranından devam edebilirsiniz.</string>
     <!-- Strings used for fragments for navigation -->
     <string name="first_fragment_label">First Fragment</string>
     <string name="second_fragment_label">Second Fragment</string>
