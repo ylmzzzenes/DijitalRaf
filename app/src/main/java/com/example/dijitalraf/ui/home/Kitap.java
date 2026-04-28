@@ -6,7 +6,7 @@ public class Kitap {
     private String tur;
 
     public Kitap() {
-        // Firestore için boş constructor gerekli
+        // Firebase (Realtime DB / POJO) için boş constructor gerekli
     }
 
     public Kitap(String kitapAdi, String yazar, String tur) {
