@@ -1,6 +1,7 @@
 package com.example.dijitalraf.ui.home;
 
 public class Kitap {
+    private String id;
     private String kitapAdi;
     private String yazar;
     private String tur;
@@ -13,6 +14,14 @@ public class Kitap {
         this.kitapAdi = kitapAdi;
         this.yazar = yazar;
         this.tur = tur;
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
     }
 
     public String getKitapAdi() {
