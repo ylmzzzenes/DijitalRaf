@@ -12,4 +12,11 @@
 
     <color name="white">#FFFFFFFF</color>
     <color name="black">#FF000000</color>
+
+    <!-- Alpha refinements of existing palette (M3 surface / emphasis) -->
+    <color name="primary_alpha_12">#1F556B2F</color>
+    <color name="primary_alpha_24">#3D556B2F</color>
+    <color name="secondary_alpha_40">#66A3B18A</color>
+    <color name="text_secondary_alpha_50">#806B7280</color>
+    <color name="surface_overlay">#0D3E4E22</color>
 </resources>

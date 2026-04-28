@@ -1,3 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <dimen name="fab_margin">16dp</dimen>
+
+    <dimen name="grid_1">8dp</dimen>
+    <dimen name="grid_2">16dp</dimen>
+    <dimen name="grid_3">24dp</dimen>
+    <dimen name="grid_4">32dp</dimen>
+    <dimen name="grid_5">40dp</dimen>
+
+    <dimen name="corner_small">12dp</dimen>
+    <dimen name="corner_medium">16dp</dimen>
+    <dimen name="corner_large">20dp</dimen>
+
+    <dimen name="elevation_card">2dp</dimen>
+    <dimen name="elevation_card_raised">6dp</dimen>
+    <dimen name="elevation_app_bar">0dp</dimen>
+
+    <dimen name="book_cover_size">72dp</dimen>
+    <dimen name="book_cover_size_grid">88dp</dimen>
+
+    <dimen name="bottom_nav_height">72dp</dimen>
 </resources>

@@ -10,9 +10,22 @@
 
         <item name="android:colorBackground">@color/background</item>
         <item name="colorSurface">@color/card_background</item>
-        <item name="android:statusBarColor">@color/background</item>
+        <item name="colorOnSurface">@color/text_primary</item>
+        <item name="colorOnSurfaceVariant">@color/text_secondary</item>
+        <item name="colorSurfaceContainerLow">@color/card_background</item>
+        <item name="colorOutline">@color/secondary</item>
+        <item name="colorOutlineVariant">@color/secondary_alpha_40</item>
 
+        <item name="android:statusBarColor">@color/background</item>
         <item name="android:navigationBarColor">@color/background</item>
+        <item name="android:windowLightStatusBar">true</item>
+        <item name="android:windowLightNavigationBar">true</item>
+
+        <item name="textAppearanceDisplayMedium">@style/TextAppearance.DijitalRaf.Display</item>
+        <item name="textAppearanceTitleLarge">@style/TextAppearance.DijitalRaf.Title</item>
+        <item name="textAppearanceTitleMedium">@style/TextAppearance.DijitalRaf.Subtitle</item>
+        <item name="textAppearanceBodyLarge">@style/TextAppearance.DijitalRaf.Body</item>
+        <item name="textAppearanceBodySmall">@style/TextAppearance.DijitalRaf.Caption</item>
     </style>
 
     <style name="Theme.DijitalRaf" parent="Base.Theme.DijitalRaf" />
