@@ -9,12 +9,12 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.dijitalraf.R;
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.appbar.MaterialToolbar;
-import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.QueryDocumentSnapshot;
-import com.google.firebase.firestore.QuerySnapshot;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -25,7 +25,8 @@ public class KitaplarimActivity extends AppCompatActivity {
     private RecyclerView recyclerViewKitaplar;
     private KitapAdapter kitapAdapter;
     private List<Kitap> kitapListesi;
-    private FirebaseFirestore db;
+    private DatabaseReference kitaplarRef;
+    private ValueEventListener kitaplarListener;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -36,9 +37,16 @@ public class KitaplarimActivity extends AppCompatActivity {
         setupToolbar();
         setupRecyclerView();
 
-        db = FirebaseFirestore.getInstance();
+        kitaplarRef = FirebaseDatabase.getInstance().getReference("kitaplar");
+        kitaplariDinle();
+    }
 
-        kitaplariGetir();
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if (kitaplarRef != null && kitaplarListener != null) {
+            kitaplarRef.removeEventListener(kitaplarListener);
+        }
     }
 
     private void initViews() {
@@ -59,27 +67,25 @@ public class KitaplarimActivity extends AppCompatActivity {
         recyclerViewKitaplar.setAdapter(kitapAdapter);
     }
 
-    private void kitaplariGetir() {
-        db.collection("kitaplar")
-                .get()
-                .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
-                    @Override
-                    public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
-                        kitapListesi.clear();
-
-                        for (QueryDocumentSnapshot document : queryDocumentSnapshots) {
-                            Kitap kitap = document.toObject(Kitap.class);
-                            kitapListesi.add(kitap);
-                        }
-
-                        kitapAdapter.notifyDataSetChanged();
+    private void kitaplariDinle() {
+        kitaplarListener = new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                kitapListesi.clear();
+                for (DataSnapshot child : snapshot.getChildren()) {
+                    Kitap kitap = child.getValue(Kitap.class);
+                    if (kitap != null) {
+                        kitapListesi.add(kitap);
                     }
-                })
-                .addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        Toast.makeText(KitaplarimActivity.this, "Hata: " + e.getMessage(), Toast.LENGTH_SHORT).show();
-                    }
-                });
+                }
+                kitapAdapter.notifyDataSetChanged();
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                Toast.makeText(KitaplarimActivity.this, "Hata: " + error.getMessage(), Toast.LENGTH_SHORT).show();
+            }
+        };
+        kitaplarRef.addValueEventListener(kitaplarListener);
     }
 }

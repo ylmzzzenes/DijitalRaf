@@ -10,7 +10,8 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.dijitalraf.R;
 import com.google.android.material.appbar.MaterialToolbar;
-import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -32,7 +33,7 @@ public class KitapEkleActivity extends AppCompatActivity {
     private MaterialToolbar toolbar;
     private EditText etKitapAdi, etYazar, etTur;
     private Button btnKaydet, btnAra;
-    private FirebaseFirestore db;
+    private DatabaseReference kitaplarRef;
     private OkHttpClient client;
 
     @Override
@@ -43,7 +44,7 @@ public class KitapEkleActivity extends AppCompatActivity {
         initViews();
         setupToolbar();
 
-        db = FirebaseFirestore.getInstance();
+        kitaplarRef = FirebaseDatabase.getInstance().getReference("kitaplar");
         client = new OkHttpClient();
 
         btnKaydet.setOnClickListener(v -> {
@@ -165,14 +166,13 @@ public class KitapEkleActivity extends AppCompatActivity {
         kitap.put("yazar", yazar);
         kitap.put("tur", tur);
 
-        db.collection("kitaplar")
-                .add(kitap)
-                .addOnSuccessListener(documentReference -> {
+        kitaplarRef.push().setValue(kitap)
+                .addOnSuccessListener(unused -> {
                     Toast.makeText(KitapEkleActivity.this, "Kitap eklendi", Toast.LENGTH_SHORT).show();
                     finish();
                 })
-                .addOnFailureListener(e -> {
-                    Toast.makeText(KitapEkleActivity.this, "Hata: " + e.getMessage(), Toast.LENGTH_LONG).show();
-                });
+                .addOnFailureListener(e ->
+                        Toast.makeText(KitapEkleActivity.this, "Hata: " + e.getMessage(), Toast.LENGTH_LONG).show()
+                );
     }
 }
