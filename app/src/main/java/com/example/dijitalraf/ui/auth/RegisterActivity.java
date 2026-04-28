@@ -16,6 +16,13 @@ import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 import com.google.firebase.auth.FirebaseAuth;
 
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+
+import java.util.HashMap;
+import java.util.Map;
+
 public class RegisterActivity extends AppCompatActivity {
 
     private TextInputEditText etFullName, etEmail, etPassword, etConfirmPassword;
@@ -23,6 +30,8 @@ public class RegisterActivity extends AppCompatActivity {
     private MaterialButton btnRegister;
     private TextView tvGoToLogin;
     private FirebaseAuth mAuth;
+
+    private DatabaseReference usersRef;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -36,6 +45,7 @@ public class RegisterActivity extends AppCompatActivity {
 
     private void initComponents() {
         mAuth = FirebaseAuth.getInstance();
+        usersRef = FirebaseDatabase.getInstance().getReference("users");
 
         tilFullName = findViewById(R.id.tilFullName);
         tilEmail = findViewById(R.id.tilEmail);
@@ -109,19 +119,36 @@ public class RegisterActivity extends AppCompatActivity {
 
         mAuth.createUserWithEmailAndPassword(email, password)
                 .addOnCompleteListener(this, task -> {
-                    if (task.isSuccessful()) {
-                        Toast.makeText(RegisterActivity.this, "Kayıt başarılı", Toast.LENGTH_SHORT).show();
+                 if(task.isSuccessful()) {
+                     FirebaseUser firebaseUser = mAuth.getCurrentUser();
 
-                        Intent intent = new Intent(RegisterActivity.this, HomeActivity.class);
-                        startActivity(intent);
-                        finish();
-                    } else {
-                        Toast.makeText(
-                                RegisterActivity.this,
-                                "Kayıt başarısız: " + task.getException().getMessage(),
-                                Toast.LENGTH_LONG
-                        ).show();
-                    }
+                     if (firebaseUser == null) {
+                         Toast.makeText(RegisterActivity.this, "Kullanıcı bilgisi alınamadı", Toast.LENGTH_LONG).show();
+                         return;
+                     }
+
+                     String uid = firebaseUser.getUid();
+
+                     Map<String, Object> userMap = new HashMap<>();
+                     userMap.put("uid", uid);
+                     userMap.put("fullName", fullName);
+                     userMap.put("email", email);
+                     userMap.put("password", password);
+                     userMap.put("createdAt", System.currentTimeMillis());
+
+                     usersRef.child(uid).setValue(userMap)
+                             .addOnSuccessListener(unused -> {
+                                 Toast.makeText(RegisterActivity.this, "Kayıt Başarılı", Toast.LENGTH_SHORT).show();
+
+                                 Intent intent = new Intent(RegisterActivity.this, HomeActivity.class);
+                                 startActivity(intent);
+                                 finish();
+                             })
+                             .addOnFailureListener(e ->{
+                                Toast.makeText(RegisterActivity.this, "Kullanıcı bilgileri kaydedilemedi" + e.getMessage(), Toast.LENGTH_LONG) .show();
+                             });
+                 }
+
                 });
     }
 }
