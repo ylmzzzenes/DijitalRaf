@@ -24,6 +24,8 @@ import com.google.firebase.database.FirebaseDatabase;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.google.firebase.auth.FirebaseAuth;
+
 public class LibraryFragment extends Fragment {
 
     private BooksViewModel viewModel;
@@ -85,7 +87,15 @@ public class LibraryFragment extends Fragment {
                 if (direction == ItemTouchHelper.LEFT) {
                     kitapListesi.remove(pos);
                     adapter.notifyItemRemoved(pos);
-                    FirebaseDatabase.getInstance().getReference("kitaplar").child(k.getId()).removeValue();
+                    String uid = FirebaseAuth.getInstance().getCurrentUser().getUid();
+
+                    FirebaseDatabase
+                            .getInstance("https://dijitalraf-ec149-default-rtdb.europe-west1.firebasedatabase.app")
+                                    .getReference("books")
+                                            .child(uid)
+                                                    .child(k.getId())
+                                                            .removeValue();
+
                     Snackbar.make(recyclerBooks, R.string.book_deleted, Snackbar.LENGTH_SHORT).show();
                 } else {
                     boolean wasFav = FavoritesHelper.isFavorite(requireContext(), k.getId());

@@ -32,6 +32,7 @@ import okhttp3.Callback;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
+import com.google.firebase.auth.FirebaseAuth;
 
 public class KitapEkleActivity extends AppCompatActivity {
 
@@ -55,7 +56,12 @@ public class KitapEkleActivity extends AppCompatActivity {
         initViews();
         setupToolbar();
 
-        kitaplarRef = FirebaseDatabase.getInstance().getReference("kitaplar");
+        String uid = FirebaseAuth.getInstance().getCurrentUser().getUid();
+
+        kitaplarRef = FirebaseDatabase
+                .getInstance("https://dijitalraf-ec149-default-rtdb.europe-west1.firebasedatabase.app")
+                .getReference("books")
+                .child(uid);
         client = new OkHttpClient();
 
         TextWatcher previewWatcher = new TextWatcher() {
@@ -246,9 +252,11 @@ public class KitapEkleActivity extends AppCompatActivity {
         }
 
         Map<String, Object> kitap = new HashMap<>();
+        kitap.put("uid",FirebaseAuth.getInstance().getCurrentUser().getUid());
         kitap.put("kitapAdi", kitapAdi);
         kitap.put("yazar", yazar);
         kitap.put("tur", tur);
+        kitap.put("createdAt",System.currentTimeMillis());
 
         kitaplarRef.push().setValue(kitap)
                 .addOnSuccessListener(unused -> {

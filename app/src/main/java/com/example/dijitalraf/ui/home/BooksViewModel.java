@@ -13,6 +13,8 @@ import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
 import java.util.List;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 
 public class BooksViewModel extends ViewModel {
 
@@ -35,7 +37,23 @@ public class BooksViewModel extends ViewModel {
             return;
         }
         loading.setValue(true);
-        kitaplarRef = FirebaseDatabase.getInstance().getReference("kitaplar");
+        FirebaseUser currentUser =FirebaseAuth.getInstance().getCurrentUser();
+
+        if(currentUser == null)
+        {
+            books.setValue(new ArrayList<>());
+            loading.setValue(false);
+            return;
+
+        }
+
+        String uid = currentUser.getUid();
+
+        kitaplarRef = FirebaseDatabase
+                .getInstance("https://dijitalraf-ec149-default-rtdb.europe-west1.firebasedatabase.app")
+                .getReference("books")
+                .child(uid);
+
         kitaplarListener = new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
