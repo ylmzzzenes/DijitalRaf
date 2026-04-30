@@ -27,6 +27,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.TreeSet;
+import com.example.dijitalraf.data.AiRecommendationService;
+import android.widget.Toast;
 
 public class DashboardFragment extends Fragment {
 
@@ -40,6 +42,11 @@ public class DashboardFragment extends Fragment {
     private View emptyState;
     private RecyclerView recyclerBooks;
     private String selectedFilter = "__ALL__";
+    private AiRecommendationService aiService;
+    private MaterialButton btnAiRecommend;
+    private TextView tvAiResult;
+
+    private static final String OPENROUTER_API_KEY = "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";
 
     @Nullable
     @Override
@@ -62,6 +69,14 @@ public class DashboardFragment extends Fragment {
         recyclerBooks.setItemAnimator(new DefaultItemAnimator());
         adapter = new KitapCardAdapter(displayedBooks);
         recyclerBooks.setAdapter(adapter);
+
+        aiService = new AiRecommendationService();
+        btnAiRecommend = view.findViewById(R.id.btnAiRecommend);
+        tvAiResult = view.findViewById(R.id.tvAiResult);
+
+        btnAiRecommend.setOnClickListener(v -> getAiRecommendations());
+
+
 
         TextView tvEmptyTitle = view.findViewById(R.id.tvEmptyTitle);
         TextView tvEmptyMessage = view.findViewById(R.id.tvEmptyMessage);
@@ -183,5 +198,37 @@ public class DashboardFragment extends Fragment {
         boolean showEmpty = displayedBooks.isEmpty();
         emptyState.setVisibility(showEmpty ? View.VISIBLE : View.GONE);
         recyclerBooks.setVisibility(showEmpty ? View.GONE : View.VISIBLE);
+    }
+
+    private void getAiRecommendations(){
+        if(sourceBooks.isEmpty()){
+            Toast.makeText(requireContext(), "Öneri almak için önce birkaç kitap ekleyin.", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        btnAiRecommend.setEnabled(false);
+        btnAiRecommend.setText("Öneriler hazırlanıyor...");
+        tvAiResult.setText("Ai kitap zevkinizi analiz ediyor");
+
+        aiService.getRecommendations(
+          OPENROUTER_API_KEY,
+          sourceBooks,
+                new AiRecommendationService.AiCallback() {
+                    @Override
+                    public void onSuccess(String result) {
+                        btnAiRecommend.setEnabled(true);
+                        btnAiRecommend.setText("AI Öneri Al");
+                        tvAiResult.setText(result);
+                    }
+
+                    @Override
+                    public void onError(String error) {
+                        btnAiRecommend.setEnabled(true);
+                        btnAiRecommend.setText("AI Öneri Al");
+                        tvAiResult.setText("Öneri alınamadı.");
+                        Toast.makeText(requireContext(), error, Toast.LENGTH_LONG).show();
+                    }
+          }
+        );
     }
 }
