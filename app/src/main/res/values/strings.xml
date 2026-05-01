@@ -29,6 +29,7 @@
     <string name="hint_genre">Tür / kategori</string>
     <string name="error_enter_title_first">Önce kitap adı girin</string>
     <string name="api_error">API hatası: %1$s</string>
+    <string name="error_openrouter_key_missing">OpenRouter API anahtarı yok. Proje kökündeki local.properties dosyasına OPENROUTER_API_KEY=... satırını ekleyin (openrouter.ai/keys).</string>
     <string name="result_not_found">Sonuç alınamadı</string>
     <string name="book_not_found">Kitap bulunamadı</string>
     <string name="book_info_loaded">Kitap bilgileri getirildi</string>

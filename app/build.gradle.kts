@@ -1,7 +1,29 @@
+import java.io.FileInputStream
+import java.util.Properties
+
 plugins {
     alias(libs.plugins.android.application)
     id("com.google.gms.google-services")
 }
+
+val localProperties = Properties().apply {
+    val f = rootProject.file("local.properties")
+    if (f.exists()) {
+        load(FileInputStream(f))
+    }
+}
+/** Properties dosyasında OPENROUTER_API_KEY="..." yazılmışsa tırnaklar değere dahil olur; sunucuya yanlış gider. */
+fun normalizeApiKeyProperty(raw: String?): String =
+    (raw ?: "")
+        .trim()
+        .removeSurrounding("\"")
+        .removeSurrounding("'")
+        .trim()
+
+val openRouterApiKey = normalizeApiKeyProperty(localProperties.getProperty("OPENROUTER_API_KEY"))
+
+fun escapeForBuildConfig(value: String): String =
+    value.replace("\\", "\\\\").replace("\"", "\\\"")
 
 android {
     namespace = "com.example.dijitalraf"
@@ -19,6 +41,11 @@ android {
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+        buildConfigField(
+            "String",
+            "OPENROUTER_API_KEY",
+            "\"${escapeForBuildConfig(openRouterApiKey)}\"",
+        )
     }
 
     buildTypes {
@@ -37,6 +64,7 @@ android {
     }
 
     buildFeatures {
+        buildConfig = true
         viewBinding = true
     }
 }

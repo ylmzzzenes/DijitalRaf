@@ -8,6 +8,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -17,7 +18,9 @@ import androidx.recyclerview.widget.DefaultItemAnimator;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.dijitalraf.BuildConfig;
 import com.example.dijitalraf.R;
+import com.example.dijitalraf.data.AiRecommendationService;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.chip.Chip;
 import com.google.android.material.chip.ChipGroup;
@@ -27,8 +30,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.TreeSet;
-import com.example.dijitalraf.data.AiRecommendationService;
-import android.widget.Toast;
 
 public class DashboardFragment extends Fragment {
 
@@ -45,8 +46,6 @@ public class DashboardFragment extends Fragment {
     private AiRecommendationService aiService;
     private MaterialButton btnAiRecommend;
     private TextView tvAiResult;
-
-    private static final String OPENROUTER_API_KEY = "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";
 
     @Nullable
     @Override
@@ -201,6 +200,14 @@ public class DashboardFragment extends Fragment {
     }
 
     private void getAiRecommendations(){
+        String apiKey = BuildConfig.OPENROUTER_API_KEY != null
+                ? BuildConfig.OPENROUTER_API_KEY.trim()
+                : "";
+        if (apiKey.isEmpty()) {
+            Toast.makeText(requireContext(), R.string.error_openrouter_key_missing, Toast.LENGTH_LONG).show();
+            return;
+        }
+
         if(sourceBooks.isEmpty()){
             Toast.makeText(requireContext(), "Öneri almak için önce birkaç kitap ekleyin.", Toast.LENGTH_SHORT).show();
             return;
@@ -211,7 +218,7 @@ public class DashboardFragment extends Fragment {
         tvAiResult.setText("Ai kitap zevkinizi analiz ediyor");
 
         aiService.getRecommendations(
-          OPENROUTER_API_KEY,
+          apiKey,
           sourceBooks,
                 new AiRecommendationService.AiCallback() {
                     @Override

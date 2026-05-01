@@ -147,7 +147,8 @@ public class KitapEkleActivity extends AppCompatActivity {
         setApiLoading(true);
 
         String encodedQuery = URLEncoder.encode(query, StandardCharsets.UTF_8);
-        String url = "https://www.googleapis.com/books/v1/volumes?q=" + encodedQuery;
+        // Google Books API (volumes list) — JSON shape matches parsing below (items → volumeInfo).
+        String url = "https://www.googleapis.com/books/v1/volumes?q=" + encodedQuery + "&maxResults=5";
 
         Request request = new Request.Builder()
                 .url(url)
