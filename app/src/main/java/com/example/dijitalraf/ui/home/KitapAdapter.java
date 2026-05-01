@@ -52,18 +52,25 @@ public class KitapAdapter extends RecyclerView.Adapter<KitapAdapter.KitapViewHol
         holder.chipTur.setText(tur);
         holder.chipTur.setVisibility(tur.isEmpty() ? View.GONE : View.VISIBLE);
 
-        boolean fav = kitap.getId() != null && FavoritesHelper.isFavorite(appContext, kitap.getId());
+        boolean fav = kitap.isFavorite();
         holder.ivFavorite.setImageResource(fav ? R.drawable.ic_favorite_24 : R.drawable.ic_favorite_border_24);
 
         holder.ivFavorite.setOnClickListener(v -> {
             if (kitap.getId() == null) {
                 return;
             }
-            FavoritesHelper.toggle(appContext, kitap.getId());
+            boolean wasFav = kitap.isFavorite();
+            boolean newFav = !wasFav;
+
+            FavoritesHelper.setFavorite(kitap.getId(), newFav);
+            kitap.setFavorite(newFav);
+
             int pos = holder.getBindingAdapterPosition();
+
             if (pos != RecyclerView.NO_POSITION) {
                 notifyItemChanged(pos);
             }
+
             if (favoriteChangedListener != null && pos != RecyclerView.NO_POSITION) {
                 favoriteChangedListener.onFavoriteChanged(kitap, pos);
             }
