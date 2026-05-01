@@ -78,8 +78,9 @@ public class FavoritesFragment extends Fragment {
                 }
                 Kitap k = favoriteBooks.get(pos);
                 if (k.getId() != null) {
-                    FavoritesHelper.remove(requireContext(), k.getId());
-                    applyFavoriteFilter();
+                    FavoritesHelper.setFavorite(k.getId(), false);
+                   k.setFavorite(false);
+                   applyFavoriteFilter();
                     Snackbar.make(recyclerBooks, R.string.favorite_removed, Snackbar.LENGTH_SHORT).show();
                 } else {
                     adapter.notifyItemChanged(pos);
@@ -108,7 +109,7 @@ public class FavoritesFragment extends Fragment {
     private void applyFavoriteFilter() {
         favoriteBooks.clear();
         for (Kitap k : sourceBooks) {
-            if (k.getId() != null && FavoritesHelper.isFavorite(requireContext(), k.getId())) {
+            if (k.getId() != null && k.isFavorite()) {
                 favoriteBooks.add(k);
             }
         }

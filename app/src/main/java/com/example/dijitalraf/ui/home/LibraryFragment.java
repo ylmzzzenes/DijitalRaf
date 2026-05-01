@@ -98,8 +98,9 @@ public class LibraryFragment extends Fragment {
 
                     Snackbar.make(recyclerBooks, R.string.book_deleted, Snackbar.LENGTH_SHORT).show();
                 } else {
-                    boolean wasFav = FavoritesHelper.isFavorite(requireContext(), k.getId());
-                    FavoritesHelper.toggle(requireContext(), k.getId());
+                    boolean wasFav = k.isFavorite();
+                    FavoritesHelper.toggle(k.getId(), wasFav);
+                    k.setFavorite(!wasFav);
                     adapter.notifyItemChanged(pos);
                     Snackbar.make(recyclerBooks,
                             wasFav ? R.string.favorite_removed : R.string.favorite_added,

@@ -1,61 +1,55 @@
 package com.example.dijitalraf.data;
 
-import android.content.Context;
-import android.content.SharedPreferences;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
-import java.util.HashSet;
-import java.util.Set;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 
-public final class FavoritesHelper {
+public final class FavoritesHelper{
 
-    private static final String PREFS = "dijital_raf_prefs";
-    private static final String KEY_FAVORITES = "favorite_book_ids";
+    private static final String DATABASE_URL = "https://dijitalraf-ec149-default-rtdb.europe-west1.firebasedatabase.app";
 
-    private FavoritesHelper() {
-    }
+    private FavoritesHelper(){}
 
-    private static SharedPreferences prefs(Context context) {
-        return context.getApplicationContext().getSharedPreferences(PREFS, Context.MODE_PRIVATE);
-    }
-
-    public static Set<String> getFavoriteIds(Context context) {
-        Set<String> stored = prefs(context).getStringSet(KEY_FAVORITES, null);
-        if (stored == null) {
-            return new HashSet<>();
+    @Nullable
+    private static String getUid(){
+        if(FirebaseAuth.getInstance().getCurrentUser() == null){
+            return null;
         }
-        return new HashSet<>(stored);
+        return FirebaseAuth.getInstance().getCurrentUser().getUid();
     }
 
-    public static boolean isFavorite(Context context, String bookId) {
-        if (bookId == null) {
-            return false;
+    @Nullable
+    private static DatabaseReference getBookRef(@NonNull String bookId){
+        String uid = getUid();
+
+        if(uid == null || bookId.trim().isEmpty()){
+            return null;
         }
-        return getFavoriteIds(context).contains(bookId);
+
+        return FirebaseDatabase
+                .getInstance(DATABASE_URL)
+                .getReference("books")
+                .child(uid)
+                .child(bookId);
+
     }
 
-    public static void add(Context context, String bookId) {
-        if (bookId == null) {
+    public static void setFavorite(@NonNull String bookId, boolean favorite){
+        DatabaseReference ref = getBookRef(bookId);
+
+        if(ref == null){
             return;
         }
-        Set<String> next = getFavoriteIds(context);
-        next.add(bookId);
-        prefs(context).edit().putStringSet(KEY_FAVORITES, next).apply();
+        ref.child("favorite").setValue(favorite);
+        ref.child("updatedAt").setValue(System.currentTimeMillis());
+
+    }
+    public static void toggle(@NonNull String bookId, boolean currentFavorite) {
+        setFavorite(bookId, !currentFavorite);
     }
 
-    public static void remove(Context context, String bookId) {
-        if (bookId == null) {
-            return;
-        }
-        Set<String> next = getFavoriteIds(context);
-        next.remove(bookId);
-        prefs(context).edit().putStringSet(KEY_FAVORITES, next).apply();
-    }
 
-    public static void toggle(Context context, String bookId) {
-        if (isFavorite(context, bookId)) {
-            remove(context, bookId);
-        } else {
-            add(context, bookId);
-        }
-    }
 }
