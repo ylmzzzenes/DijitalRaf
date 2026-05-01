@@ -5,6 +5,10 @@ public class Kitap {
     private String kitapAdi;
     private String yazar;
     private String tur;
+    private boolean favorite;
+    private String note;
+    private long createdAt;
+    private long updatedAt;
 
     public Kitap() {
         // Firebase (Realtime DB / POJO) için boş constructor gerekli
@@ -14,6 +18,10 @@ public class Kitap {
         this.kitapAdi = kitapAdi;
         this.yazar = yazar;
         this.tur = tur;
+        this.favorite = false;
+        this.note = "";
+        this.createdAt = System.currentTimeMillis();
+        this.updatedAt = System.currentTimeMillis();
     }
 
     public String getId() {
@@ -46,5 +54,36 @@ public class Kitap {
 
     public void setTur(String tur) {
         this.tur = tur;
+    }
+    public boolean isFavorite() {
+        return favorite;
+    }
+
+    public void setFavorite(boolean favorite) {
+        this.favorite = favorite;
+    }
+
+    public String getNote() {
+        return note;
+    }
+
+    public void setNote(String note) {
+        this.note = note;
+    }
+
+    public long getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(long createdAt) {
+        this.createdAt = createdAt;
+    }
+
+    public long getUpdatedAt() {
+        return updatedAt;
+    }
+
+    public void setUpdatedAt(long updatedAt) {
+        this.updatedAt = updatedAt;
     }
 }
