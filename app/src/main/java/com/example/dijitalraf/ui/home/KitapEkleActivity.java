@@ -24,6 +24,8 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.io.IOException;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -144,7 +146,8 @@ public class KitapEkleActivity extends AppCompatActivity {
 
         setApiLoading(true);
 
-        String url = "https://www.googleapis.com/books/v1/volumes?q=" + query.replace(" ", "+");
+        String encodedQuery = URLEncoder.encode(query, StandardCharsets.UTF_8);
+        String url = "https://www.googleapis.com/books/v1/volumes?q=" + encodedQuery;
 
         Request request = new Request.Builder()
                 .url(url)
