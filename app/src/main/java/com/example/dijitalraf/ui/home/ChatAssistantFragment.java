@@ -22,6 +22,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.dijitalraf.BuildConfig;
 import com.example.dijitalraf.R;
+import com.example.dijitalraf.auth.EmailVerificationHelper;
 import com.example.dijitalraf.data.AiService;
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.button.MaterialButton;
@@ -149,6 +150,11 @@ public class ChatAssistantFragment extends Fragment {
 
         if (FirebaseAuth.getInstance().getCurrentUser() == null) {
             Toast.makeText(requireContext(), R.string.chat_error_not_signed_in, Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        if (EmailVerificationHelper.mustVerifyEmail(FirebaseAuth.getInstance().getCurrentUser())) {
+            Toast.makeText(requireContext(), R.string.feature_locked_email_unverified, Toast.LENGTH_LONG).show();
             return;
         }
 

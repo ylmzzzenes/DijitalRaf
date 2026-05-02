@@ -24,6 +24,7 @@ import androidx.transition.TransitionManager;
 
 import com.example.dijitalraf.BuildConfig;
 import com.example.dijitalraf.R;
+import com.example.dijitalraf.auth.EmailVerificationHelper;
 import com.example.dijitalraf.data.AiService;
 import com.example.dijitalraf.data.FirebaseRtdb;
 import com.google.android.material.button.MaterialButton;
@@ -330,6 +331,11 @@ public class DashboardFragment extends Fragment {
                 : "";
         if (apiKey.isEmpty()) {
             Toast.makeText(requireContext(), R.string.error_openrouter_key_missing, Toast.LENGTH_LONG).show();
+            return;
+        }
+
+        if (EmailVerificationHelper.mustVerifyEmail(FirebaseAuth.getInstance().getCurrentUser())) {
+            Toast.makeText(requireContext(), R.string.feature_locked_email_unverified, Toast.LENGTH_LONG).show();
             return;
         }
 
