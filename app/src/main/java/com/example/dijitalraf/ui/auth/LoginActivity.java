@@ -14,6 +14,7 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.dijitalraf.R;
+import com.example.dijitalraf.data.EmailValidation;
 import com.example.dijitalraf.data.FirebaseRtdb;
 import com.example.dijitalraf.ui.home.HomeActivity;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
@@ -210,8 +211,9 @@ public class LoginActivity extends AppCompatActivity {
         tilEmail.setError(null);
         tilPassword.setError(null);
 
-        if (TextUtils.isEmpty(email)) {
-            tilEmail.setError(getString(R.string.error_email_empty));
+        Integer emailIssue = EmailValidation.validateForForm(email);
+        if (emailIssue != null) {
+            tilEmail.setError(getString(emailIssue));
             etEmail.requestFocus();
             return;
         }

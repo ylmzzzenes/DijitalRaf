@@ -12,6 +12,7 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.dijitalraf.R;
+import com.example.dijitalraf.data.EmailValidation;
 import com.example.dijitalraf.data.FirebaseRtdb;
 import com.example.dijitalraf.ui.home.HomeActivity;
 import com.google.android.material.button.MaterialButton;
@@ -90,8 +91,9 @@ public class RegisterActivity extends AppCompatActivity {
             return;
         }
 
-        if (TextUtils.isEmpty(email)) {
-            tilEmail.setError(getString(R.string.error_email_empty));
+        Integer emailIssue = EmailValidation.validateForForm(email);
+        if (emailIssue != null) {
+            tilEmail.setError(getString(emailIssue));
             etEmail.requestFocus();
             return;
         }
@@ -141,20 +143,36 @@ public class RegisterActivity extends AppCompatActivity {
                         userMap.put("email", email);
                         userMap.put("createdAt", System.currentTimeMillis());
 
-                        usersRef.child(uid).setValue(userMap)
-                                .addOnSuccessListener(unused -> {
-                                    Toast.makeText(RegisterActivity.this, "Kayıt başarılı", Toast.LENGTH_SHORT).show();
+                        firebaseUser.sendEmailVerification()
+                                .addOnCompleteListener(sendTask -> {
+                                    if (sendTask.isSuccessful()) {
+                                        Toast.makeText(
+                                                RegisterActivity.this,
+                                                R.string.email_verification_sent,
+                                                Toast.LENGTH_LONG
+                                        ).show();
+                                    } else {
+                                        String msg = sendTask.getException() != null
+                                                ? sendTask.getException().getMessage()
+                                                : "";
+                                        Toast.makeText(
+                                                RegisterActivity.this,
+                                                getString(R.string.email_verification_send_failed, msg),
+                                                Toast.LENGTH_LONG
+                                        ).show();
+                                    }
 
-                                    Intent intent = new Intent(RegisterActivity.this, HomeActivity.class);
-                                    startActivity(intent);
-                                    finish();
-                                })
-                                .addOnFailureListener(e -> {
-                                    Toast.makeText(
-                                            RegisterActivity.this,
-                                            "Kullanıcı bilgileri kaydedilemedi: " + e.getMessage(),
-                                            Toast.LENGTH_LONG
-                                    ).show();
+                                    usersRef.child(uid).setValue(userMap)
+                                            .addOnSuccessListener(unused -> {
+                                                Intent intent = new Intent(RegisterActivity.this, HomeActivity.class);
+                                                startActivity(intent);
+                                                finish();
+                                            })
+                                            .addOnFailureListener(e -> Toast.makeText(
+                                                    RegisterActivity.this,
+                                                    getString(R.string.profile_save_failed, e.getMessage()),
+                                                    Toast.LENGTH_LONG
+                                            ).show());
                                 });
 
                     } else {
