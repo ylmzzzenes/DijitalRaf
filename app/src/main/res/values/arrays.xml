@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="library_filter_min_stars_labels">
+        <item>Tüm puanlar</item>
+        <item>En az 1 yıldız</item>
+        <item>En az 2 yıldız</item>
+        <item>En az 3 yıldız</item>
+        <item>En az 4 yıldız</item>
+        <item>5 yıldız</item>
+    </string-array>
+</resources>

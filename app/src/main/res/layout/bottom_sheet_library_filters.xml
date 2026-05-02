@@ -1,0 +1,180 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:paddingBottom="@dimen/grid_2">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:paddingHorizontal="@dimen/grid_2"
+        android:paddingTop="@dimen/grid_2">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/library_filter_sheet_title"
+            android:textAppearance="@style/TextAppearance.DijitalRaf.Title"
+            android:textStyle="bold" />
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/tilFilterAuthor"
+            style="@style/Widget.DijitalRaf.TextInputLayout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/grid_2"
+            android:hint="@string/library_filter_author">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/etFilterAuthor"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="textCapWords|textPersonName"
+                android:maxLines="2" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/tilFilterGenre"
+            style="@style/Widget.Material3.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/grid_2"
+            android:hint="@string/library_filter_genre">
+
+            <com.google.android.material.textfield.MaterialAutoCompleteTextView
+                android:id="@+id/actFilterGenre"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="none" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/grid_3"
+            android:text="@string/library_filter_read"
+            android:textAppearance="@style/TextAppearance.DijitalRaf.Caption"
+            android:textColor="@color/text_secondary"
+            android:textStyle="bold" />
+
+        <RadioGroup
+            android:id="@+id/rgRead"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/grid_1"
+            android:orientation="vertical">
+
+            <com.google.android.material.radiobutton.MaterialRadioButton
+                android:id="@+id/rbReadAll"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/library_filter_read_all" />
+
+            <com.google.android.material.radiobutton.MaterialRadioButton
+                android:id="@+id/rbReadYes"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/library_filter_read_yes" />
+
+            <com.google.android.material.radiobutton.MaterialRadioButton
+                android:id="@+id/rbReadNo"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/library_filter_read_no" />
+        </RadioGroup>
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/grid_2"
+            android:text="@string/library_filter_favorite"
+            android:textAppearance="@style/TextAppearance.DijitalRaf.Caption"
+            android:textColor="@color/text_secondary"
+            android:textStyle="bold" />
+
+        <RadioGroup
+            android:id="@+id/rgFavorite"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/grid_1"
+            android:orientation="vertical">
+
+            <com.google.android.material.radiobutton.MaterialRadioButton
+                android:id="@+id/rbFavAll"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/library_filter_fav_all" />
+
+            <com.google.android.material.radiobutton.MaterialRadioButton
+                android:id="@+id/rbFavYes"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/library_filter_fav_yes" />
+
+            <com.google.android.material.radiobutton.MaterialRadioButton
+                android:id="@+id/rbFavNo"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/library_filter_fav_no" />
+        </RadioGroup>
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/grid_2"
+            android:text="@string/library_filter_stars"
+            android:textAppearance="@style/TextAppearance.DijitalRaf.Caption"
+            android:textColor="@color/text_secondary"
+            android:textStyle="bold" />
+
+        <Spinner
+            android:id="@+id/spinnerMinStars"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/grid_1"
+            android:minHeight="48dp"
+            tools:ignore="SpeakableTextPresentCheck" />
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/tilFilterYear"
+            style="@style/Widget.DijitalRaf.TextInputLayout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/grid_2"
+            android:hint="@string/library_filter_year">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/etFilterYear"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="number"
+                android:maxLength="4" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/grid_3"
+            android:gravity="end"
+            android:orientation="horizontal">
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnSheetClear"
+                style="@style/Widget.Material3.Button.TextButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/library_filter_clear_sheet" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnSheetApply"
+                style="@style/Widget.DijitalRaf.Button.Filled"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/grid_1"
+                android:text="@string/library_filter_apply" />
+        </LinearLayout>
+    </LinearLayout>
+</androidx.core.widget.NestedScrollView>
