@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!--
+      Firebase Console → Authentication → Sign-in method → Google → Enable.
+      Project settings → Your apps → Add SHA-1 (debug: ./gradlew signingReport), then optionally re-download google-services.json.
+      In the same Google provider section, copy the "Web client ID" and paste it below (ends with .apps.googleusercontent.com).
+    -->
+    <string name="default_web_client_id" translatable="false">97977108627-8qgq4mk0mj7k27ubkl0hvbhn78hqvv8s.apps.googleusercontent.com</string>
+</resources>
