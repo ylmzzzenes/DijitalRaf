@@ -20,7 +20,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.dijitalraf.BuildConfig;
 import com.example.dijitalraf.R;
-import com.example.dijitalraf.data.AiRecommendationService;
+import com.example.dijitalraf.data.AiService;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.firebase.auth.FirebaseAuth;
@@ -40,7 +40,7 @@ public class DashboardFragment extends Fragment {
     private static final int DASHBOARD_BOOKS_MAX = 24;
 
     private BooksViewModel viewModel;
-    private AiRecommendationService aiService;
+    private AiService aiService;
     private MaterialButton btnAiRecommend;
     private MaterialButton btnAiAssistant;
     private TextView tvAiPreview;
@@ -69,7 +69,7 @@ public class DashboardFragment extends Fragment {
         viewModel = new ViewModelProvider(requireActivity()).get(BooksViewModel.class);
         dashboardPrefs = requireContext().getSharedPreferences(PREFS_DASHBOARD, Context.MODE_PRIVATE);
 
-        aiService = new AiRecommendationService();
+        aiService = new AiService();
         btnAiRecommend = view.findViewById(R.id.btnAiRecommend);
         btnAiAssistant = view.findViewById(R.id.btnAiAssistant);
         tvAiPreview = view.findViewById(R.id.tvAiPreview);
@@ -260,25 +260,21 @@ public class DashboardFragment extends Fragment {
         tvAiPreview.setText(R.string.ai_analyzing);
         tvAiPreview.setTextColor(ContextCompat.getColor(requireContext(), R.color.text_secondary));
 
-        aiService.getRecommendations(
+        aiService.generateBookRecommendations(
                 apiKey,
                 viewModel.getBooks().getValue(),
-                new AiRecommendationService.AiCallback() {
+                new AiService.LlmCallback() {
                     @Override
-                    public void onSuccess(String result) {
+                    public void onSuccess(@NonNull String result) {
                         btnAiRecommend.setEnabled(true);
                         btnAiRecommend.setText(R.string.ai_get_recommendation);
-                        if (result != null && !result.trim().isEmpty()) {
-                            dashboardPrefs.edit().putString(KEY_LAST_AI, result.trim()).apply();
-                            tvAiPreview.setText(result.trim());
-                            tvAiPreview.setTextColor(ContextCompat.getColor(requireContext(), R.color.text_primary));
-                        } else {
-                            loadAiPreviewFromPrefs();
-                        }
+                        dashboardPrefs.edit().putString(KEY_LAST_AI, result).apply();
+                        tvAiPreview.setText(result);
+                        tvAiPreview.setTextColor(ContextCompat.getColor(requireContext(), R.color.text_primary));
                     }
 
                     @Override
-                    public void onError(String error) {
+                    public void onError(@NonNull String error) {
                         btnAiRecommend.setEnabled(true);
                         btnAiRecommend.setText(R.string.ai_get_recommendation);
                         loadAiPreviewFromPrefs();

@@ -22,7 +22,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.dijitalraf.BuildConfig;
 import com.example.dijitalraf.R;
-import com.example.dijitalraf.data.AiRecommendationService;
+import com.example.dijitalraf.data.AiService;
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.card.MaterialCardView;
@@ -41,11 +41,10 @@ public class ChatAssistantFragment extends Fragment {
 
     private static final String PREFS_DASHBOARD = "dashboard_prefs";
     private static final String KEY_LAST_CHAT_SNIPPET = "last_chat_snippet";
-    private static final int CHAT_MAX_TOKENS = 1200;
     private static final int SNIPPET_MAX = 320;
 
     private BooksViewModel viewModel;
-    private AiRecommendationService aiService;
+    private AiService aiService;
     private SharedPreferences prefs;
     private ChatMessagesAdapter adapter;
     private RecyclerView recyclerChat;
@@ -67,7 +66,7 @@ public class ChatAssistantFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         viewModel = new ViewModelProvider(requireActivity()).get(BooksViewModel.class);
-        aiService = new AiRecommendationService();
+        aiService = new AiService();
         prefs = requireContext().getSharedPreferences(PREFS_DASHBOARD, Context.MODE_PRIVATE);
 
         MaterialToolbar toolbar = view.findViewById(R.id.toolbar);
@@ -180,9 +179,9 @@ public class ChatAssistantFragment extends Fragment {
             return;
         }
 
-        aiService.sendChat(apiKey, messages, CHAT_MAX_TOKENS, new AiRecommendationService.AiCallback() {
+        aiService.sendChatMessage(apiKey, messages, new AiService.LlmCallback() {
             @Override
-            public void onSuccess(String result) {
+            public void onSuccess(@NonNull String result) {
                 if (!isAdded()) {
                     return;
                 }
@@ -190,17 +189,14 @@ public class ChatAssistantFragment extends Fragment {
                 btnSend.setEnabled(true);
                 etMessage.setEnabled(true);
                 adapter.removeTypingIfAny();
-                String reply = result != null ? result.trim() : "";
-                if (!reply.isEmpty()) {
-                    adapter.addRow(new ChatMessagesAdapter.Row(ChatMessagesAdapter.TYPE_ASSISTANT, reply));
-                    saveSnippet(reply);
-                }
+                adapter.addRow(new ChatMessagesAdapter.Row(ChatMessagesAdapter.TYPE_ASSISTANT, result));
+                saveSnippet(result);
                 scrollToBottom();
                 updateEmptyState();
             }
 
             @Override
-            public void onError(String error) {
+            public void onError(@NonNull String error) {
                 if (!isAdded()) {
                     return;
                 }
@@ -208,7 +204,7 @@ public class ChatAssistantFragment extends Fragment {
                 btnSend.setEnabled(true);
                 etMessage.setEnabled(true);
                 adapter.removeTypingIfAny();
-                showError(error != null ? error : getString(R.string.chat_error_generic));
+                showError(error);
                 scrollToBottom();
                 updateEmptyState();
             }
