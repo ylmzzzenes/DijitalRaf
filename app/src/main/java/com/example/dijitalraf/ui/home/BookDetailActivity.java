@@ -18,7 +18,6 @@ import androidx.lifecycle.ViewModelProvider;
 
 import com.bumptech.glide.Glide;
 import com.example.dijitalraf.R;
-import com.example.dijitalraf.data.BookLocalNotesStore;
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
@@ -27,6 +26,7 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
@@ -56,16 +56,21 @@ public class BookDetailActivity extends AppCompatActivity {
     private MaterialButton btnSavePersonalNote;
     private MaterialButton btnDeletePersonalNote;
     private AppCompatRatingBar ratingBar;
-    private BooksViewModel booksViewModel;
     private boolean ratingBarProgrammatic;
 
-    /** Intent’ten gelen kitap kimliği; yerel not anahtarı için kullanılır. */
     private String bookIdArg;
+    private BooksViewModel booksViewModel;
+    @Nullable
+    private DatabaseReference bookRef;
+    @Nullable
+    private ValueEventListener bookListener;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_book_detail);
+
+        booksViewModel = new ViewModelProvider(this).get(BooksViewModel.class);
 
         toolbar = findViewById(R.id.toolbar);
         ivCover = findViewById(R.id.ivCover);
@@ -80,7 +85,6 @@ public class BookDetailActivity extends AppCompatActivity {
         btnSavePersonalNote = findViewById(R.id.btnSavePersonalNote);
         btnDeletePersonalNote = findViewById(R.id.btnDeletePersonalNote);
         ratingBar = findViewById(R.id.ratingBar);
-        booksViewModel = new ViewModelProvider(this).get(BooksViewModel.class);
 
         setSupportActionBar(toolbar);
         if (getSupportActionBar() != null) {
@@ -98,10 +102,20 @@ public class BookDetailActivity extends AppCompatActivity {
         bookIdArg = bookId.trim();
         setupPersonalNoteActions();
         setupRatingBarListener();
-        loadBook(bookIdArg);
+        attachBookRealtimeListener(bookIdArg);
     }
 
-    private void loadBook(@NonNull String bookId) {
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if (bookRef != null && bookListener != null) {
+            bookRef.removeEventListener(bookListener);
+        }
+        bookRef = null;
+        bookListener = null;
+    }
+
+    private void attachBookRealtimeListener(@NonNull String bookId) {
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
         if (user == null) {
             Toast.makeText(this, R.string.book_detail_load_error, Toast.LENGTH_SHORT).show();
@@ -112,45 +126,47 @@ public class BookDetailActivity extends AppCompatActivity {
         progress.setVisibility(View.VISIBLE);
         content.setVisibility(View.INVISIBLE);
 
-        FirebaseDatabase.getInstance(DATABASE_URL)
+        bookRef = FirebaseDatabase.getInstance(DATABASE_URL)
                 .getReference("books")
                 .child(user.getUid())
-                .child(bookId)
-                .addListenerForSingleValueEvent(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(@NonNull DataSnapshot snapshot) {
-                        progress.setVisibility(View.GONE);
-                        content.setVisibility(View.VISIBLE);
+                .child(bookId);
 
-                        if (!snapshot.exists()) {
-                            Toast.makeText(BookDetailActivity.this, R.string.book_not_found, Toast.LENGTH_SHORT).show();
-                            finish();
-                            return;
-                        }
+        bookListener = new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                progress.setVisibility(View.GONE);
+                content.setVisibility(View.VISIBLE);
 
-                        Kitap kitap = snapshot.getValue(Kitap.class);
-                        if (kitap == null) {
-                            Toast.makeText(BookDetailActivity.this, R.string.book_detail_load_error, Toast.LENGTH_SHORT).show();
-                            finish();
-                            return;
-                        }
-                        kitap.setId(bookId);
-                        bind(kitap);
-                        applyRatingBar(kitap.getYildiz());
-                        loadPersonalNoteIntoField();
-                    }
+                if (!snapshot.exists()) {
+                    Toast.makeText(BookDetailActivity.this, R.string.book_not_found, Toast.LENGTH_SHORT).show();
+                    finish();
+                    return;
+                }
 
-                    @Override
-                    public void onCancelled(@NonNull DatabaseError error) {
-                        progress.setVisibility(View.GONE);
-                        Toast.makeText(
-                                BookDetailActivity.this,
-                                getString(R.string.error_generic, error.getMessage()),
-                                Toast.LENGTH_LONG
-                        ).show();
-                        finish();
-                    }
-                });
+                Kitap kitap = snapshot.getValue(Kitap.class);
+                if (kitap == null) {
+                    Toast.makeText(BookDetailActivity.this, R.string.book_detail_load_error, Toast.LENGTH_SHORT).show();
+                    finish();
+                    return;
+                }
+                kitap.setId(bookId);
+                bind(kitap);
+                applyRatingFromKitap(kitap);
+                applyNoteFromKitap(kitap);
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                progress.setVisibility(View.GONE);
+                Toast.makeText(
+                        BookDetailActivity.this,
+                        getString(R.string.error_generic, error.getMessage()),
+                        Toast.LENGTH_LONG
+                ).show();
+                finish();
+            }
+        };
+        bookRef.addValueEventListener(bookListener);
     }
 
     private void bind(@NonNull Kitap kitap) {
@@ -210,50 +226,53 @@ public class BookDetailActivity extends AppCompatActivity {
             if (ratingBarProgrammatic || !fromUser || bookIdArg == null) {
                 return;
             }
+            if (FirebaseAuth.getInstance().getCurrentUser() == null) {
+                return;
+            }
             int stars = Math.max(0, Math.min(5, (int) rating));
-            booksViewModel.persistYildiz(bookIdArg, stars);
+            booksViewModel.updateBookYildiz(bookIdArg, stars);
             Toast.makeText(this, R.string.rating_saved, Toast.LENGTH_SHORT).show();
         });
     }
 
-    private void applyRatingBar(int yildiz) {
+    private void applyRatingFromKitap(@NonNull Kitap kitap) {
         ratingBarProgrammatic = true;
-        ratingBar.setRating(Math.max(0, Math.min(5, yildiz)));
+        ratingBar.setRating(kitap.getYildiz());
         ratingBarProgrammatic = false;
     }
 
-    private void loadPersonalNoteIntoField() {
-        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
-        if (user == null || bookIdArg == null || etPersonalNote == null) {
+    private void applyNoteFromKitap(@NonNull Kitap kitap) {
+        if (etPersonalNote == null) {
             return;
         }
-        String saved = BookLocalNotesStore.getNote(this, user.getUid(), bookIdArg);
-        etPersonalNote.setText(saved);
-        etPersonalNote.setSelection(saved.length());
+        if (etPersonalNote.hasFocus()) {
+            return;
+        }
+        String remote = kitap.getNote() != null ? kitap.getNote() : "";
+        etPersonalNote.setText(remote);
+        etPersonalNote.setSelection(remote.length());
     }
 
     private void setupPersonalNoteActions() {
         btnSavePersonalNote.setOnClickListener(v -> {
-            FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
-            if (user == null || bookIdArg == null) {
+            if (bookIdArg == null || FirebaseAuth.getInstance().getCurrentUser() == null) {
                 return;
             }
             String text = etPersonalNote.getText() != null
                     ? etPersonalNote.getText().toString().trim()
                     : "";
             if (text.isEmpty()) {
-                BookLocalNotesStore.deleteNote(this, user.getUid(), bookIdArg);
+                booksViewModel.updateBookNote(bookIdArg, "");
                 etPersonalNote.setText("");
                 Toast.makeText(this, R.string.personal_note_deleted, Toast.LENGTH_SHORT).show();
             } else {
-                BookLocalNotesStore.saveNote(this, user.getUid(), bookIdArg, text);
+                booksViewModel.updateBookNote(bookIdArg, text);
                 Toast.makeText(this, R.string.personal_note_saved, Toast.LENGTH_SHORT).show();
             }
         });
 
         btnDeletePersonalNote.setOnClickListener(v -> {
-            FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
-            if (user == null || bookIdArg == null) {
+            if (bookIdArg == null || FirebaseAuth.getInstance().getCurrentUser() == null) {
                 return;
             }
             String current = etPersonalNote.getText() != null
@@ -267,7 +286,7 @@ public class BookDetailActivity extends AppCompatActivity {
                     .setMessage(R.string.personal_note_delete_confirm)
                     .setNegativeButton(R.string.dialog_close, (d, w) -> d.dismiss())
                     .setPositiveButton(R.string.action_delete_note, (d, w) -> {
-                        BookLocalNotesStore.deleteNote(this, user.getUid(), bookIdArg);
+                        booksViewModel.updateBookNote(bookIdArg, "");
                         etPersonalNote.setText("");
                         Toast.makeText(this, R.string.personal_note_deleted, Toast.LENGTH_SHORT).show();
                     })
