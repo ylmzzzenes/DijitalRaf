@@ -1,6 +1,7 @@
 package com.example.dijitalraf.ui.home;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
@@ -45,19 +46,37 @@ public class BooksViewModel extends ViewModel {
         kitaplarRef.child(kitap.getId()).setValue(kitap);
     }
 
-    /**
-     * Yıldız puanını yazar; {@link #startListening()} çağrılmamış olsa bile çalışır (ör. detay ekranı).
-     */
-    public void persistYildiz(@NonNull String bookId, int yildiz) {
+    @Nullable
+    private DatabaseReference bookRefForCurrentUser(@NonNull String bookId) {
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
         if (user == null) {
-            return;
+            return null;
         }
-        int v = Math.max(0, Math.min(5, yildiz));
-        DatabaseReference ref = FirebaseDatabase.getInstance(DATABASE_URL)
+        return FirebaseDatabase.getInstance(DATABASE_URL)
                 .getReference("books")
                 .child(user.getUid())
                 .child(bookId);
+    }
+
+    /** Kişisel notu Realtime Database'e yazar (tüm cihazlarda güncellenir). */
+    public void updateBookNote(@NonNull String bookId, @NonNull String note) {
+        DatabaseReference ref = bookRefForCurrentUser(bookId);
+        if (ref == null) {
+            return;
+        }
+        Map<String, Object> updates = new HashMap<>();
+        updates.put("note", note);
+        updates.put("updatedAt", System.currentTimeMillis());
+        ref.updateChildren(updates);
+    }
+
+    /** Yıldız puanını (0–5) Realtime Database'e yazar. */
+    public void updateBookYildiz(@NonNull String bookId, int yildiz) {
+        DatabaseReference ref = bookRefForCurrentUser(bookId);
+        if (ref == null) {
+            return;
+        }
+        int v = Math.max(0, Math.min(5, yildiz));
         Map<String, Object> updates = new HashMap<>();
         updates.put("yildiz", v);
         updates.put("updatedAt", System.currentTimeMillis());

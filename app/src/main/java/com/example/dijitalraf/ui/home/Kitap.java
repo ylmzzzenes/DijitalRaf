@@ -15,7 +15,7 @@ public class Kitap {
     private String sayfaSayisi;
     /** Yayın tarihi (örn. 2021-03-15 veya 2021); API ham değeri. */
     private String yayinTarihi;
-    /** Kullanıcı puanı 0–5 (0 = verilmemiş). */
+    /** Kullanıcı puanı 0–5 (0 = verilmemiş); Realtime Database ile senkron. */
     private int yildiz;
     private long createdAt;
     private long updatedAt;
@@ -140,13 +140,22 @@ public class Kitap {
         return yildiz;
     }
 
-    public void setYildiz(int yildiz) {
-        if (yildiz < 0) {
-            this.yildiz = 0;
-        } else if (yildiz > 5) {
-            this.yildiz = 5;
+    /**
+     * Tek setter (overload yok). {@code Number} veya birden fazla imza Firebase’de hata verir.
+     * {@link Long} desteklenir; veri Integer/Long/Double olarak gelse de dönüştürülür; {@code null} → 0.
+     */
+    public void setYildiz(Long value) {
+        if (value == null) {
+            yildiz = 0;
+            return;
+        }
+        long lv = value;
+        if (lv < 0L) {
+            yildiz = 0;
+        } else if (lv > 5L) {
+            yildiz = 5;
         } else {
-            this.yildiz = yildiz;
+            yildiz = (int) lv;
         }
     }
 
