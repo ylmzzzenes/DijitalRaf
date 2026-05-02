@@ -12,11 +12,17 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.AppCompatRatingBar;
 import androidx.core.text.HtmlCompat;
+import androidx.lifecycle.ViewModelProvider;
 
 import com.bumptech.glide.Glide;
 import com.example.dijitalraf.R;
+import com.example.dijitalraf.data.BookLocalNotesStore;
 import com.google.android.material.appbar.MaterialToolbar;
+import com.google.android.material.button.MaterialButton;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+import com.google.android.material.textfield.TextInputEditText;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
@@ -46,6 +52,15 @@ public class BookDetailActivity extends AppCompatActivity {
     private TextView tvPublishedDate;
     private View progress;
     private View content;
+    private TextInputEditText etPersonalNote;
+    private MaterialButton btnSavePersonalNote;
+    private MaterialButton btnDeletePersonalNote;
+    private AppCompatRatingBar ratingBar;
+    private BooksViewModel booksViewModel;
+    private boolean ratingBarProgrammatic;
+
+    /** Intent’ten gelen kitap kimliği; yerel not anahtarı için kullanılır. */
+    private String bookIdArg;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -61,6 +76,11 @@ public class BookDetailActivity extends AppCompatActivity {
         tvPublishedDate = findViewById(R.id.tvPublishedDate);
         progress = findViewById(R.id.progressLoading);
         content = findViewById(R.id.scrollContent);
+        etPersonalNote = findViewById(R.id.etPersonalNote);
+        btnSavePersonalNote = findViewById(R.id.btnSavePersonalNote);
+        btnDeletePersonalNote = findViewById(R.id.btnDeletePersonalNote);
+        ratingBar = findViewById(R.id.ratingBar);
+        booksViewModel = new ViewModelProvider(this).get(BooksViewModel.class);
 
         setSupportActionBar(toolbar);
         if (getSupportActionBar() != null) {
@@ -75,7 +95,10 @@ public class BookDetailActivity extends AppCompatActivity {
             return;
         }
 
-        loadBook(bookId.trim());
+        bookIdArg = bookId.trim();
+        setupPersonalNoteActions();
+        setupRatingBarListener();
+        loadBook(bookIdArg);
     }
 
     private void loadBook(@NonNull String bookId) {
@@ -113,6 +136,8 @@ public class BookDetailActivity extends AppCompatActivity {
                         }
                         kitap.setId(bookId);
                         bind(kitap);
+                        applyRatingBar(kitap.getYildiz());
+                        loadPersonalNoteIntoField();
                     }
 
                     @Override
@@ -178,5 +203,75 @@ public class BookDetailActivity extends AppCompatActivity {
             return getString(R.string.info_not_available);
         }
         return value.trim();
+    }
+
+    private void setupRatingBarListener() {
+        ratingBar.setOnRatingBarChangeListener((bar, rating, fromUser) -> {
+            if (ratingBarProgrammatic || !fromUser || bookIdArg == null) {
+                return;
+            }
+            int stars = Math.max(0, Math.min(5, (int) rating));
+            booksViewModel.persistYildiz(bookIdArg, stars);
+            Toast.makeText(this, R.string.rating_saved, Toast.LENGTH_SHORT).show();
+        });
+    }
+
+    private void applyRatingBar(int yildiz) {
+        ratingBarProgrammatic = true;
+        ratingBar.setRating(Math.max(0, Math.min(5, yildiz)));
+        ratingBarProgrammatic = false;
+    }
+
+    private void loadPersonalNoteIntoField() {
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+        if (user == null || bookIdArg == null || etPersonalNote == null) {
+            return;
+        }
+        String saved = BookLocalNotesStore.getNote(this, user.getUid(), bookIdArg);
+        etPersonalNote.setText(saved);
+        etPersonalNote.setSelection(saved.length());
+    }
+
+    private void setupPersonalNoteActions() {
+        btnSavePersonalNote.setOnClickListener(v -> {
+            FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+            if (user == null || bookIdArg == null) {
+                return;
+            }
+            String text = etPersonalNote.getText() != null
+                    ? etPersonalNote.getText().toString().trim()
+                    : "";
+            if (text.isEmpty()) {
+                BookLocalNotesStore.deleteNote(this, user.getUid(), bookIdArg);
+                etPersonalNote.setText("");
+                Toast.makeText(this, R.string.personal_note_deleted, Toast.LENGTH_SHORT).show();
+            } else {
+                BookLocalNotesStore.saveNote(this, user.getUid(), bookIdArg, text);
+                Toast.makeText(this, R.string.personal_note_saved, Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        btnDeletePersonalNote.setOnClickListener(v -> {
+            FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+            if (user == null || bookIdArg == null) {
+                return;
+            }
+            String current = etPersonalNote.getText() != null
+                    ? etPersonalNote.getText().toString().trim()
+                    : "";
+            if (current.isEmpty()) {
+                Toast.makeText(this, R.string.personal_note_already_empty, Toast.LENGTH_SHORT).show();
+                return;
+            }
+            new MaterialAlertDialogBuilder(this)
+                    .setMessage(R.string.personal_note_delete_confirm)
+                    .setNegativeButton(R.string.dialog_close, (d, w) -> d.dismiss())
+                    .setPositiveButton(R.string.action_delete_note, (d, w) -> {
+                        BookLocalNotesStore.deleteNote(this, user.getUid(), bookIdArg);
+                        etPersonalNote.setText("");
+                        Toast.makeText(this, R.string.personal_note_deleted, Toast.LENGTH_SHORT).show();
+                    })
+                    .show();
+        });
     }
 }

@@ -75,6 +75,27 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="@dimen/grid_3"
+                    android:gravity="center"
+                    android:text="@string/book_detail_label_rating"
+                    android:textAppearance="@style/TextAppearance.DijitalRaf.Subtitle"
+                    android:textStyle="bold" />
+
+                <androidx.appcompat.widget.AppCompatRatingBar
+                    android:id="@+id/ratingBar"
+                    style="@style/Widget.AppCompat.RatingBar"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_horizontal"
+                    android:layout_marginTop="@dimen/grid_1"
+                    android:numStars="5"
+                    android:rating="0"
+                    android:stepSize="1"
+                    tools:rating="4" />
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/grid_3"
                     android:text="@string/book_detail_label_description"
                     android:textAppearance="@style/TextAppearance.DijitalRaf.Subtitle"
                     android:textStyle="bold" />
@@ -118,10 +139,67 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="@dimen/grid_1"
-                    android:layout_marginBottom="@dimen/grid_3"
                     android:textAppearance="@style/TextAppearance.DijitalRaf.Body"
                     android:textColor="@color/text_secondary"
                     tools:text="2021" />
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/grid_3"
+                    android:text="@string/book_detail_label_personal_note"
+                    android:textAppearance="@style/TextAppearance.DijitalRaf.Subtitle"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/grid_1"
+                    android:text="@string/book_detail_personal_note_hint"
+                    android:textAppearance="@style/TextAppearance.DijitalRaf.Caption"
+                    android:textColor="@color/text_secondary" />
+
+                <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/tilPersonalNote"
+                    style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/grid_1"
+                    android:hint="@string/hint_personal_note">
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/etPersonalNote"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="top|start"
+                        android:inputType="textMultiLine|textCapSentences"
+                        android:minLines="4"
+                        android:maxLines="12" />
+                </com.google.android.material.textfield.TextInputLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/grid_2"
+                    android:layout_marginBottom="@dimen/grid_3"
+                    android:gravity="end"
+                    android:orientation="horizontal">
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btnDeletePersonalNote"
+                        style="@style/Widget.Material3.Button.TextButton"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginEnd="@dimen/grid_1"
+                        android:text="@string/action_delete_note" />
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btnSavePersonalNote"
+                        style="@style/Widget.DijitalRaf.Button.Tonal"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/action_save_note" />
+                </LinearLayout>
             </LinearLayout>
         </androidx.core.widget.NestedScrollView>
 
