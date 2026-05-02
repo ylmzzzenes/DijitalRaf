@@ -17,7 +17,10 @@ import com.example.dijitalraf.R;
 import com.example.dijitalraf.data.FavoritesHelper;
 import com.google.android.material.chip.Chip;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
 public class KitapAdapter extends RecyclerView.Adapter<KitapAdapter.KitapViewHolder> {
 
@@ -29,10 +32,15 @@ public class KitapAdapter extends RecyclerView.Adapter<KitapAdapter.KitapViewHol
         void onBookClick(Kitap kitap, int position);
     }
 
+    public interface OnBookLongClickListener {
+        void onBookLongClick(Kitap kitap, int position);
+    }
+
     private final Context appContext;
     private final List<Kitap> kitapListesi;
     private OnFavoriteChangedListener favoriteChangedListener;
     private OnBookClickListener bookClickListener;
+    private OnBookLongClickListener bookLongClickListener;
 
     public KitapAdapter(Context context, List<Kitap> kitapListesi) {
         this.appContext = context.getApplicationContext();
@@ -45,6 +53,10 @@ public class KitapAdapter extends RecyclerView.Adapter<KitapAdapter.KitapViewHol
 
     public void setOnBookClickListener(OnBookClickListener listener) {
         this.bookClickListener = listener;
+    }
+
+    public void setOnBookLongClickListener(OnBookLongClickListener listener) {
+        this.bookLongClickListener = listener;
     }
 
     @NonNull
@@ -64,6 +76,15 @@ public class KitapAdapter extends RecyclerView.Adapter<KitapAdapter.KitapViewHol
         String tur = kitap.getTur() != null ? kitap.getTur() : "";
         holder.chipTur.setText(tur);
         holder.chipTur.setVisibility(tur.isEmpty() ? View.GONE : View.VISIBLE);
+
+        boolean isRead = kitap.isOkundu();
+        holder.ivReadStatus.setVisibility(isRead ? View.VISIBLE : View.GONE);
+        holder.tvReadDate.setVisibility(isRead ? View.VISIBLE : View.GONE);
+        holder.tvRating.setVisibility(isRead ? View.VISIBLE : View.GONE);
+        if (isRead) {
+            holder.tvReadDate.setText(formatReadDate(kitap.getUpdatedAt()));
+            holder.tvRating.setText(buildRatingStars(kitap.isFavorite()));
+        }
 
         String imageUrl = kitap.getImageUrl();
 
@@ -113,6 +134,31 @@ public class KitapAdapter extends RecyclerView.Adapter<KitapAdapter.KitapViewHol
                 bookClickListener.onBookClick(kitap, pos);
             }
         });
+
+        holder.itemView.setOnLongClickListener(v -> {
+            if (bookLongClickListener == null) {
+                return false;
+            }
+            int pos = holder.getBindingAdapterPosition();
+            if (pos == RecyclerView.NO_POSITION) {
+                return false;
+            }
+            bookLongClickListener.onBookLongClick(kitap, pos);
+            return true;
+        });
+    }
+
+    private String formatReadDate(long updatedAt) {
+        if (updatedAt <= 0L) {
+            return "Okundu: -";
+        }
+        String date = new SimpleDateFormat("dd.MM.yyyy", Locale.getDefault())
+                .format(new Date(updatedAt));
+        return "Okundu: " + date;
+    }
+
+    private String buildRatingStars(boolean favorite) {
+        return favorite ? "⭐⭐⭐⭐⭐" : "⭐⭐⭐⭐☆";
     }
 
     private void shareBook(Context context, Kitap kitap) {
@@ -162,6 +208,9 @@ public class KitapAdapter extends RecyclerView.Adapter<KitapAdapter.KitapViewHol
         final ImageView ivCover;
         final ImageButton ivFavorite;
         final ImageButton ivShare;
+        final ImageView ivReadStatus;
+        final TextView tvRating;
+        final TextView tvReadDate;
 
         public KitapViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -171,6 +220,9 @@ public class KitapAdapter extends RecyclerView.Adapter<KitapAdapter.KitapViewHol
             ivCover = itemView.findViewById(R.id.ivCover);
             ivFavorite = itemView.findViewById(R.id.ivFavorite);
             ivShare = itemView.findViewById(R.id.ivShare);
+            ivReadStatus = itemView.findViewById(R.id.ivReadStatus);
+            tvRating = itemView.findViewById(R.id.tvRating);
+            tvReadDate = itemView.findViewById(R.id.tvReadDate);
         }
     }
 }
