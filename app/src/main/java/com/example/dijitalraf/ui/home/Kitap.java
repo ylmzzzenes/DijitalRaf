@@ -5,6 +5,7 @@ public class Kitap {
     private String kitapAdi;
     private String yazar;
     private String tur;
+    private String imageUrl;
     private boolean favorite;
     private String note;
     private long createdAt;
@@ -18,6 +19,18 @@ public class Kitap {
         this.kitapAdi = kitapAdi;
         this.yazar = yazar;
         this.tur = tur;
+        this.imageUrl = "";
+        this.favorite = false;
+        this.note = "";
+        this.createdAt = System.currentTimeMillis();
+        this.updatedAt = System.currentTimeMillis();
+    }
+
+    public Kitap(String kitapAdi, String yazar, String tur, String imageUrl) {
+        this.kitapAdi = kitapAdi;
+        this.yazar = yazar;
+        this.tur = tur;
+        this.imageUrl = imageUrl;
         this.favorite = false;
         this.note = "";
         this.createdAt = System.currentTimeMillis();
@@ -55,6 +68,15 @@ public class Kitap {
     public void setTur(String tur) {
         this.tur = tur;
     }
+
+    public String getImageUrl() {
+        return imageUrl;
+    }
+
+    public void setImageUrl(String imageUrl) {
+        this.imageUrl = imageUrl;
+    }
+
     public boolean isFavorite() {
         return favorite;
     }

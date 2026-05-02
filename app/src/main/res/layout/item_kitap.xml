@@ -4,10 +4,12 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    android:layout_marginStart="@dimen/grid_1"
+    android:layout_marginEnd="@dimen/grid_1"
     android:layout_marginBottom="@dimen/grid_2"
     app:cardBackgroundColor="@color/card_background"
-    app:cardCornerRadius="@dimen/corner_medium"
-    app:cardElevation="@dimen/elevation_card"
+    app:cardCornerRadius="18dp"
+    app:cardElevation="5dp"
     app:rippleColor="@color/primary_alpha_24"
     app:strokeColor="@color/secondary_alpha_40"
     app:strokeWidth="1dp">
@@ -15,41 +17,46 @@
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:padding="@dimen/grid_2">
+        android:minHeight="132dp"
+        android:padding="14dp">
 
         <ImageView
             android:id="@+id/ivCover"
-            android:layout_width="@dimen/book_cover_size"
-            android:layout_height="@dimen/book_cover_size"
+            android:layout_width="82dp"
+            android:layout_height="112dp"
             android:background="@drawable/bg_book_cover"
             android:contentDescription="@null"
-            android:padding="@dimen/grid_1"
-            android:scaleType="centerInside"
-            android:src="@drawable/ic_menu_book_24"
+            android:elevation="2dp"
+            android:scaleType="centerCrop"
+            android:src="@drawable/ic_add_24"
+            app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            app:tint="@color/primary" />
+            tools:src="@drawable/ic_add_24" />
 
         <TextView
             android:id="@+id/tvKitapAdi"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/grid_2"
+            android:layout_marginStart="18dp"
+            android:layout_marginEnd="8dp"
             android:ellipsize="end"
             android:maxLines="2"
             android:textAppearance="@style/TextAppearance.DijitalRaf.Title"
-            android:textSize="18sp"
+            android:textSize="19sp"
+            android:textStyle="bold"
             app:layout_constraintEnd_toStartOf="@+id/ivFavorite"
             app:layout_constraintStart_toEndOf="@+id/ivCover"
             app:layout_constraintTop_toTopOf="@+id/ivCover"
-            tools:text="Kitap adı" />
+            tools:text="Kürk Mantolu Madonna" />
 
         <TextView
             android:id="@+id/tvYazar"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/grid_2"
-            android:layout_marginTop="@dimen/grid_1"
+            android:layout_marginStart="18dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginEnd="8dp"
             android:ellipsize="end"
             android:maxLines="1"
             android:textAppearance="@style/TextAppearance.DijitalRaf.Subtitle"
@@ -57,31 +64,48 @@
             app:layout_constraintEnd_toStartOf="@+id/ivFavorite"
             app:layout_constraintStart_toEndOf="@+id/ivCover"
             app:layout_constraintTop_toBottomOf="@+id/tvKitapAdi"
-            tools:text="Yazar" />
+            tools:text="Sabahattin Ali" />
 
         <com.google.android.material.chip.Chip
             android:id="@+id/chipTur"
-            style="@style/Widget.Material3.Chip.Filter"
+            style="@style/Widget.Material3.Chip.Assist"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/grid_2"
-            android:layout_marginTop="@dimen/grid_1"
+            android:layout_marginStart="18dp"
+            android:layout_marginTop="12dp"
             android:textColor="@color/primary_dark"
+            android:textStyle="bold"
             app:chipBackgroundColor="@color/primary_alpha_12"
-            app:chipMinHeight="32dp"
+            app:chipMinHeight="34dp"
+            app:chipStrokeColor="@color/secondary_alpha_40"
+            app:chipStrokeWidth="1dp"
             app:layout_constraintStart_toEndOf="@+id/ivCover"
             app:layout_constraintTop_toBottomOf="@+id/tvYazar"
-            tools:text="Tür" />
+            tools:text="Fiction" />
 
         <ImageButton
             android:id="@+id/ivFavorite"
-            android:layout_width="48dp"
-            android:layout_height="48dp"
+            android:layout_width="44dp"
+            android:layout_height="44dp"
             android:background="?attr/selectableItemBackgroundBorderless"
             android:contentDescription="@string/nav_favorites"
-            android:padding="@dimen/grid_1"
+            android:padding="8dp"
             android:src="@drawable/ic_favorite_border_24"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toTopOf="@+id/ivCover" />
+
+        <ImageButton
+            android:id="@+id/ivShare"
+            android:layout_width="44dp"
+            android:layout_height="44dp"
+            android:layout_marginTop="6dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="Kitap paylaş"
+            android:padding="8dp"
+            android:src="@android:drawable/ic_menu_share"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/ivFavorite" />
+
     </androidx.constraintlayout.widget.ConstraintLayout>
+
 </com.google.android.material.card.MaterialCardView>

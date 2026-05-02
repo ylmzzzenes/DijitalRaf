@@ -9,6 +9,7 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.bumptech.glide.Glide;
 import com.example.dijitalraf.R;
 import com.google.android.material.chip.Chip;
 
@@ -32,11 +33,26 @@ public class KitapCardAdapter extends RecyclerView.Adapter<KitapCardAdapter.Card
     @Override
     public void onBindViewHolder(@NonNull CardViewHolder holder, int position) {
         Kitap kitap = kitapListesi.get(position);
+
         holder.tvKitapAdi.setText(kitap.getKitapAdi());
         holder.tvYazar.setText(kitap.getYazar());
+
         String tur = kitap.getTur() != null ? kitap.getTur() : "";
         holder.chipTur.setText(tur);
         holder.chipTur.setVisibility(tur.isEmpty() ? View.GONE : View.VISIBLE);
+
+        String imageUrl = kitap.getImageUrl();
+
+        if (imageUrl != null && !imageUrl.trim().isEmpty()) {
+            Glide.with(holder.itemView.getContext())
+                    .load(imageUrl)
+                    .placeholder(R.drawable.ic_add_24)
+                    .error(R.drawable.ic_add_24)
+                    .centerCrop()
+                    .into(holder.ivCover);
+        } else {
+            holder.ivCover.setImageResource(R.drawable.ic_add_24);
+        }
     }
 
     @Override
