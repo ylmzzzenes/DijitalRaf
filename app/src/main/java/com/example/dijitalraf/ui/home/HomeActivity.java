@@ -9,6 +9,7 @@ import androidx.lifecycle.ViewModelProvider;
 
 import com.example.dijitalraf.R;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 public class HomeActivity extends AppCompatActivity {
 
@@ -21,30 +22,28 @@ public class HomeActivity extends AppCompatActivity {
         viewModel.startListening();
 
         BottomNavigationView bottomNav = findViewById(R.id.bottomNav);
+        FloatingActionButton fabAddBook = findViewById(R.id.fabAddBook);
+        fabAddBook.setOnClickListener(v ->
+                startActivity(new Intent(HomeActivity.this, KitapEkleActivity.class)));
 
         bottomNav.setOnItemSelectedListener(item -> {
             int itemId = item.getItemId();
             if (itemId == R.id.nav_home) {
                 showFragment(new DashboardFragment());
                 return true;
-            } else if (itemId == R.id.nav_read_books || itemId == R.id.nav_to_read) {
-                int page = itemId == R.id.nav_read_books ? 0 : 1;
+            } else if (itemId == R.id.nav_library) {
                 Fragment current = getSupportFragmentManager().findFragmentById(R.id.fragmentContainer);
                 if (current instanceof LibraryPagerFragment) {
-                    LibraryPagerFragment pager = (LibraryPagerFragment) current;
-                    if (pager.getCurrentItem() != page) {
-                        pager.setCurrentItem(page);
-                    }
                     return true;
                 }
-                showFragment(LibraryPagerFragment.newInstance(page));
+                showFragment(LibraryPagerFragment.newInstance(1));
                 return true;
             } else if (itemId == R.id.nav_favorites) {
                 showFragment(new FavoritesFragment());
                 return true;
-            } else if (itemId == R.id.nav_add_book) {
-                startActivity(new Intent(HomeActivity.this, KitapEkleActivity.class));
-                return false;
+            } else if (itemId == R.id.nav_assistant) {
+                showFragment(new ChatAssistantFragment());
+                return true;
             } else if (itemId == R.id.nav_profile) {
                 showFragment(new ProfileFragment());
                 return true;
@@ -58,21 +57,27 @@ public class HomeActivity extends AppCompatActivity {
         }
     }
 
-    /** Ana sayfadaki kitap satırından Okunan / Okunacak sekmesine geçer. */
-    public void openBookSection(boolean readBooks) {
+    /** Ana sayfa (gösterge paneli); alt menü seçimini tetikler. */
+    public void openHomeDashboard() {
         BottomNavigationView bottomNav = findViewById(R.id.bottomNav);
-        bottomNav.setSelectedItemId(readBooks ? R.id.nav_read_books : R.id.nav_to_read);
+        bottomNav.setSelectedItemId(R.id.nav_home);
+    }
+
+    /** Sohbet asistanı; alt menü seçimini tetikler. */
+    public void openChatAssistant() {
+        BottomNavigationView bottomNav = findViewById(R.id.bottomNav);
+        bottomNav.setSelectedItemId(R.id.nav_assistant);
     }
 
     /**
-     * Kütüphane ViewPager kaydırıldığında alt menüde Okunan / Okunacak ile senkron tutar.
+     * Kütüphane sekmesini açar: {@code readBooks true} → Okunan, {@code false} → Okunacak.
      */
-    public void syncLibraryBottomNavFromSwipe(int page) {
+    public void openBookSection(boolean readBooks) {
+        int page = readBooks ? 0 : 1;
+        showFragment(LibraryPagerFragment.newInstance(page));
+        getSupportFragmentManager().executePendingTransactions();
         BottomNavigationView bottomNav = findViewById(R.id.bottomNav);
-        int targetId = page == 0 ? R.id.nav_read_books : R.id.nav_to_read;
-        if (bottomNav.getSelectedItemId() != targetId) {
-            bottomNav.setSelectedItemId(targetId);
-        }
+        bottomNav.setSelectedItemId(R.id.nav_library);
     }
 
     private void showFragment(Fragment fragment) {

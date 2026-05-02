@@ -147,7 +147,7 @@
             android:layout_marginTop="6dp"
             android:contentDescription="@null"
             android:src="@drawable/ic_done_24"
-            android:tint="#2E7D32"
+            app:tint="#2E7D32"
             app:layout_constraintEnd_toEndOf="@+id/ivShare"
             app:layout_constraintTop_toBottomOf="@+id/ivShare"
             tools:visibility="visible" />

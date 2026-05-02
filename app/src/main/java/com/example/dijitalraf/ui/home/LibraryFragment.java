@@ -76,7 +76,7 @@ public class LibraryFragment extends Fragment {
         viewModel = new ViewModelProvider(requireActivity()).get(BooksViewModel.class);
 
         MaterialToolbar toolbar = view.findViewById(R.id.toolbar);
-        toolbar.setTitle(listRead ? R.string.nav_read_books : R.string.nav_to_read);
+        toolbar.setVisibility(View.GONE);
 
         recyclerBooks = view.findViewById(R.id.recyclerBooks);
         emptyState = view.findViewById(R.id.emptyInclude);

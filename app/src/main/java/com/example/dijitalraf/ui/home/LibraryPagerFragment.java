@@ -11,12 +11,16 @@ import androidx.fragment.app.Fragment;
 import androidx.viewpager2.widget.ViewPager2;
 
 import com.example.dijitalraf.R;
+import com.google.android.material.tabs.TabLayout;
+import com.google.android.material.tabs.TabLayoutMediator;
 
 public class LibraryPagerFragment extends Fragment {
 
     private static final String ARG_INITIAL_PAGE = "initial_page";
 
     private ViewPager2 viewPager;
+    @Nullable
+    private TabLayoutMediator tabLayoutMediator;
 
     public static LibraryPagerFragment newInstance(int initialPage) {
         LibraryPagerFragment fragment = new LibraryPagerFragment();
@@ -36,6 +40,7 @@ public class LibraryPagerFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+        TabLayout tabLayout = view.findViewById(R.id.libraryTabLayout);
         viewPager = view.findViewById(R.id.libraryViewPager);
         viewPager.setAdapter(new LibraryPagerAdapter(this));
 
@@ -44,16 +49,26 @@ public class LibraryPagerFragment extends Fragment {
             initial = getArguments().getInt(ARG_INITIAL_PAGE, 0);
         }
 
-        viewPager.registerOnPageChangeCallback(new ViewPager2.OnPageChangeCallback() {
-            @Override
-            public void onPageSelected(int position) {
-                if (getActivity() instanceof HomeActivity) {
-                    ((HomeActivity) getActivity()).syncLibraryBottomNavFromSwipe(position);
-                }
+        tabLayoutMediator = new TabLayoutMediator(tabLayout, viewPager, (tab, position) -> {
+            if (position == 0) {
+                tab.setText(R.string.library_tab_read);
+            } else {
+                tab.setText(R.string.library_tab_to_read);
             }
         });
+        tabLayoutMediator.attach();
 
         viewPager.setCurrentItem(Math.max(0, Math.min(1, initial)), false);
+    }
+
+    @Override
+    public void onDestroyView() {
+        if (tabLayoutMediator != null) {
+            tabLayoutMediator.detach();
+            tabLayoutMediator = null;
+        }
+        viewPager = null;
+        super.onDestroyView();
     }
 
     public int getCurrentItem() {
