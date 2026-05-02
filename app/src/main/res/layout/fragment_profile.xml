@@ -51,12 +51,23 @@
                     app:tint="@color/primary" />
 
                 <TextView
-                    android:id="@+id/tvEmail"
+                    android:id="@+id/tvProfileDisplayName"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="@dimen/grid_2"
                     android:gravity="center"
+                    android:textAppearance="@style/TextAppearance.DijitalRaf.Subtitle"
+                    android:textStyle="bold"
+                    tools:text="Ad Soyad" />
+
+                <TextView
+                    android:id="@+id/tvEmail"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/grid_1"
+                    android:gravity="center"
                     android:textAppearance="@style/TextAppearance.DijitalRaf.Body"
+                    android:textColor="@color/text_secondary"
                     tools:text="user@email.com" />
 
                 <TextView
@@ -67,11 +78,19 @@
                     android:textAppearance="@style/TextAppearance.DijitalRaf.Caption" />
 
                 <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnEditProfile"
+                    style="@style/Widget.DijitalRaf.Button.Outlined"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/grid_3"
+                    android:text="@string/action_edit_profile" />
+
+                <com.google.android.material.button.MaterialButton
                     android:id="@+id/btnLogout"
                     style="@style/Widget.DijitalRaf.Button.Filled"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="@dimen/grid_3"
+                    android:layout_marginTop="@dimen/grid_2"
                     android:text="@string/logout" />
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
