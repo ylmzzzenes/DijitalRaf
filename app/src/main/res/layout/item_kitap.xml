@@ -69,19 +69,53 @@
         <com.google.android.material.chip.Chip
             android:id="@+id/chipTur"
             style="@style/Widget.Material3.Chip.Assist"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="18dp"
             android:layout_marginTop="12dp"
+            android:layout_marginEnd="8dp"
+            android:ellipsize="end"
+            android:maxLines="1"
             android:textColor="@color/primary_dark"
             android:textStyle="bold"
             app:chipBackgroundColor="@color/primary_alpha_12"
             app:chipMinHeight="34dp"
             app:chipStrokeColor="@color/secondary_alpha_40"
             app:chipStrokeWidth="1dp"
+            app:layout_constraintEnd_toStartOf="@+id/ivFavorite"
             app:layout_constraintStart_toEndOf="@+id/ivCover"
             app:layout_constraintTop_toBottomOf="@+id/tvYazar"
             tools:text="Fiction" />
+
+        <TextView
+            android:id="@+id/tvRating"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="18dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginEnd="8dp"
+            android:maxLines="1"
+            android:textAppearance="@style/TextAppearance.DijitalRaf.Caption"
+            android:textColor="@color/text_secondary"
+            app:layout_constraintEnd_toStartOf="@+id/ivFavorite"
+            app:layout_constraintStart_toEndOf="@+id/ivCover"
+            app:layout_constraintTop_toBottomOf="@+id/chipTur"
+            tools:text="⭐⭐⭐⭐⭐" />
+
+        <TextView
+            android:id="@+id/tvReadDate"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="18dp"
+            android:layout_marginTop="4dp"
+            android:layout_marginEnd="8dp"
+            android:maxLines="1"
+            android:textAppearance="@style/TextAppearance.DijitalRaf.Caption"
+            android:textColor="@color/text_secondary"
+            app:layout_constraintEnd_toStartOf="@+id/ivFavorite"
+            app:layout_constraintStart_toEndOf="@+id/ivCover"
+            app:layout_constraintTop_toBottomOf="@+id/tvRating"
+            tools:text="Okundu: 12.04.2026" />
 
         <ImageButton
             android:id="@+id/ivFavorite"
@@ -98,13 +132,25 @@
             android:id="@+id/ivShare"
             android:layout_width="44dp"
             android:layout_height="44dp"
-            android:layout_marginTop="6dp"
+            android:layout_marginTop="2dp"
             android:background="?attr/selectableItemBackgroundBorderless"
             android:contentDescription="Kitap paylaş"
             android:padding="8dp"
             android:src="@android:drawable/ic_menu_share"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/ivFavorite" />
+
+        <ImageView
+            android:id="@+id/ivReadStatus"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:layout_marginTop="6dp"
+            android:contentDescription="@null"
+            android:src="@drawable/ic_done_24"
+            android:tint="#2E7D32"
+            app:layout_constraintEnd_toEndOf="@+id/ivShare"
+            app:layout_constraintTop_toBottomOf="@+id/ivShare"
+            tools:visibility="visible" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

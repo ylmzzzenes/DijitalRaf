@@ -14,6 +14,19 @@
         android:layout_height="wrap_content"
         android:background="@color/background" />
 
+    <TextView
+        android:id="@+id/tvInteractionNote"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/grid_2"
+        android:layout_marginTop="@dimen/grid_1"
+        android:layout_marginEnd="@dimen/grid_2"
+        android:background="@drawable/bg_book_cover"
+        android:padding="@dimen/grid_1"
+        android:text="@string/library_long_press_hint"
+        android:textAppearance="@style/TextAppearance.DijitalRaf.Caption"
+        android:textColor="@color/text_secondary" />
+
     <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"

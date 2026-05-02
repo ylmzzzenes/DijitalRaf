@@ -24,7 +24,10 @@
     <string name="logout">Çıkış yap</string>
     <string name="profile_subtitle">Hesap</string>
     <string name="swipe_delete_hint">Sola kaydır: sil · Sağa kaydır: favori</string>
-    <string name="library_list_hints">Karta dokun: okundu / okunacak · Sola kaydır: sil · Sağa kaydır: favori</string>
+    <string name="library_list_hints">Karta dokun: okundu / okunacak · Basılı tut: detaylar · Sola kaydır: sil · Sağa kaydır: favori</string>
+    <string name="library_long_press_hint">Karta basılı tutarsanız detayları görebilirsiniz!</string>
+    <string name="library_long_press_hint_read">Karta basılı tutarsanız detayları görebilirsiniz!</string>
+    <string name="library_long_press_hint_to_read">Karta basılı tutarsanız detayları görebilirsiniz.</string>
     <string name="marked_as_read">Okundu olarak işaretlendi</string>
     <string name="marked_as_to_read">Okunacaklara alındı</string>
 
@@ -50,6 +53,12 @@
     <string name="ai_chat_history_dialog_title">Eski konuşma</string>
     <string name="ai_chat_assistant_coming_soon">Sohbet asistanı yakında eklenecek.</string>
     <string name="dialog_close">Kapat</string>
+    <string name="book_detail_author">Yazar: %1$s</string>
+    <string name="book_detail_genre">Kategori: %1$s</string>
+    <string name="book_detail_status">Durum: %1$s</string>
+    <string name="book_detail_rating">Puan: %1$s</string>
+    <string name="book_detail_read_date">Okundu: %1$s</string>
+    <string name="book_detail_not_read_yet">Henüz okunmadı.</string>
     <string name="cd_ai_history_long_press">Geçmişi görmek için basılı tutun veya dokunun</string>
     <string name="book_deleted">Kitap silindi</string>
     <string name="favorite_added">Favorilere eklendi</string>
