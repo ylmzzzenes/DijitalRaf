@@ -9,6 +9,12 @@ public class Kitap {
     private boolean favorite;
     private boolean okundu;
     private String note;
+    /** Google Books vb. özet; HTML olabilir, gösterimde parse edilir. */
+    private String aciklama;
+    /** Sayfa sayısı metin olarak (Firebase uyumu ve boş değer için). */
+    private String sayfaSayisi;
+    /** Yayın tarihi (örn. 2021-03-15 veya 2021); API ham değeri. */
+    private String yayinTarihi;
     private long createdAt;
     private long updatedAt;
 
@@ -102,6 +108,30 @@ public class Kitap {
 
     public void setNote(String note) {
         this.note = note;
+    }
+
+    public String getAciklama() {
+        return aciklama;
+    }
+
+    public void setAciklama(String aciklama) {
+        this.aciklama = aciklama;
+    }
+
+    public String getSayfaSayisi() {
+        return sayfaSayisi;
+    }
+
+    public void setSayfaSayisi(String sayfaSayisi) {
+        this.sayfaSayisi = sayfaSayisi;
+    }
+
+    public String getYayinTarihi() {
+        return yayinTarihi;
+    }
+
+    public void setYayinTarihi(String yayinTarihi) {
+        this.yayinTarihi = yayinTarihi;
     }
 
     public long getCreatedAt() {

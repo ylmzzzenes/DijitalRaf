@@ -51,6 +51,9 @@ public class KitapEkleActivity extends AppCompatActivity {
     private OkHttpClient client;
 
     private String selectedImageUrl = "";
+    private String apiAciklama = "";
+    private String apiSayfaSayisi = "";
+    private String apiYayinTarihi = "";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -143,6 +146,9 @@ public class KitapEkleActivity extends AppCompatActivity {
         }
 
         selectedImageUrl = "";
+        apiAciklama = "";
+        apiSayfaSayisi = "";
+        apiYayinTarihi = "";
         tilKitapAdi.setError(null);
         setApiLoading(true);
 
@@ -215,6 +221,10 @@ public class KitapEkleActivity extends AppCompatActivity {
                     String category = "";
                     String thumbnailUrl = extractThumbnailUrl(volumeInfo);
 
+                    String description = volumeInfo.optString("description", "");
+                    int pageCount = volumeInfo.optInt("pageCount", 0);
+                    String publishedDate = volumeInfo.optString("publishedDate", "");
+
                     JSONArray authors = volumeInfo.optJSONArray("authors");
                     if (authors != null && authors.length() > 0) {
                         author = authors.getString(0);
@@ -229,6 +239,9 @@ public class KitapEkleActivity extends AppCompatActivity {
                     final String finalAuthor = author;
                     final String finalCategory = category;
                     final String finalThumbnailUrl = thumbnailUrl;
+                    final String finalDescription = description != null ? description : "";
+                    final String finalSayfa = pageCount > 0 ? String.valueOf(pageCount) : "";
+                    final String finalYayin = publishedDate != null ? publishedDate : "";
 
                     runOnUiThread(() -> {
                         setApiLoading(false);
@@ -238,6 +251,9 @@ public class KitapEkleActivity extends AppCompatActivity {
                         etTur.setText(finalCategory);
 
                         selectedImageUrl = finalThumbnailUrl;
+                        apiAciklama = finalDescription;
+                        apiSayfaSayisi = finalSayfa;
+                        apiYayinTarihi = finalYayin;
 
                         updatePreview();
                         Toast.makeText(KitapEkleActivity.this, R.string.book_info_loaded, Toast.LENGTH_SHORT).show();
@@ -351,6 +367,16 @@ public class KitapEkleActivity extends AppCompatActivity {
         kitap.put("tur", tur);
         kitap.put("imageUrl", selectedImageUrl);
         kitap.put("createdAt", System.currentTimeMillis());
+
+        if (apiAciklama != null && !apiAciklama.trim().isEmpty()) {
+            kitap.put("aciklama", apiAciklama.trim());
+        }
+        if (apiSayfaSayisi != null && !apiSayfaSayisi.trim().isEmpty()) {
+            kitap.put("sayfaSayisi", apiSayfaSayisi.trim());
+        }
+        if (apiYayinTarihi != null && !apiYayinTarihi.trim().isEmpty()) {
+            kitap.put("yayinTarihi", apiYayinTarihi.trim());
+        }
 
         kitaplarRef.push().setValue(kitap)
                 .addOnSuccessListener(unused -> {
