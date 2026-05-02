@@ -145,6 +145,11 @@
     <string name="login_title">Giriş Yap</string>
     <string name="hint_email">E-posta</string>
     <string name="hint_password">Şifre</string>
+    <string name="forgot_password_link">Şifremi unuttum</string>
+    <string name="password_reset_email_sent">Şifre yenileme bağlantısı e-posta adresinize gönderildi. Gelen kutunuzu ve gerekiyorsa önemsiz (spam) klasörünü kontrol edin.</string>
+    <string name="password_reset_send_failed">Şifre sıfırlama e-postası gönderilemedi. %1$s</string>
+    <string name="auth_error_invalid_email_reset">Bu e-posta adresi geçerli görünmüyor. Lütfen kontrol edip yeniden deneyin.</string>
+    <string name="auth_error_user_not_found_reset">Bu e-posta ile kayıtlı bir hesap bulunamadı. Adresi kontrol edin veya kayıt olun.</string>
     <string name="login_button">Giriş Yap</string>
     <string name="login_with_google">Google ile Giriş Yap</string>
     <string name="login_divider_or">veya</string>
