@@ -7,13 +7,16 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.text.TextUtils;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
+import android.widget.RadioButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
@@ -29,6 +32,9 @@ import com.example.dijitalraf.data.AiService;
 import com.example.dijitalraf.data.FirebaseRtdb;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+import com.google.android.material.progressindicator.LinearProgressIndicator;
+import com.google.android.material.textfield.TextInputEditText;
+import com.google.android.material.textfield.TextInputLayout;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseReference;
@@ -68,6 +74,9 @@ public class DashboardFragment extends Fragment {
     private DashboardBookRowAdapter readAdapter;
     private DashboardBookRowAdapter toReadAdapter;
     private SharedPreferences dashboardPrefs;
+    private MaterialButton btnReadingGoalEdit;
+    private TextView tvReadingGoalSummary;
+    private LinearProgressIndicator readingGoalProgress;
     private boolean aiRecommendationsExpanded;
     private boolean aiRecommendationsLoading;
 
@@ -102,6 +111,10 @@ public class DashboardFragment extends Fragment {
         rvToReadBooks = view.findViewById(R.id.rvToReadBooks);
         tvReadBooksEmpty = view.findViewById(R.id.tvReadBooksEmpty);
         tvToReadBooksEmpty = view.findViewById(R.id.tvToReadBooksEmpty);
+        btnReadingGoalEdit = view.findViewById(R.id.btnReadingGoalEdit);
+        tvReadingGoalSummary = view.findViewById(R.id.tvReadingGoalSummary);
+        readingGoalProgress = view.findViewById(R.id.readingGoalProgress);
+        btnReadingGoalEdit.setOnClickListener(v -> showReadingGoalDialog());
 
         readAdapter = new DashboardBookRowAdapter(kitap -> {
             if (kitap.getId() != null) {
@@ -288,6 +301,108 @@ public class DashboardFragment extends Fragment {
         boolean toReadEmpty = toRead.isEmpty();
         tvToReadBooksEmpty.setVisibility(toReadEmpty ? View.VISIBLE : View.GONE);
         rvToReadBooks.setVisibility(toReadEmpty ? View.GONE : View.VISIBLE);
+
+        updateReadingGoalUi(books);
+    }
+
+    private void updateReadingGoalUi(@Nullable List<Kitap> books) {
+        if (!isAdded() || tvReadingGoalSummary == null || readingGoalProgress == null || btnReadingGoalEdit == null) {
+            return;
+        }
+        int target = ReadingGoalStore.getTargetBooks(requireContext());
+        boolean monthly = ReadingGoalStore.isMonthly(requireContext());
+        List<Kitap> all = books != null ? books : new ArrayList<>();
+        int count = ReadingGoalStore.countReadBooksInCurrentPeriod(requireContext(), all);
+
+        if (target <= 0) {
+            btnReadingGoalEdit.setText(R.string.reading_goal_set);
+            tvReadingGoalSummary.setText(R.string.reading_goal_not_set);
+            readingGoalProgress.setProgressCompat(0, true);
+            return;
+        }
+
+        btnReadingGoalEdit.setText(R.string.reading_goal_edit);
+        if (monthly) {
+            tvReadingGoalSummary.setText(getString(R.string.reading_goal_summary_monthly, count, target));
+        } else {
+            tvReadingGoalSummary.setText(getString(R.string.reading_goal_summary_yearly, count, target));
+        }
+        int pct = target == 0 ? 0 : (int) Math.min(100L, (100L * count) / target);
+        readingGoalProgress.setProgressCompat(pct, true);
+
+        maybeShowReadingGoalCompleted(count, target);
+    }
+
+    private void maybeShowReadingGoalCompleted(int count, int target) {
+        if (!isAdded() || count < target || target <= 0) {
+            return;
+        }
+        String periodKey = ReadingGoalStore.currentPeriodKey(requireContext());
+        if (periodKey.equals(ReadingGoalStore.getCongratsPeriodShown(requireContext()))) {
+            return;
+        }
+        ReadingGoalStore.markCongratsShownForCurrentPeriod(requireContext());
+        new MaterialAlertDialogBuilder(requireContext())
+                .setTitle(R.string.reading_goal_congrats_title)
+                .setMessage(R.string.reading_goal_congrats_message)
+                .setPositiveButton(R.string.dialog_close, (d, w) -> d.dismiss())
+                .show();
+    }
+
+    private void showReadingGoalDialog() {
+        if (!isAdded()) {
+            return;
+        }
+        View dialogView = LayoutInflater.from(requireContext())
+                .inflate(R.layout.dialog_reading_goal, null, false);
+        RadioButton rbMonthly = dialogView.findViewById(R.id.rbReadingGoalMonthly);
+        RadioButton rbYearly = dialogView.findViewById(R.id.rbReadingGoalYearly);
+        TextInputLayout til = dialogView.findViewById(R.id.tilReadingGoalTarget);
+        TextInputEditText et = dialogView.findViewById(R.id.etReadingGoalTarget);
+
+        boolean monthly = ReadingGoalStore.isMonthly(requireContext());
+        int currentTarget = ReadingGoalStore.getTargetBooks(requireContext());
+        if (monthly) {
+            rbMonthly.setChecked(true);
+        } else {
+            rbYearly.setChecked(true);
+        }
+        if (currentTarget > 0) {
+            et.setText(String.valueOf(currentTarget));
+        }
+
+        MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(requireContext())
+                .setTitle(R.string.reading_goal_title)
+                .setView(dialogView)
+                .setNegativeButton(R.string.dialog_cancel, (d, w) -> d.dismiss())
+                .setPositiveButton(R.string.reading_goal_dialog_confirm, null);
+
+        AlertDialog dialog = builder.create();
+        dialog.setOnShowListener(d -> dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(v -> {
+            boolean isMonthly = rbMonthly.isChecked();
+            String raw = et.getText() != null ? et.getText().toString().trim() : "";
+            if (TextUtils.isEmpty(raw)) {
+                til.setError(getString(R.string.reading_goal_error_invalid_target));
+                return;
+            }
+            int t;
+            try {
+                t = Integer.parseInt(raw);
+            } catch (NumberFormatException e) {
+                til.setError(getString(R.string.reading_goal_error_invalid_target));
+                return;
+            }
+            if (t < 1 || t > 999) {
+                til.setError(getString(R.string.reading_goal_error_invalid_target));
+                return;
+            }
+            til.setError(null);
+            ReadingGoalStore.saveGoal(requireContext(), isMonthly, t);
+            Toast.makeText(requireContext(), R.string.reading_goal_saved, Toast.LENGTH_SHORT).show();
+            updateReadingGoalUi(viewModel.getBooks().getValue());
+            dialog.dismiss();
+        }));
+        dialog.show();
     }
 
     private static void sortByUpdatedDesc(List<Kitap> list) {
