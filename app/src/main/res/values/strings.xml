@@ -129,6 +129,10 @@
     <string name="book_detail_favorite_remove">Favorilerden çıkar</string>
     <string name="book_detail_read_switch">Okundu</string>
     <string name="book_detail_bottom_hint">Hızlı işlemler — tek elle erişim için altta</string>
+    <string name="book_detail_section_user_actions">Sen ve bu kitap</string>
+    <string name="book_detail_hint_user_actions">Not ve puanınız bu cihazda da saklanır; kitabı tekrar açtığınızda geri yüklenir. Bulutta da güncellenir.</string>
+    <string name="book_detail_save_actions">Kaydet</string>
+    <string name="book_detail_actions_saved">Not ve puan kaydedildi</string>
     <string name="book_detail_label_personal_note">Kişisel not</string>
     <string name="book_detail_personal_note_hint">Notunuz hesabınızla bulutta saklanır; tüm cihazlarda güncellenir.</string>
     <string name="hint_personal_note">Kitap hakkında notunuz</string>
