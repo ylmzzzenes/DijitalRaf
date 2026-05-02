@@ -1,6 +1,7 @@
 package com.example.dijitalraf.ui.home;
 
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -81,13 +82,17 @@ public class DashboardFragment extends Fragment {
         tvReadBooksEmpty = view.findViewById(R.id.tvReadBooksEmpty);
         tvToReadBooksEmpty = view.findViewById(R.id.tvToReadBooksEmpty);
 
-        readAdapter = new DashboardBookRowAdapter(() -> {
-            if (requireActivity() instanceof HomeActivity) {
+        readAdapter = new DashboardBookRowAdapter(kitap -> {
+            if (kitap.getId() != null) {
+                startActivity(BookDetailActivity.newIntent(requireContext(), kitap.getId()));
+            } else if (requireActivity() instanceof HomeActivity) {
                 ((HomeActivity) requireActivity()).openBookSection(true);
             }
         });
-        toReadAdapter = new DashboardBookRowAdapter(() -> {
-            if (requireActivity() instanceof HomeActivity) {
+        toReadAdapter = new DashboardBookRowAdapter(kitap -> {
+            if (kitap.getId() != null) {
+                startActivity(BookDetailActivity.newIntent(requireContext(), kitap.getId()));
+            } else if (requireActivity() instanceof HomeActivity) {
                 ((HomeActivity) requireActivity()).openBookSection(false);
             }
         });

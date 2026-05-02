@@ -63,6 +63,12 @@ public class FavoritesFragment extends Fragment {
             if (kitap.getId() == null) {
                 return;
             }
+            startActivity(BookDetailActivity.newIntent(requireContext(), kitap.getId()));
+        });
+        adapter.setOnBookLongClickListener((kitap, position) -> {
+            if (kitap.getId() == null) {
+                return;
+            }
             boolean next = !kitap.isOkundu();
             kitap.setOkundu(next);
             viewModel.persistKitap(kitap);

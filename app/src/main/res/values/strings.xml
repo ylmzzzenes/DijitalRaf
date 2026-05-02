@@ -17,17 +17,17 @@
     <string name="empty_to_read_title">Okunacak kitap yok</string>
     <string name="empty_to_read_message">Alttaki Kitap Ekle ile yeni kitap ekleyin veya Google Books ile arayın.</string>
     <string name="empty_read_books_title">Henüz okuduğun kitap yok</string>
-    <string name="empty_read_books_message">Okunacak Kitaplar listesinde bir karta dokunarak okundu işaretleyebilirsin.</string>
+    <string name="empty_read_books_message">Okunacak Kitaplar listesinde bir karta basılı tutarak okundu işaretleyebilirsin.</string>
     <string name="empty_favorites_title">Favori kitabınız yok</string>
     <string name="empty_favorites_message">Kitap listesinde sağa kaydırarak favorilere ekleyebilirsiniz.</string>
     <string name="action_add_book">Kitap ekle</string>
     <string name="logout">Çıkış yap</string>
     <string name="profile_subtitle">Hesap</string>
     <string name="swipe_delete_hint">Sola kaydır: sil · Sağa kaydır: favori</string>
-    <string name="library_list_hints">Karta dokun: okundu / okunacak · Basılı tut: detaylar · Sola kaydır: sil · Sağa kaydır: favori</string>
-    <string name="library_long_press_hint">Karta basılı tutarsanız detayları görebilirsiniz!</string>
-    <string name="library_long_press_hint_read">Karta basılı tutarsanız detayları görebilirsiniz!</string>
-    <string name="library_long_press_hint_to_read">Karta basılı tutarsanız detayları görebilirsiniz.</string>
+    <string name="library_list_hints">Karta dokun: detay · Basılı tut: okundu / okunacak · Sola kaydır: sil · Sağa kaydır: favori</string>
+    <string name="library_long_press_hint">Karta basılı tutarak okundu / okunacak durumunu değiştirebilirsiniz.</string>
+    <string name="library_long_press_hint_read">Karta basılı tutarak okundu / okunacak durumunu değiştirebilirsiniz.</string>
+    <string name="library_long_press_hint_to_read">Karta basılı tutarak okundu / okunacak durumunu değiştirebilirsiniz.</string>
     <string name="marked_as_read">Okundu olarak işaretlendi</string>
     <string name="marked_as_to_read">Okunacaklara alındı</string>
 
@@ -35,7 +35,7 @@
     <string name="welcome_generic">Hoş geldin</string>
     <string name="dashboard_section_read">Okunan Kitaplar</string>
     <string name="dashboard_section_to_read">Okunacak Kitaplar</string>
-    <string name="dashboard_row_empty_read">Henüz okunan kitap yok. Okunacak listesinde karta dokunarak işaretleyebilirsin.</string>
+    <string name="dashboard_row_empty_read">Henüz okunan kitap yok. Okunacak listesinde karta basılı tutarak işaretleyebilirsin.</string>
     <string name="dashboard_row_empty_to_read">Okunacak kitap yok. Alttan Kitap Ekle ile rafını doldur.</string>
     <string name="ai_section_title">AI Kitap Önerileri</string>
     <string name="ai_old_recommendations">Eski Öneriler</string>
@@ -59,6 +59,14 @@
     <string name="book_detail_rating">Puan: %1$s</string>
     <string name="book_detail_read_date">Okundu: %1$s</string>
     <string name="book_detail_not_read_yet">Henüz okunmadı.</string>
+    <string name="info_not_available">Bilgi bulunamadı</string>
+    <string name="book_detail_screen_title">Kitap detayı</string>
+    <string name="book_detail_label_description">Özet / açıklama</string>
+    <string name="book_detail_label_pages">Sayfa sayısı</string>
+    <string name="book_detail_label_published">Yayınlanma tarihi</string>
+    <string name="book_detail_pages_value">%1$s sayfa</string>
+    <string name="book_detail_author_line">Yazar: %1$s</string>
+    <string name="book_detail_load_error">Kitap yüklenemedi.</string>
     <string name="cd_ai_history_long_press">Geçmişi görmek için basılı tutun veya dokunun</string>
     <string name="book_deleted">Kitap silindi</string>
     <string name="favorite_added">Favorilere eklendi</string>

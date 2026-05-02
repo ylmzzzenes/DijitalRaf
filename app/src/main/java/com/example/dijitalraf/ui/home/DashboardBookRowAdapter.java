@@ -17,7 +17,7 @@ import java.util.List;
 public class DashboardBookRowAdapter extends RecyclerView.Adapter<DashboardBookRowAdapter.Holder> {
 
     public interface Listener {
-        void onRowClick();
+        void onRowClick(@NonNull Kitap kitap);
     }
 
     private final List<Kitap> items = new ArrayList<>();
@@ -61,7 +61,7 @@ public class DashboardBookRowAdapter extends RecyclerView.Adapter<DashboardBookR
             iv.setImageResource(R.drawable.ic_menu_book_24);
         }
 
-        holder.itemView.setOnClickListener(v -> listener.onRowClick());
+        holder.itemView.setOnClickListener(v -> listener.onRowClick(kitap));
     }
 
     @Override

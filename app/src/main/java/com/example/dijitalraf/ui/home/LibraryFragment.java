@@ -24,7 +24,6 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.dijitalraf.R;
 import com.google.android.material.appbar.MaterialToolbar;
-import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.auth.FirebaseAuth;
@@ -112,18 +111,21 @@ public class LibraryFragment extends Fragment {
             if (kitap.getId() == null) {
                 return;
             }
-
+            startActivity(BookDetailActivity.newIntent(requireContext(), kitap.getId()));
+        });
+        adapter.setOnBookLongClickListener((kitap, position) -> {
+            if (kitap.getId() == null) {
+                return;
+            }
             boolean next = !kitap.isOkundu();
             kitap.setOkundu(next);
             viewModel.persistKitap(kitap);
-
             Snackbar.make(
                     recyclerBooks,
                     next ? R.string.marked_as_read : R.string.marked_as_to_read,
                     Snackbar.LENGTH_SHORT
             ).show();
         });
-        adapter.setOnBookLongClickListener((kitap, position) -> showBookDetailsDialog(kitap));
 
         recyclerBooks.setAdapter(adapter);
 
@@ -335,50 +337,6 @@ public class LibraryFragment extends Fragment {
                 nextFavorite ? R.string.favorite_added : R.string.favorite_removed,
                 Snackbar.LENGTH_SHORT
         ).show();
-    }
-
-    private void showBookDetailsDialog(@NonNull Kitap kitap) {
-        String title = safeValue(kitap.getKitapAdi());
-        String author = safeValue(kitap.getYazar());
-        String genre = safeValue(kitap.getTur());
-        String readState = kitap.isOkundu()
-                ? getString(R.string.marked_as_read)
-                : getString(R.string.marked_as_to_read);
-        String readDate = kitap.isOkundu()
-                ? getString(R.string.book_detail_read_date, formatDate(kitap.getUpdatedAt()))
-                : getString(R.string.book_detail_not_read_yet);
-        String rating = kitap.isOkundu()
-                ? (kitap.isFavorite() ? "⭐⭐⭐⭐⭐" : "⭐⭐⭐⭐☆")
-                : "-";
-
-        String message =
-                getString(R.string.book_detail_author, author) + "\n" +
-                getString(R.string.book_detail_genre, genre) + "\n" +
-                getString(R.string.book_detail_status, readState) + "\n" +
-                getString(R.string.book_detail_rating, rating) + "\n" +
-                readDate;
-
-        new MaterialAlertDialogBuilder(requireContext())
-                .setTitle(title)
-                .setMessage(message)
-                .setPositiveButton(R.string.dialog_close, (dialog, which) -> dialog.dismiss())
-                .show();
-    }
-
-    private String safeValue(String value) {
-        if (value == null || value.trim().isEmpty()) {
-            return "-";
-        }
-        return value.trim();
-    }
-
-    private String formatDate(long millis) {
-        if (millis <= 0L) {
-            return "-";
-        }
-        java.text.SimpleDateFormat sdf =
-                new java.text.SimpleDateFormat("dd.MM.yyyy", java.util.Locale.getDefault());
-        return sdf.format(new java.util.Date(millis));
     }
 
     private void updateEmpty() {
