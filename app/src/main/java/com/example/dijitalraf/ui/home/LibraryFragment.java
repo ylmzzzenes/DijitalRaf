@@ -10,6 +10,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -22,11 +23,11 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.dijitalraf.R;
-import com.example.dijitalraf.data.FavoritesHelper;
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.FirebaseDatabase;
 
 import java.util.ArrayList;
@@ -102,19 +103,23 @@ public class LibraryFragment extends Fragment {
         recyclerBooks.setItemAnimator(new DefaultItemAnimator());
 
         adapter = new KitapAdapter(requireContext(), kitapListesi);
+
         adapter.setOnBookClickListener((kitap, position) -> {
             if (kitap.getId() == null) {
                 return;
             }
+
             boolean next = !kitap.isOkundu();
             kitap.setOkundu(next);
             viewModel.persistKitap(kitap);
+
             Snackbar.make(
                     recyclerBooks,
                     next ? R.string.marked_as_read : R.string.marked_as_to_read,
                     Snackbar.LENGTH_SHORT
             ).show();
         });
+
         recyclerBooks.setAdapter(adapter);
 
         setupSwipeActions();
@@ -145,10 +150,20 @@ public class LibraryFragment extends Fragment {
                 0,
                 ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT
         ) {
-            private final ColorDrawable deleteBackground = new ColorDrawable(Color.parseColor("#D32F2F"));
+            private final ColorDrawable deleteBackground =
+                    new ColorDrawable(Color.parseColor("#D32F2F"));
+
+            private final ColorDrawable favoriteBackground =
+                    new ColorDrawable(Color.parseColor("#6B8E23"));
+
             private final Drawable deleteIcon = ContextCompat.getDrawable(
                     requireContext(),
                     android.R.drawable.ic_menu_delete
+            );
+
+            private final Drawable favoriteIcon = ContextCompat.getDrawable(
+                    requireContext(),
+                    R.drawable.ic_favorite_24
             );
 
             @Override
@@ -170,26 +185,21 @@ public class LibraryFragment extends Fragment {
                 View itemView = viewHolder.itemView;
 
                 if (dX < 0) {
-                    deleteBackground.setBounds(
-                            itemView.getRight() + (int) dX,
-                            itemView.getTop(),
-                            itemView.getRight(),
-                            itemView.getBottom()
+                    drawSwipeBackground(
+                            canvas,
+                            itemView,
+                            deleteBackground,
+                            deleteIcon,
+                            false
                     );
-                    deleteBackground.draw(canvas);
-
-                    if (deleteIcon != null) {
-                        deleteIcon.setTint(Color.WHITE);
-
-                        int iconMargin = (itemView.getHeight() - deleteIcon.getIntrinsicHeight()) / 2;
-                        int iconTop = itemView.getTop() + iconMargin;
-                        int iconBottom = iconTop + deleteIcon.getIntrinsicHeight();
-                        int iconRight = itemView.getRight() - iconMargin;
-                        int iconLeft = iconRight - deleteIcon.getIntrinsicWidth();
-
-                        deleteIcon.setBounds(iconLeft, iconTop, iconRight, iconBottom);
-                        deleteIcon.draw(canvas);
-                    }
+                } else if (dX > 0) {
+                    drawSwipeBackground(
+                            canvas,
+                            itemView,
+                            favoriteBackground,
+                            favoriteIcon,
+                            true
+                    );
                 }
 
                 super.onChildDraw(canvas, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive);
@@ -203,17 +213,17 @@ public class LibraryFragment extends Fragment {
                     return;
                 }
 
-                Kitap deletedBook = kitapListesi.get(position);
+                Kitap selectedBook = kitapListesi.get(position);
 
-                if (deletedBook.getId() == null) {
+                if (selectedBook.getId() == null) {
                     adapter.notifyItemChanged(position);
                     return;
                 }
 
                 if (direction == ItemTouchHelper.LEFT) {
-                    deleteBookWithUndo(deletedBook, position);
-                } else {
-                    toggleFavorite(deletedBook, position);
+                    deleteBookWithUndo(selectedBook, position);
+                } else if (direction == ItemTouchHelper.RIGHT) {
+                    toggleFavorite(selectedBook, position);
                 }
             }
         });
@@ -221,8 +231,63 @@ public class LibraryFragment extends Fragment {
         touchHelper.attachToRecyclerView(recyclerBooks);
     }
 
+    private void drawSwipeBackground(Canvas canvas,
+                                     View itemView,
+                                     ColorDrawable background,
+                                     Drawable icon,
+                                     boolean fromLeft) {
+
+        if (fromLeft) {
+            background.setBounds(
+                    itemView.getLeft(),
+                    itemView.getTop(),
+                    itemView.getRight(),
+                    itemView.getBottom()
+            );
+        } else {
+            background.setBounds(
+                    itemView.getLeft(),
+                    itemView.getTop(),
+                    itemView.getRight(),
+                    itemView.getBottom()
+            );
+        }
+
+        background.draw(canvas);
+
+        if (icon != null) {
+            icon.setTint(Color.WHITE);
+
+            int iconMargin = (itemView.getHeight() - icon.getIntrinsicHeight()) / 2;
+            int iconTop = itemView.getTop() + iconMargin;
+            int iconBottom = iconTop + icon.getIntrinsicHeight();
+
+            int iconLeft;
+            int iconRight;
+
+            if (fromLeft) {
+                iconLeft = itemView.getLeft() + iconMargin;
+                iconRight = iconLeft + icon.getIntrinsicWidth();
+            } else {
+                iconRight = itemView.getRight() - iconMargin;
+                iconLeft = iconRight - icon.getIntrinsicWidth();
+            }
+
+            icon.setBounds(iconLeft, iconTop, iconRight, iconBottom);
+            icon.draw(canvas);
+        }
+    }
+
     private void deleteBookWithUndo(Kitap deletedBook, int position) {
-        String uid = FirebaseAuth.getInstance().getCurrentUser().getUid();
+        FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
+
+        if (currentUser == null) {
+            adapter.notifyItemChanged(position);
+            Toast.makeText(requireContext(), "Kullanıcı oturumu bulunamadı.", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        String uid = currentUser.getUid();
 
         kitapListesi.remove(position);
         adapter.notifyItemRemoved(position);
@@ -253,16 +318,16 @@ public class LibraryFragment extends Fragment {
     }
 
     private void toggleFavorite(Kitap kitap, int position) {
-        boolean wasFav = kitap.isFavorite();
+        boolean nextFavorite = !kitap.isFavorite();
 
-        FavoritesHelper.toggle(kitap.getId(), wasFav);
-        kitap.setFavorite(!wasFav);
+        kitap.setFavorite(nextFavorite);
+        viewModel.persistKitap(kitap);
 
         adapter.notifyItemChanged(position);
 
         Snackbar.make(
                 recyclerBooks,
-                wasFav ? R.string.favorite_removed : R.string.favorite_added,
+                nextFavorite ? R.string.favorite_added : R.string.favorite_removed,
                 Snackbar.LENGTH_SHORT
         ).show();
     }
