@@ -22,7 +22,6 @@ import com.bumptech.glide.Glide;
 import com.example.dijitalraf.R;
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.button.MaterialButton;
-import com.google.android.material.card.MaterialCardView;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.materialswitch.MaterialSwitch;
 import com.google.android.material.textfield.TextInputEditText;
@@ -60,7 +59,6 @@ public class BookDetailActivity extends AppCompatActivity {
     private MaterialButton btnToggleDescription;
     private View progress;
     private View scrollContent;
-    private MaterialCardView detailBottomBar;
     private MaterialButton btnFavorite;
     private MaterialSwitch switchRead;
     private TextInputEditText etPersonalNote;
@@ -99,7 +97,6 @@ public class BookDetailActivity extends AppCompatActivity {
         btnToggleDescription = findViewById(R.id.btnToggleDescription);
         progress = findViewById(R.id.progressLoading);
         scrollContent = findViewById(R.id.scrollContent);
-        detailBottomBar = findViewById(R.id.detailBottomBar);
         btnFavorite = findViewById(R.id.btnFavorite);
         switchRead = findViewById(R.id.switchRead);
         etPersonalNote = findViewById(R.id.etPersonalNote);
@@ -148,7 +145,6 @@ public class BookDetailActivity extends AppCompatActivity {
 
         progress.setVisibility(View.VISIBLE);
         scrollContent.setVisibility(View.INVISIBLE);
-        detailBottomBar.setVisibility(View.GONE);
 
         bookRef = FirebaseDatabase.getInstance(DATABASE_URL)
                 .getReference("books")
@@ -160,7 +156,6 @@ public class BookDetailActivity extends AppCompatActivity {
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 progress.setVisibility(View.GONE);
                 scrollContent.setVisibility(View.VISIBLE);
-                detailBottomBar.setVisibility(View.VISIBLE);
 
                 if (!snapshot.exists()) {
                     Toast.makeText(BookDetailActivity.this, R.string.book_not_found, Toast.LENGTH_SHORT).show();
@@ -176,8 +171,7 @@ public class BookDetailActivity extends AppCompatActivity {
                 }
                 kitap.setId(bookId);
                 bind(kitap);
-                applyRatingFromKitap(kitap);
-                applyNoteFromKitap(kitap);
+                applyUserActionsMerged(kitap);
             }
 
             @Override
@@ -232,10 +226,55 @@ public class BookDetailActivity extends AppCompatActivity {
             Glide.with(this).clear(ivCover);
             ivCover.setImageResource(R.drawable.ic_menu_book_24);
         }
+    }
 
-        lastFavorite = kitap.isFavorite();
+    /**
+     * Sunucudan gelen kitap ile cihazdaki tek kayıtlı kullanıcı durumunu birleştirir; yerel kayıt varsa önceliklidir.
+     */
+    private void applyUserActionsMerged(@NonNull Kitap kitap) {
+        BookDetailUserActionsStore.Snapshot local =
+                BookDetailUserActionsStore.load(this, bookIdArg);
+
+        String mergedNote = kitap.getNote() != null ? kitap.getNote() : "";
+        int mergedStars = kitap.getYildiz();
+        boolean mergedFavorite = kitap.isFavorite();
+        boolean mergedRead = kitap.isOkundu();
+
+        if (local != null) {
+            mergedNote = local.note;
+            mergedStars = local.stars;
+            mergedFavorite = local.favorite;
+            mergedRead = local.read;
+        }
+
+        if (!etPersonalNote.hasFocus()) {
+            etPersonalNote.setText(mergedNote);
+            etPersonalNote.setSelection(mergedNote.length());
+        }
+
+        ratingBarProgrammatic = true;
+        ratingBar.setRating(mergedStars);
+        ratingBarProgrammatic = false;
+
+        lastFavorite = mergedFavorite;
         applyFavoriteButtonUi(lastFavorite);
-        applyReadSwitchFromKitap(kitap.isOkundu());
+        applyReadSwitchFromKitap(mergedRead);
+
+        if (local == null) {
+            persistSnapshotFromUi();
+        }
+    }
+
+    private void persistSnapshotFromUi() {
+        if (bookIdArg == null) {
+            return;
+        }
+        BookDetailUserActionsStore.Snapshot s = new BookDetailUserActionsStore.Snapshot();
+        s.note = etPersonalNote.getText() != null ? etPersonalNote.getText().toString() : "";
+        s.stars = Math.max(0, Math.min(5, (int) ratingBar.getRating()));
+        s.favorite = lastFavorite;
+        s.read = switchRead.isChecked();
+        BookDetailUserActionsStore.save(this, bookIdArg, s);
     }
 
     private void bindDescription(@Nullable String descHtml) {
@@ -317,7 +356,10 @@ public class BookDetailActivity extends AppCompatActivity {
                 return;
             }
             boolean next = !lastFavorite;
+            lastFavorite = next;
             booksViewModel.updateBookFavorite(bookIdArg, next);
+            applyFavoriteButtonUi(next);
+            persistSnapshotFromUi();
             Toast.makeText(
                     this,
                     next ? R.string.favorite_added : R.string.favorite_removed,
@@ -349,10 +391,12 @@ public class BookDetailActivity extends AppCompatActivity {
                     switchRead.setChecked(true);
                     switchReadProgrammatic = false;
                     booksViewModel.updateBookOkundu(bookIdArg, true);
+                    persistSnapshotFromUi();
                     Toast.makeText(this, R.string.marked_as_read, Toast.LENGTH_SHORT).show();
                 });
             } else {
                 booksViewModel.updateBookOkundu(bookIdArg, false);
+                persistSnapshotFromUi();
                 Toast.makeText(this, R.string.marked_as_to_read, Toast.LENGTH_SHORT).show();
             }
         });
@@ -374,26 +418,9 @@ public class BookDetailActivity extends AppCompatActivity {
             }
             int stars = Math.max(0, Math.min(5, (int) rating));
             booksViewModel.updateBookYildiz(bookIdArg, stars);
+            persistSnapshotFromUi();
             Toast.makeText(this, R.string.rating_saved, Toast.LENGTH_SHORT).show();
         });
-    }
-
-    private void applyRatingFromKitap(@NonNull Kitap kitap) {
-        ratingBarProgrammatic = true;
-        ratingBar.setRating(kitap.getYildiz());
-        ratingBarProgrammatic = false;
-    }
-
-    private void applyNoteFromKitap(@NonNull Kitap kitap) {
-        if (etPersonalNote == null) {
-            return;
-        }
-        if (etPersonalNote.hasFocus()) {
-            return;
-        }
-        String remote = kitap.getNote() != null ? kitap.getNote() : "";
-        etPersonalNote.setText(remote);
-        etPersonalNote.setSelection(remote.length());
     }
 
     private void setupPersonalNoteActions() {
@@ -404,14 +431,11 @@ public class BookDetailActivity extends AppCompatActivity {
             String text = etPersonalNote.getText() != null
                     ? etPersonalNote.getText().toString().trim()
                     : "";
-            if (text.isEmpty()) {
-                booksViewModel.updateBookNote(bookIdArg, "");
-                etPersonalNote.setText("");
-                Toast.makeText(this, R.string.personal_note_deleted, Toast.LENGTH_SHORT).show();
-            } else {
-                booksViewModel.updateBookNote(bookIdArg, text);
-                Toast.makeText(this, R.string.personal_note_saved, Toast.LENGTH_SHORT).show();
-            }
+            int stars = Math.max(0, Math.min(5, (int) ratingBar.getRating()));
+            booksViewModel.updateBookNote(bookIdArg, text);
+            booksViewModel.updateBookYildiz(bookIdArg, stars);
+            persistSnapshotFromUi();
+            Toast.makeText(this, R.string.book_detail_actions_saved, Toast.LENGTH_SHORT).show();
         });
 
         btnDeletePersonalNote.setOnClickListener(v -> {
@@ -431,6 +455,7 @@ public class BookDetailActivity extends AppCompatActivity {
                     .setPositiveButton(R.string.action_delete_note, (d, w) -> {
                         booksViewModel.updateBookNote(bookIdArg, "");
                         etPersonalNote.setText("");
+                        persistSnapshotFromUi();
                         Toast.makeText(this, R.string.personal_note_deleted, Toast.LENGTH_SHORT).show();
                     })
                     .show();
