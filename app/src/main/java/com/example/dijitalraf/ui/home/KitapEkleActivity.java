@@ -2,12 +2,15 @@ package com.example.dijitalraf.ui.home;
 
 import android.os.Bundle;
 import android.text.Editable;
+import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.dijitalraf.R;
@@ -39,6 +42,10 @@ import okhttp3.Response;
 public class KitapEkleActivity extends AppCompatActivity {
 
     private static final String TAG = "KitapEkleActivity";
+
+    private static final String OPEN_LIBRARY_SEARCH =
+            "https://openlibrary.org/search.json";
+    private static final String USER_AGENT = "DijitalRaf/1.0 (Android)";
 
     private MaterialToolbar toolbar;
     private TextInputEditText etKitapAdi, etYazar, etTur;
@@ -139,8 +146,9 @@ public class KitapEkleActivity extends AppCompatActivity {
     private void kitapAra() {
         String query = etKitapAdi.getText() != null ? etKitapAdi.getText().toString().trim() : "";
 
-        if (query.isEmpty()) {
+        if (TextUtils.isEmpty(query)) {
             tilKitapAdi.setError(getString(R.string.error_enter_title_first));
+            Toast.makeText(this, R.string.error_search_empty, Toast.LENGTH_SHORT).show();
             etKitapAdi.requestFocus();
             return;
         }
@@ -152,96 +160,99 @@ public class KitapEkleActivity extends AppCompatActivity {
         tilKitapAdi.setError(null);
         setApiLoading(true);
 
-        searchBookFromApi(query, false);
+        searchBookFromOpenLibrary(query);
     }
 
-    private void searchBookFromApi(String query, boolean useNormalizedQuery) {
-        String searchQuery = useNormalizedQuery ? normalizeTurkishCharacters(query) : query;
-
-        String encodedQuery = URLEncoder.encode(searchQuery, StandardCharsets.UTF_8);
-        String url = "https://www.googleapis.com/books/v1/volumes?q=intitle:" + encodedQuery + "&maxResults=10";
-
-        Log.d(TAG, "Arama sorgusu: " + query);
-        Log.d(TAG, "API'ye giden sorgu: " + searchQuery);
-        Log.d(TAG, "Google Books URL: " + url);
-
-        Request request = new Request.Builder()
-                .url(url)
-                .build();
+    /**
+     * Open Library araması; OkHttp callback arka planda çalışır, UI güncellemeleri runOnUiThread ile yapılır.
+     */
+    private void searchBookFromOpenLibrary(final String queryTrimmed) {
+        Request request = buildOpenLibrarySearchRequest(queryTrimmed);
 
         client.newCall(request).enqueue(new Callback() {
             @Override
-            public void onFailure(Call call, IOException e) {
+            public void onFailure(@NonNull Call call, @NonNull IOException e) {
                 runOnUiThread(() -> {
                     setApiLoading(false);
                     Toast.makeText(
                             KitapEkleActivity.this,
                             getString(R.string.api_error, e.getMessage()),
-                            Toast.LENGTH_SHORT
+                            Toast.LENGTH_LONG
                     ).show();
                 });
             }
 
             @Override
-            public void onResponse(Call call, Response response) throws IOException {
-                if (!response.isSuccessful() || response.body() == null) {
-                    runOnUiThread(() -> {
-                        setApiLoading(false);
-                        Toast.makeText(KitapEkleActivity.this, R.string.result_not_found, Toast.LENGTH_SHORT).show();
-                    });
-                    return;
-                }
-
-                String jsonData = response.body().string();
-
-                try {
-                    JSONObject jsonObject = new JSONObject(jsonData);
-                    JSONArray items = jsonObject.optJSONArray("items");
-
-                    if (items == null || items.length() == 0) {
-                        if (!useNormalizedQuery) {
-                            searchBookFromApi(query, true);
-                        } else {
-                            runOnUiThread(() -> {
-                                setApiLoading(false);
-                                Toast.makeText(KitapEkleActivity.this, R.string.book_not_found, Toast.LENGTH_SHORT).show();
-                            });
-                        }
+            public void onResponse(@NonNull Call call, @NonNull Response response) {
+                JSONObject doc = null;
+                try (Response r = response) {
+                    if (!r.isSuccessful() || r.body() == null) {
+                        runOnUiThread(() -> {
+                            setApiLoading(false);
+                            Toast.makeText(
+                                    KitapEkleActivity.this,
+                                    R.string.result_not_found,
+                                    Toast.LENGTH_LONG
+                            ).show();
+                        });
                         return;
                     }
 
-                    JSONObject volumeInfo = findBestVolumeInfo(items);
+                    String jsonData = r.body().string();
+                    JSONObject root = new JSONObject(jsonData);
+                    JSONArray docs = root.optJSONArray("docs");
+                    doc = pickBestOpenLibraryDoc(docs);
 
-                    if (volumeInfo == null) {
-                        throw new Exception("Kitap bilgisi bulunamadı");
+                    if (doc == null) {
+                        String normalized = normalizeTurkishCharacters(queryTrimmed);
+                        if (!normalized.equals(queryTrimmed)) {
+                            try (Response r2 = client.newCall(buildOpenLibrarySearchRequest(normalized)).execute()) {
+                                if (r2.isSuccessful() && r2.body() != null) {
+                                    JSONObject root2 = new JSONObject(r2.body().string());
+                                    doc = pickBestOpenLibraryDoc(root2.optJSONArray("docs"));
+                                }
+                            } catch (IOException e) {
+                                Log.w(TAG, "İkinci arama isteği başarısız", e);
+                            }
+                        }
                     }
 
-                    String title = volumeInfo.optString("title", "");
-                    String author = "";
-                    String category = "";
-                    String thumbnailUrl = extractThumbnailUrl(volumeInfo);
-
-                    String description = volumeInfo.optString("description", "");
-                    int pageCount = volumeInfo.optInt("pageCount", 0);
-                    String publishedDate = volumeInfo.optString("publishedDate", "");
-
-                    JSONArray authors = volumeInfo.optJSONArray("authors");
-                    if (authors != null && authors.length() > 0) {
-                        author = authors.getString(0);
+                    if (doc == null) {
+                        runOnUiThread(() -> {
+                            setApiLoading(false);
+                            Toast.makeText(
+                                    KitapEkleActivity.this,
+                                    R.string.open_library_no_results,
+                                    Toast.LENGTH_LONG
+                            ).show();
+                        });
+                        return;
                     }
 
-                    JSONArray categories = volumeInfo.optJSONArray("categories");
-                    if (categories != null && categories.length() > 0) {
-                        category = categories.getString(0);
+                    final String title = buildOpenLibraryTitle(doc);
+                    final String author = firstOpenLibraryAuthor(doc);
+                    String category = primarySubjectFromOpenLibraryDoc(doc);
+                    final String coverUrl = coverUrlFromOpenLibraryDoc(doc);
+                    int pages = doc.optInt("number_of_pages_median", 0);
+                    final String pagesStr = pages > 0 ? String.valueOf(pages) : "";
+                    final String published = publishYearFromOpenLibraryDoc(doc);
+
+                    String workKey = doc.optString("key", "");
+                    OpenLibraryWorkExtras workExtras = OpenLibraryWorkExtras.empty();
+                    if (!workKey.isEmpty()) {
+                        workExtras = fetchOpenLibraryWorkExtrasSync(workKey);
+                    }
+                    if (category.isEmpty() && !workExtras.subject.isEmpty()) {
+                        category = workExtras.subject;
                     }
 
+                    final String finalDescription = workExtras.description;
                     final String finalTitle = title;
                     final String finalAuthor = author;
                     final String finalCategory = category;
-                    final String finalThumbnailUrl = thumbnailUrl;
-                    final String finalDescription = description != null ? description : "";
-                    final String finalSayfa = pageCount > 0 ? String.valueOf(pageCount) : "";
-                    final String finalYayin = publishedDate != null ? publishedDate : "";
+                    final String finalCoverUrl = coverUrl;
+                    final String finalPagesStr = pagesStr;
+                    final String finalPublished = published;
 
                     runOnUiThread(() -> {
                         setApiLoading(false);
@@ -250,69 +261,212 @@ public class KitapEkleActivity extends AppCompatActivity {
                         etYazar.setText(finalAuthor);
                         etTur.setText(finalCategory);
 
-                        selectedImageUrl = finalThumbnailUrl;
+                        selectedImageUrl = finalCoverUrl;
                         apiAciklama = finalDescription;
-                        apiSayfaSayisi = finalSayfa;
-                        apiYayinTarihi = finalYayin;
+                        apiSayfaSayisi = finalPagesStr;
+                        apiYayinTarihi = finalPublished;
 
                         updatePreview();
                         Toast.makeText(KitapEkleActivity.this, R.string.book_info_loaded, Toast.LENGTH_SHORT).show();
 
-                        Log.d(TAG, "Seçilen kapak URL: " + selectedImageUrl);
+                        Log.d(TAG, "Open Library seçimi: " + finalTitle + " | kapak: " + selectedImageUrl);
                     });
-
                 } catch (Exception e) {
-                    Log.e(TAG, "Parse hatası: " + e.getMessage(), e);
+                    Log.e(TAG, "Open Library parse/akış hatası", e);
                     runOnUiThread(() -> {
                         setApiLoading(false);
-                        Toast.makeText(KitapEkleActivity.this, R.string.data_parse_error, Toast.LENGTH_SHORT).show();
+                        Toast.makeText(
+                                KitapEkleActivity.this,
+                                R.string.data_parse_error,
+                                Toast.LENGTH_LONG
+                        ).show();
                     });
                 }
             }
         });
     }
 
-    private JSONObject findBestVolumeInfo(JSONArray items) {
-        JSONObject fallbackVolumeInfo = null;
-
-        for (int i = 0; i < items.length(); i++) {
-            JSONObject book = items.optJSONObject(i);
-            if (book == null) continue;
-
-            JSONObject volumeInfo = book.optJSONObject("volumeInfo");
-            if (volumeInfo == null) continue;
-
-            if (fallbackVolumeInfo == null) {
-                fallbackVolumeInfo = volumeInfo;
-            }
-
-            String thumbnailUrl = extractThumbnailUrl(volumeInfo);
-            if (!thumbnailUrl.isEmpty()) {
-                return volumeInfo;
-            }
-        }
-
-        return fallbackVolumeInfo;
+    @NonNull
+    private Request buildOpenLibrarySearchRequest(@NonNull String query) {
+        String encoded = URLEncoder.encode(query, StandardCharsets.UTF_8);
+        String url = OPEN_LIBRARY_SEARCH + "?q=" + encoded + "&limit=15";
+        return new Request.Builder()
+                .url(url)
+                .header("User-Agent", USER_AGENT)
+                .build();
     }
 
-    private String extractThumbnailUrl(JSONObject volumeInfo) {
-        JSONObject imageLinks = volumeInfo.optJSONObject("imageLinks");
+    @Nullable
+    private JSONObject pickBestOpenLibraryDoc(@Nullable JSONArray docs) {
+        if (docs == null || docs.length() == 0) {
+            return null;
+        }
+        JSONObject best = null;
+        int bestScore = -1;
+        for (int i = 0; i < docs.length(); i++) {
+            JSONObject d = docs.optJSONObject(i);
+            if (d == null) {
+                continue;
+            }
+            int score = 0;
+            JSONArray authors = d.optJSONArray("author_name");
+            if (authors != null && authors.length() > 0) {
+                score += 2;
+            }
+            if (d.optInt("cover_i", 0) > 0 || hasOpenLibraryIsbn(d)) {
+                score += 2;
+            }
+            if (!d.optString("title", "").trim().isEmpty()) {
+                score += 1;
+            }
+            if (docHasAnySubjectHint(d)) {
+                score += 1;
+            }
+            if (score > bestScore) {
+                bestScore = score;
+                best = d;
+            }
+        }
+        return best != null ? best : docs.optJSONObject(0);
+    }
 
-        if (imageLinks == null) {
-            return "";
+    @NonNull
+    private String buildOpenLibraryTitle(@NonNull JSONObject doc) {
+        String t = doc.optString("title", "").trim();
+        String sub = doc.optString("subtitle", "").trim();
+        if (!sub.isEmpty()) {
+            t = t.isEmpty() ? sub : t + ": " + sub;
+        }
+        return t;
+    }
+
+    @NonNull
+    private String firstOpenLibraryAuthor(@NonNull JSONObject doc) {
+        JSONArray a = doc.optJSONArray("author_name");
+        if (a != null && a.length() > 0) {
+            return a.optString(0, "").trim();
+        }
+        return "";
+    }
+
+    /** Arama dokümanından tür: subject, yoksa subject_facet. */
+    @NonNull
+    private String primarySubjectFromOpenLibraryDoc(@NonNull JSONObject doc) {
+        String s = firstStringFromJsonArray(doc, "subject");
+        if (!s.isEmpty()) {
+            return s;
+        }
+        return firstStringFromJsonArray(doc, "subject_facet");
+    }
+
+    private boolean docHasAnySubjectHint(@NonNull JSONObject doc) {
+        JSONArray a = doc.optJSONArray("subject");
+        if (a != null && a.length() > 0) {
+            return true;
+        }
+        JSONArray b = doc.optJSONArray("subject_facet");
+        return b != null && b.length() > 0;
+    }
+
+    @NonNull
+    private String firstStringFromJsonArray(@NonNull JSONObject doc, @NonNull String key) {
+        JSONArray arr = doc.optJSONArray(key);
+        if (arr != null && arr.length() > 0) {
+            return arr.optString(0, "").trim();
+        }
+        return "";
+    }
+
+    private boolean hasOpenLibraryIsbn(@NonNull JSONObject doc) {
+        JSONArray isbn = doc.optJSONArray("isbn");
+        return isbn != null && isbn.length() > 0 && !isbn.optString(0, "").trim().isEmpty();
+    }
+
+    @NonNull
+    private String coverUrlFromOpenLibraryDoc(@NonNull JSONObject doc) {
+        int coverI = doc.optInt("cover_i", 0);
+        if (coverI > 0) {
+            return "https://covers.openlibrary.org/b/id/" + coverI + "-L.jpg";
+        }
+        JSONArray isbn = doc.optJSONArray("isbn");
+        if (isbn != null && isbn.length() > 0) {
+            String isbnStr = isbn.optString(0, "").trim();
+            if (!isbnStr.isEmpty()) {
+                return "https://covers.openlibrary.org/b/isbn/" + isbnStr + "-L.jpg";
+            }
+        }
+        return "";
+    }
+
+    @NonNull
+    private String publishYearFromOpenLibraryDoc(@NonNull JSONObject doc) {
+        if (doc.has("first_publish_year") && !doc.isNull("first_publish_year")) {
+            try {
+                return String.valueOf(doc.getInt("first_publish_year"));
+            } catch (Exception ignored) {
+            }
+        }
+        JSONArray py = doc.optJSONArray("publish_year");
+        if (py != null && py.length() > 0) {
+            return py.optString(0, "").trim();
+        }
+        return "";
+    }
+
+    /**
+     * Work JSON: açıklama + subjects (tür) tek istekte; arka plan iş parçacığında çağrılır.
+     */
+    @NonNull
+    private OpenLibraryWorkExtras fetchOpenLibraryWorkExtrasSync(@NonNull String workKey) {
+        if (!workKey.startsWith("/works/")) {
+            return OpenLibraryWorkExtras.empty();
+        }
+        String url = "https://openlibrary.org" + workKey + ".json";
+        Request req = new Request.Builder()
+                .url(url)
+                .header("User-Agent", USER_AGENT)
+                .build();
+        try (Response wr = client.newCall(req).execute()) {
+            if (!wr.isSuccessful() || wr.body() == null) {
+                return OpenLibraryWorkExtras.empty();
+            }
+            JSONObject work = new JSONObject(wr.body().string());
+            String description = extractOpenLibraryDescription(work);
+            String subject = firstStringFromJsonArray(work, "subjects");
+            if (subject.isEmpty()) {
+                subject = firstStringFromJsonArray(work, "subject");
+            }
+            return new OpenLibraryWorkExtras(description, subject);
+        } catch (Exception e) {
+            Log.w(TAG, "Work detayı alınamadı: " + workKey, e);
+            return OpenLibraryWorkExtras.empty();
+        }
+    }
+
+    private static final class OpenLibraryWorkExtras {
+        @NonNull final String description;
+        @NonNull final String subject;
+
+        OpenLibraryWorkExtras(@NonNull String description, @NonNull String subject) {
+            this.description = description;
+            this.subject = subject;
         }
 
-        String thumbnailUrl = imageLinks.optString("thumbnail", "");
-
-        if (thumbnailUrl.isEmpty()) {
-            thumbnailUrl = imageLinks.optString("smallThumbnail", "");
+        static OpenLibraryWorkExtras empty() {
+            return new OpenLibraryWorkExtras("", "");
         }
+    }
 
-        if (thumbnailUrl.startsWith("http://")) {
-            thumbnailUrl = thumbnailUrl.replace("http://", "https://");
+    @NonNull
+    private String extractOpenLibraryDescription(@NonNull JSONObject work) {
+        Object raw = work.opt("description");
+        if (raw instanceof String) {
+            return ((String) raw).trim();
         }
-
-        return thumbnailUrl;
+        if (raw instanceof JSONObject) {
+            return ((JSONObject) raw).optString("value", "").trim();
+        }
+        return "";
     }
 
     private String normalizeTurkishCharacters(String text) {

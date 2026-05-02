@@ -11,11 +11,11 @@
     <string name="search_hint">Kitap veya yazar ara</string>
     <string name="filter_all">Tümü</string>
     <string name="add_book_fab">Kitap ekle</string>
-    <string name="google_books_search">Google Books ile ara</string>
+    <string name="google_books_search">Open Library ile ara</string>
     <string name="save_book">Kaydet</string>
     <string name="preview_title">Önizleme</string>
     <string name="empty_to_read_title">Okunacak kitap yok</string>
-    <string name="empty_to_read_message">Alttaki Kitap Ekle ile yeni kitap ekleyin veya Google Books ile arayın.</string>
+    <string name="empty_to_read_message">Alttaki Kitap Ekle ile yeni kitap ekleyin veya Open Library ile arayın.</string>
     <string name="empty_read_books_title">Henüz okuduğun kitap yok</string>
     <string name="empty_read_books_message">Okunacak Kitaplar listesinde bir karta basılı tutarak okundu işaretleyebilirsin.</string>
     <string name="empty_favorites_title">Favori kitabınız yok</string>
@@ -76,6 +76,8 @@
     <string name="hint_author">Yazar</string>
     <string name="hint_genre">Tür / kategori</string>
     <string name="error_enter_title_first">Önce kitap adı girin</string>
+    <string name="error_search_empty">Arama yapmak için kitap adı veya yazar yazın.</string>
+    <string name="open_library_no_results">Bu arama için sonuç bulunamadı. Başka bir kelime veya yazım deneyin.</string>
     <string name="api_error">API hatası: %1$s</string>
     <string name="error_openrouter_key_missing">OpenRouter API anahtarı yok. Proje kökündeki local.properties dosyasına OPENROUTER_API_KEY=... satırını ekleyin (openrouter.ai/keys).</string>
     <string name="result_not_found">Sonuç alınamadı</string>
