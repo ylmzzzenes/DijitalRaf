@@ -7,6 +7,8 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -17,6 +19,8 @@ import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.transition.AutoTransition;
+import androidx.transition.TransitionManager;
 
 import com.example.dijitalraf.BuildConfig;
 import com.example.dijitalraf.R;
@@ -37,6 +41,7 @@ public class DashboardFragment extends Fragment {
     private static final String PREFS_DASHBOARD = "dashboard_prefs";
     private static final String KEY_LAST_AI = "last_ai_recommendation";
     private static final String KEY_LAST_CHAT_SNIPPET = "last_chat_snippet";
+    private static final String STATE_AI_RECOMMENDATIONS_EXPANDED = "state_ai_recommendations_expanded";
     private static final int DASHBOARD_BOOKS_MAX = 24;
 
     private BooksViewModel viewModel;
@@ -44,6 +49,7 @@ public class DashboardFragment extends Fragment {
     private MaterialButton btnAiRecommend;
     private MaterialButton btnAiAssistant;
     private TextView tvAiPreview;
+    private TextView tvAiRecommendationsEmpty;
     private TextView tvChatPreview;
     private TextView tvWelcome;
     private TextView tvAiHistoryLabel;
@@ -52,9 +58,16 @@ public class DashboardFragment extends Fragment {
     private RecyclerView rvToReadBooks;
     private TextView tvReadBooksEmpty;
     private TextView tvToReadBooksEmpty;
+    private View headerAiRecommendationsAccordion;
+    private ViewGroup layoutAiRecommendationsExpanded;
+    private ImageView ivAiAccordionChevron;
+    private ProgressBar pbAiRecommendations;
+    private ViewGroup dashboardContent;
     private DashboardBookRowAdapter readAdapter;
     private DashboardBookRowAdapter toReadAdapter;
     private SharedPreferences dashboardPrefs;
+    private boolean aiRecommendationsExpanded;
+    private boolean aiRecommendationsLoading;
 
     @Nullable
     @Override
@@ -73,7 +86,13 @@ public class DashboardFragment extends Fragment {
         btnAiRecommend = view.findViewById(R.id.btnAiRecommend);
         btnAiAssistant = view.findViewById(R.id.btnAiAssistant);
         tvAiPreview = view.findViewById(R.id.tvAiPreview);
+        tvAiRecommendationsEmpty = view.findViewById(R.id.tvAiRecommendationsEmpty);
         tvChatPreview = view.findViewById(R.id.tvChatPreview);
+        headerAiRecommendationsAccordion = view.findViewById(R.id.headerAiRecommendationsAccordion);
+        layoutAiRecommendationsExpanded = view.findViewById(R.id.layoutAiRecommendationsExpanded);
+        ivAiAccordionChevron = view.findViewById(R.id.ivAiAccordionChevron);
+        pbAiRecommendations = view.findViewById(R.id.pbAiRecommendations);
+        dashboardContent = view.findViewById(R.id.dashboardContent);
         tvWelcome = view.findViewById(R.id.tvWelcome);
         tvAiHistoryLabel = view.findViewById(R.id.tvAiHistoryLabel);
         tvChatHistoryLabel = view.findViewById(R.id.tvChatHistoryLabel);
@@ -104,6 +123,13 @@ public class DashboardFragment extends Fragment {
                 new LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false));
         rvToReadBooks.setAdapter(toReadAdapter);
 
+        if (savedInstanceState != null) {
+            aiRecommendationsExpanded = savedInstanceState.getBoolean(STATE_AI_RECOMMENDATIONS_EXPANDED, false);
+        }
+        headerAiRecommendationsAccordion.setOnClickListener(v ->
+                setAiRecommendationsExpanded(!aiRecommendationsExpanded, true));
+        setAiRecommendationsExpanded(aiRecommendationsExpanded, false);
+
         btnAiRecommend.setOnClickListener(v -> getAiRecommendations());
         tvAiHistoryLabel.setOnClickListener(v ->
                 showHistoryOverlay(R.string.ai_history_dialog_title, KEY_LAST_AI, R.string.ai_no_history_yet)
@@ -133,7 +159,7 @@ public class DashboardFragment extends Fragment {
             return true;
         });
 
-        loadAiPreviewFromPrefs();
+        refreshAiRecommendationsBodyUi();
         loadChatPreviewFromPrefs();
 
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
@@ -161,6 +187,52 @@ public class DashboardFragment extends Fragment {
         }
 
         viewModel.getBooks().observe(getViewLifecycleOwner(), this::applyBookRows);
+    }
+
+    @Override
+    public void onSaveInstanceState(@NonNull Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putBoolean(STATE_AI_RECOMMENDATIONS_EXPANDED, aiRecommendationsExpanded);
+    }
+
+    private void setAiRecommendationsExpanded(boolean expanded, boolean animate) {
+        if (dashboardContent != null && animate) {
+            TransitionManager.beginDelayedTransition(dashboardContent, new AutoTransition());
+        }
+        aiRecommendationsExpanded = expanded;
+        layoutAiRecommendationsExpanded.setVisibility(expanded ? View.VISIBLE : View.GONE);
+        if (animate) {
+            ivAiAccordionChevron.animate().rotation(expanded ? 180f : 0f).setDuration(220L).start();
+        } else {
+            ivAiAccordionChevron.setRotation(expanded ? 180f : 0f);
+        }
+        if (expanded) {
+            refreshAiRecommendationsBodyUi();
+        }
+    }
+
+    private void refreshAiRecommendationsBodyUi() {
+        if (!isAdded() || tvAiPreview == null) {
+            return;
+        }
+        if (aiRecommendationsLoading) {
+            pbAiRecommendations.setVisibility(View.VISIBLE);
+            tvAiPreview.setVisibility(View.GONE);
+            tvAiRecommendationsEmpty.setVisibility(View.GONE);
+            return;
+        }
+        pbAiRecommendations.setVisibility(View.GONE);
+        String saved = dashboardPrefs.getString(KEY_LAST_AI, "");
+        boolean hasResult = saved != null && !saved.trim().isEmpty();
+        if (hasResult) {
+            tvAiPreview.setVisibility(View.VISIBLE);
+            tvAiPreview.setText(saved.trim());
+            tvAiPreview.setTextColor(ContextCompat.getColor(requireContext(), R.color.text_primary));
+            tvAiRecommendationsEmpty.setVisibility(View.GONE);
+        } else {
+            tvAiPreview.setVisibility(View.GONE);
+            tvAiRecommendationsEmpty.setVisibility(View.VISIBLE);
+        }
     }
 
     private void applyBookRows(List<Kitap> books) {
@@ -205,17 +277,6 @@ public class DashboardFragment extends Fragment {
         }
     }
 
-    private void loadAiPreviewFromPrefs() {
-        String saved = dashboardPrefs.getString(KEY_LAST_AI, "");
-        if (saved != null && !saved.trim().isEmpty()) {
-            tvAiPreview.setText(saved.trim());
-            tvAiPreview.setTextColor(ContextCompat.getColor(requireContext(), R.color.text_primary));
-        } else {
-            tvAiPreview.setText(R.string.ai_preview_placeholder);
-            tvAiPreview.setTextColor(ContextCompat.getColor(requireContext(), R.color.text_secondary));
-        }
-    }
-
     private void loadChatPreviewFromPrefs() {
         String saved = dashboardPrefs.getString(KEY_LAST_CHAT_SNIPPET, "");
         if (saved != null && !saved.trim().isEmpty()) {
@@ -257,8 +318,8 @@ public class DashboardFragment extends Fragment {
 
         btnAiRecommend.setEnabled(false);
         btnAiRecommend.setText(R.string.ai_analyzing);
-        tvAiPreview.setText(R.string.ai_analyzing);
-        tvAiPreview.setTextColor(ContextCompat.getColor(requireContext(), R.color.text_secondary));
+        aiRecommendationsLoading = true;
+        refreshAiRecommendationsBodyUi();
 
         aiService.generateBookRecommendations(
                 apiKey,
@@ -266,18 +327,25 @@ public class DashboardFragment extends Fragment {
                 new AiService.LlmCallback() {
                     @Override
                     public void onSuccess(@NonNull String result) {
+                        if (!isAdded()) {
+                            return;
+                        }
                         btnAiRecommend.setEnabled(true);
                         btnAiRecommend.setText(R.string.ai_get_recommendation);
+                        aiRecommendationsLoading = false;
                         dashboardPrefs.edit().putString(KEY_LAST_AI, result).apply();
-                        tvAiPreview.setText(result);
-                        tvAiPreview.setTextColor(ContextCompat.getColor(requireContext(), R.color.text_primary));
+                        refreshAiRecommendationsBodyUi();
                     }
 
                     @Override
                     public void onError(@NonNull String error) {
+                        if (!isAdded()) {
+                            return;
+                        }
                         btnAiRecommend.setEnabled(true);
                         btnAiRecommend.setText(R.string.ai_get_recommendation);
-                        loadAiPreviewFromPrefs();
+                        aiRecommendationsLoading = false;
+                        refreshAiRecommendationsBodyUi();
                         Toast.makeText(requireContext(), error, Toast.LENGTH_LONG).show();
                     }
                 }

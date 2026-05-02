@@ -50,6 +50,7 @@
     <string name="ai_get_recommendation">Öneri al</string>
     <string name="ai_analyzing">Öneriler hazırlanıyor…</string>
     <string name="ai_preview_placeholder">Son öneri burada görünür. Öneri al ile yeni öneri isteyebilirsin.</string>
+    <string name="ai_recommendations_empty_state">Henüz öneri yok. Öneri al ile yapay zekâdan yeni öneriler isteyebilirsin.</string>
     <string name="ai_no_history_yet">Kayıtlı öneri yok. Önce bir öneri alın.</string>
     <string name="ai_history_dialog_title">Eski öneri</string>
 
