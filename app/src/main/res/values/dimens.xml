@@ -23,4 +23,6 @@
 
     <dimen name="dashboard_cover_width">76dp</dimen>
     <dimen name="dashboard_cover_height">104dp</dimen>
+
+    <dimen name="book_detail_hero_height">272dp</dimen>
 </resources>
