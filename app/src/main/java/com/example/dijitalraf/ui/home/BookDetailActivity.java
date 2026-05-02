@@ -3,6 +3,7 @@ package com.example.dijitalraf.ui.home;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.text.Layout;
 import android.text.TextUtils;
 import android.view.View;
 import android.widget.ImageView;
@@ -13,6 +14,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.AppCompatRatingBar;
+import androidx.core.content.ContextCompat;
 import androidx.core.text.HtmlCompat;
 import androidx.lifecycle.ViewModelProvider;
 
@@ -20,7 +22,9 @@ import com.bumptech.glide.Glide;
 import com.example.dijitalraf.R;
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.button.MaterialButton;
+import com.google.android.material.card.MaterialCardView;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+import com.google.android.material.materialswitch.MaterialSwitch;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -33,6 +37,8 @@ import com.google.firebase.database.ValueEventListener;
 public class BookDetailActivity extends AppCompatActivity {
 
     private static final String EXTRA_BOOK_ID = "extra_book_id";
+
+    private static final int DESCRIPTION_COLLAPSED_LINES = 6;
 
     private static final String DATABASE_URL =
             "https://dijitalraf-ec149-default-rtdb.europe-west1.firebasedatabase.app";
@@ -47,16 +53,22 @@ public class BookDetailActivity extends AppCompatActivity {
     private ImageView ivCover;
     private TextView tvTitle;
     private TextView tvAuthor;
+    private TextView tvGenre;
     private TextView tvDescription;
     private TextView tvPageCount;
     private TextView tvPublishedDate;
+    private MaterialButton btnToggleDescription;
     private View progress;
-    private View content;
+    private View scrollContent;
+    private MaterialCardView detailBottomBar;
+    private MaterialButton btnFavorite;
+    private MaterialSwitch switchRead;
     private TextInputEditText etPersonalNote;
     private MaterialButton btnSavePersonalNote;
     private MaterialButton btnDeletePersonalNote;
     private AppCompatRatingBar ratingBar;
     private boolean ratingBarProgrammatic;
+    private boolean switchReadProgrammatic;
 
     private String bookIdArg;
     private BooksViewModel booksViewModel;
@@ -64,6 +76,10 @@ public class BookDetailActivity extends AppCompatActivity {
     private DatabaseReference bookRef;
     @Nullable
     private ValueEventListener bookListener;
+
+    private String lastDescriptionRaw = "";
+    private boolean descriptionExpanded;
+    private boolean lastFavorite;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -76,11 +92,16 @@ public class BookDetailActivity extends AppCompatActivity {
         ivCover = findViewById(R.id.ivCover);
         tvTitle = findViewById(R.id.tvTitle);
         tvAuthor = findViewById(R.id.tvAuthor);
+        tvGenre = findViewById(R.id.tvGenre);
         tvDescription = findViewById(R.id.tvDescription);
         tvPageCount = findViewById(R.id.tvPageCount);
         tvPublishedDate = findViewById(R.id.tvPublishedDate);
+        btnToggleDescription = findViewById(R.id.btnToggleDescription);
         progress = findViewById(R.id.progressLoading);
-        content = findViewById(R.id.scrollContent);
+        scrollContent = findViewById(R.id.scrollContent);
+        detailBottomBar = findViewById(R.id.detailBottomBar);
+        btnFavorite = findViewById(R.id.btnFavorite);
+        switchRead = findViewById(R.id.switchRead);
         etPersonalNote = findViewById(R.id.etPersonalNote);
         btnSavePersonalNote = findViewById(R.id.btnSavePersonalNote);
         btnDeletePersonalNote = findViewById(R.id.btnDeletePersonalNote);
@@ -102,6 +123,8 @@ public class BookDetailActivity extends AppCompatActivity {
         bookIdArg = bookId.trim();
         setupPersonalNoteActions();
         setupRatingBarListener();
+        setupFavoriteButton();
+        setupReadSwitch();
         attachBookRealtimeListener(bookIdArg);
     }
 
@@ -124,7 +147,8 @@ public class BookDetailActivity extends AppCompatActivity {
         }
 
         progress.setVisibility(View.VISIBLE);
-        content.setVisibility(View.INVISIBLE);
+        scrollContent.setVisibility(View.INVISIBLE);
+        detailBottomBar.setVisibility(View.GONE);
 
         bookRef = FirebaseDatabase.getInstance(DATABASE_URL)
                 .getReference("books")
@@ -135,7 +159,8 @@ public class BookDetailActivity extends AppCompatActivity {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 progress.setVisibility(View.GONE);
-                content.setVisibility(View.VISIBLE);
+                scrollContent.setVisibility(View.VISIBLE);
+                detailBottomBar.setVisibility(View.VISIBLE);
 
                 if (!snapshot.exists()) {
                     Toast.makeText(BookDetailActivity.this, R.string.book_not_found, Toast.LENGTH_SHORT).show();
@@ -170,30 +195,26 @@ public class BookDetailActivity extends AppCompatActivity {
     }
 
     private void bind(@NonNull Kitap kitap) {
-        String title = nonEmptyOrFallback(kitap.getKitapAdi());
-        String author = nonEmptyOrFallback(kitap.getYazar());
+        String title = nonEmptyOrFallback(kitap.getKitapAdi(), R.string.info_not_available);
+        String author = nonEmptyOrFallback(kitap.getYazar(), R.string.info_not_available);
+        String genre = nonEmptyOrFallback(kitap.getTur(), R.string.info_not_available);
 
         toolbar.setTitle(title);
         tvTitle.setText(title);
         tvAuthor.setText(getString(R.string.book_detail_author_line, author));
+        tvGenre.setText(genre);
 
-        String desc = kitap.getAciklama();
-        if (TextUtils.isEmpty(desc)) {
-            tvDescription.setText(R.string.info_not_available);
-        } else {
-            CharSequence styled = HtmlCompat.fromHtml(desc, HtmlCompat.FROM_HTML_MODE_LEGACY);
-            tvDescription.setText(styled);
-        }
+        bindDescription(kitap.getAciklama());
 
         String pages = kitap.getSayfaSayisi();
-        if (TextUtils.isEmpty(pages)) {
+        if (TextUtils.isEmpty(pages) || pages.trim().isEmpty()) {
             tvPageCount.setText(R.string.info_not_available);
         } else {
             tvPageCount.setText(getString(R.string.book_detail_pages_value, pages.trim()));
         }
 
         String published = kitap.getYayinTarihi();
-        if (TextUtils.isEmpty(published)) {
+        if (TextUtils.isEmpty(published) || published.trim().isEmpty()) {
             tvPublishedDate.setText(R.string.info_not_available);
         } else {
             tvPublishedDate.setText(published.trim());
@@ -211,14 +232,136 @@ public class BookDetailActivity extends AppCompatActivity {
             Glide.with(this).clear(ivCover);
             ivCover.setImageResource(R.drawable.ic_menu_book_24);
         }
+
+        lastFavorite = kitap.isFavorite();
+        applyFavoriteButtonUi(lastFavorite);
+        applyReadSwitchFromKitap(kitap.isOkundu());
+    }
+
+    private void bindDescription(@Nullable String descHtml) {
+        String raw = descHtml == null ? "" : descHtml.trim();
+        if (TextUtils.isEmpty(raw)) {
+            lastDescriptionRaw = "";
+            descriptionExpanded = false;
+            tvDescription.setText(R.string.book_detail_empty_description);
+            tvDescription.setMaxLines(Integer.MAX_VALUE);
+            btnToggleDescription.setVisibility(View.GONE);
+            btnToggleDescription.setOnClickListener(null);
+            return;
+        }
+
+        boolean contentChanged = !raw.equals(lastDescriptionRaw);
+        if (contentChanged) {
+            lastDescriptionRaw = raw;
+            descriptionExpanded = false;
+        }
+
+        CharSequence styled = HtmlCompat.fromHtml(raw, HtmlCompat.FROM_HTML_MODE_LEGACY);
+
+        if (contentChanged || !descriptionExpanded) {
+            tvDescription.setMaxLines(Integer.MAX_VALUE);
+            tvDescription.setText(styled);
+            btnToggleDescription.setVisibility(View.GONE);
+            btnToggleDescription.setOnClickListener(null);
+            tvDescription.post(this::applyDescriptionLineClamp);
+        } else {
+            btnToggleDescription.setVisibility(View.VISIBLE);
+            btnToggleDescription.setText(R.string.book_detail_read_less);
+            btnToggleDescription.setOnClickListener(v -> toggleDescriptionExpanded());
+        }
+    }
+
+    private void applyDescriptionLineClamp() {
+        Layout layout = tvDescription.getLayout();
+        if (layout == null) {
+            return;
+        }
+        int lines = layout.getLineCount();
+        if (lines > DESCRIPTION_COLLAPSED_LINES) {
+            if (!descriptionExpanded) {
+                tvDescription.setMaxLines(DESCRIPTION_COLLAPSED_LINES);
+            }
+            btnToggleDescription.setVisibility(View.VISIBLE);
+            btnToggleDescription.setText(descriptionExpanded
+                    ? R.string.book_detail_read_less
+                    : R.string.book_detail_read_more);
+            btnToggleDescription.setOnClickListener(v -> toggleDescriptionExpanded());
+        } else {
+            btnToggleDescription.setVisibility(View.GONE);
+            btnToggleDescription.setOnClickListener(null);
+        }
+    }
+
+    private void toggleDescriptionExpanded() {
+        descriptionExpanded = !descriptionExpanded;
+        if (descriptionExpanded) {
+            tvDescription.setMaxLines(Integer.MAX_VALUE);
+            btnToggleDescription.setText(R.string.book_detail_read_less);
+        } else {
+            tvDescription.setMaxLines(DESCRIPTION_COLLAPSED_LINES);
+            btnToggleDescription.setText(R.string.book_detail_read_more);
+        }
     }
 
     @NonNull
-    private String nonEmptyOrFallback(@Nullable String value) {
+    private String nonEmptyOrFallback(@Nullable String value, int emptyRes) {
         if (value == null || value.trim().isEmpty()) {
-            return getString(R.string.info_not_available);
+            return getString(emptyRes);
         }
         return value.trim();
+    }
+
+    private void setupFavoriteButton() {
+        btnFavorite.setOnClickListener(v -> {
+            if (bookIdArg == null || FirebaseAuth.getInstance().getCurrentUser() == null) {
+                return;
+            }
+            boolean next = !lastFavorite;
+            booksViewModel.updateBookFavorite(bookIdArg, next);
+            Toast.makeText(
+                    this,
+                    next ? R.string.favorite_added : R.string.favorite_removed,
+                    Toast.LENGTH_SHORT
+            ).show();
+        });
+    }
+
+    private void applyFavoriteButtonUi(boolean favorite) {
+        btnFavorite.setText(favorite ? R.string.book_detail_favorite_remove : R.string.book_detail_favorite_add);
+        btnFavorite.setIcon(ContextCompat.getDrawable(
+                this,
+                favorite ? R.drawable.ic_favorite_24 : R.drawable.ic_favorite_border_24
+        ));
+    }
+
+    private void setupReadSwitch() {
+        switchRead.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            if (switchReadProgrammatic || bookIdArg == null
+                    || FirebaseAuth.getInstance().getCurrentUser() == null) {
+                return;
+            }
+            if (isChecked) {
+                switchReadProgrammatic = true;
+                switchRead.setChecked(false);
+                switchReadProgrammatic = false;
+                MarkAsReadDialogHelper.runWithConfirmationIfMarkingRead(BookDetailActivity.this, true, () -> {
+                    switchReadProgrammatic = true;
+                    switchRead.setChecked(true);
+                    switchReadProgrammatic = false;
+                    booksViewModel.updateBookOkundu(bookIdArg, true);
+                    Toast.makeText(this, R.string.marked_as_read, Toast.LENGTH_SHORT).show();
+                });
+            } else {
+                booksViewModel.updateBookOkundu(bookIdArg, false);
+                Toast.makeText(this, R.string.marked_as_to_read, Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    private void applyReadSwitchFromKitap(boolean okundu) {
+        switchReadProgrammatic = true;
+        switchRead.setChecked(okundu);
+        switchReadProgrammatic = false;
     }
 
     private void setupRatingBarListener() {
