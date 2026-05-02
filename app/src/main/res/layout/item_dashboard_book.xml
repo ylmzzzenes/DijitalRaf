@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="@dimen/dashboard_cover_width"
+    android:layout_height="@dimen/dashboard_cover_height"
+    android:layout_marginEnd="@dimen/grid_2"
+    app:cardBackgroundColor="@color/card_background"
+    app:cardCornerRadius="@dimen/corner_small"
+    app:cardElevation="@dimen/elevation_card"
+    app:strokeColor="@color/secondary_alpha_40"
+    app:strokeWidth="1dp">
+
+    <ImageView
+        android:id="@+id/ivCover"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@drawable/bg_book_cover"
+        android:contentDescription="@null"
+        android:scaleType="centerCrop"
+        tools:src="@drawable/ic_menu_book_24" />
+
+</com.google.android.material.card.MaterialCardView>
