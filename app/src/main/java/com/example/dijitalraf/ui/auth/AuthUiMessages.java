@@ -58,4 +58,26 @@ public final class AuthUiMessages {
         String msg = e != null && e.getMessage() != null ? e.getMessage() : "";
         return context.getString(R.string.auth_error_generic, msg);
     }
+
+    /** {@link com.google.firebase.auth.FirebaseAuth#sendPasswordResetEmail(String)} hataları. */
+    @NonNull
+    public static String forPasswordReset(@Nullable Exception e, @NonNull Context context) {
+        if (e instanceof FirebaseAuthException) {
+            String code = ((FirebaseAuthException) e).getErrorCode();
+            if ("ERROR_INVALID_EMAIL".equals(code)) {
+                return context.getString(R.string.auth_error_invalid_email_reset);
+            }
+            if ("ERROR_USER_NOT_FOUND".equals(code)) {
+                return context.getString(R.string.auth_error_user_not_found_reset);
+            }
+            if ("ERROR_TOO_MANY_REQUESTS".equals(code)) {
+                return context.getString(R.string.auth_error_too_many_requests);
+            }
+            if ("ERROR_NETWORK_REQUEST_FAILED".equals(code)) {
+                return context.getString(R.string.auth_error_network);
+            }
+        }
+        String msg = e != null && e.getMessage() != null ? e.getMessage() : "";
+        return context.getString(R.string.password_reset_send_failed, msg);
+    }
 }

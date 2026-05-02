@@ -42,6 +42,7 @@ public class LoginActivity extends AppCompatActivity {
     private TextInputLayout tilEmail, tilPassword;
     private MaterialButton btnLogin;
     private MaterialButton btnGoogleSignIn;
+    private TextView tvForgotPassword;
     private TextView tvGoToRegister;
     private FirebaseAuth mAuth;
     @Nullable
@@ -103,6 +104,7 @@ public class LoginActivity extends AppCompatActivity {
         etPassword = findViewById(R.id.etPassword);
         btnLogin = findViewById(R.id.btnLogin);
         btnGoogleSignIn = findViewById(R.id.btnGoogleSignIn);
+        tvForgotPassword = findViewById(R.id.tvForgotPassword);
         tvGoToRegister = findViewById(R.id.tvGoToRegister);
 
         if (GoogleSignInHelper.hasWebClientIdConfigured(this)) {
@@ -112,6 +114,8 @@ public class LoginActivity extends AppCompatActivity {
 
     private void registerEventHandlers() {
         btnLogin.setOnClickListener(v -> loginUser());
+
+        tvForgotPassword.setOnClickListener(v -> sendPasswordResetEmail());
 
         btnGoogleSignIn.setOnClickListener(v -> onGoogleSignInClicked());
 
@@ -236,6 +240,39 @@ public class LoginActivity extends AppCompatActivity {
                         Toast.makeText(
                                 LoginActivity.this,
                                 AuthUiMessages.forFirebaseAuth(task.getException(), LoginActivity.this),
+                                Toast.LENGTH_LONG
+                        ).show();
+                    }
+                });
+    }
+
+    private void sendPasswordResetEmail() {
+        String email = etEmail.getText().toString().trim();
+        tilEmail.setError(null);
+
+        Integer emailIssue = EmailValidation.validateForForm(email);
+        if (emailIssue != null) {
+            tilEmail.setError(getString(emailIssue));
+            etEmail.requestFocus();
+            return;
+        }
+
+        tvForgotPassword.setEnabled(false);
+        btnLogin.setEnabled(false);
+        mAuth.sendPasswordResetEmail(email)
+                .addOnCompleteListener(this, task -> {
+                    tvForgotPassword.setEnabled(true);
+                    btnLogin.setEnabled(true);
+                    if (task.isSuccessful()) {
+                        Toast.makeText(
+                                LoginActivity.this,
+                                R.string.password_reset_email_sent,
+                                Toast.LENGTH_LONG
+                        ).show();
+                    } else {
+                        Toast.makeText(
+                                LoginActivity.this,
+                                AuthUiMessages.forPasswordReset(task.getException(), LoginActivity.this),
                                 Toast.LENGTH_LONG
                         ).show();
                     }
