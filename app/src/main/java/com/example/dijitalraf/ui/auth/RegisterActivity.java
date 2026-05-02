@@ -7,9 +7,12 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.dijitalraf.R;
+import com.example.dijitalraf.data.FirebaseRtdb;
 import com.example.dijitalraf.ui.home.HomeActivity;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.textfield.TextInputEditText;
@@ -45,9 +48,7 @@ public class RegisterActivity extends AppCompatActivity {
 
     private void initComponents() {
         mAuth = FirebaseAuth.getInstance();
-        usersRef = FirebaseDatabase
-                .getInstance("https://dijitalraf-ec149-default-rtdb.europe-west1.firebasedatabase.app")
-                .getReference("users");
+        usersRef = FirebaseDatabase.getInstance(FirebaseRtdb.URL).getReference("users");
 
         tilFullName = findViewById(R.id.tilFullName);
         tilEmail = findViewById(R.id.tilEmail);
@@ -134,6 +135,9 @@ public class RegisterActivity extends AppCompatActivity {
                         Map<String, Object> userMap = new HashMap<>();
                         userMap.put("uid", uid);
                         userMap.put("fullName", fullName);
+                        String[] nameParts = splitFullNameForProfile(fullName);
+                        userMap.put("firstName", nameParts[0]);
+                        userMap.put("lastName", nameParts[1]);
                         userMap.put("email", email);
                         userMap.put("createdAt", System.currentTimeMillis());
 
@@ -161,5 +165,22 @@ public class RegisterActivity extends AppCompatActivity {
                         ).show();
                     }
                 });
+    }
+
+    @NonNull
+    private static String[] splitFullNameForProfile(@Nullable String fullName) {
+        String[] out = new String[] {"", ""};
+        if (fullName == null || fullName.trim().isEmpty()) {
+            return out;
+        }
+        String t = fullName.trim();
+        int sp = t.indexOf(' ');
+        if (sp < 0) {
+            out[0] = t;
+            return out;
+        }
+        out[0] = t.substring(0, sp).trim();
+        out[1] = t.substring(sp + 1).trim();
+        return out;
     }
 }

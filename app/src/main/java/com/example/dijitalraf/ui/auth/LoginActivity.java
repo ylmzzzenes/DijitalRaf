@@ -9,10 +9,12 @@ import android.widget.Toast;
 import androidx.activity.EdgeToEdge;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.dijitalraf.R;
+import com.example.dijitalraf.data.FirebaseRtdb;
 import com.example.dijitalraf.ui.home.HomeActivity;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
@@ -34,9 +36,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class LoginActivity extends AppCompatActivity {
-
-    private static final String RTDB_URL =
-            "https://dijitalraf-ec149-default-rtdb.europe-west1.firebasedatabase.app";
 
     private TextInputEditText etEmail, etPassword;
     private TextInputLayout tilEmail, tilPassword;
@@ -163,19 +162,45 @@ public class LoginActivity extends AppCompatActivity {
             onDone.run();
             return;
         }
-        DatabaseReference ref = FirebaseDatabase.getInstance(RTDB_URL).getReference("users").child(user.getUid());
+        DatabaseReference ref = FirebaseDatabase.getInstance(FirebaseRtdb.URL)
+                .getReference("users")
+                .child(user.getUid());
         ref.get().addOnCompleteListener(task -> {
             if (task.isSuccessful() && task.getResult() != null && task.getResult().exists()) {
                 onDone.run();
                 return;
             }
+            String display = user.getDisplayName() != null ? user.getDisplayName() : "";
+            String[] nameParts = splitFullNameForGoogleProfile(display);
             Map<String, Object> userMap = new HashMap<>();
             userMap.put("uid", user.getUid());
             userMap.put("email", user.getEmail() != null ? user.getEmail() : "");
-            userMap.put("fullName", user.getDisplayName() != null ? user.getDisplayName() : "");
+            userMap.put("fullName", display);
+            userMap.put("firstName", nameParts[0]);
+            userMap.put("lastName", nameParts[1]);
             userMap.put("createdAt", System.currentTimeMillis());
+            if (user.getPhotoUrl() != null) {
+                userMap.put("photoUrl", user.getPhotoUrl().toString());
+            }
             ref.setValue(userMap).addOnCompleteListener(t -> onDone.run());
         });
+    }
+
+    @NonNull
+    private static String[] splitFullNameForGoogleProfile(@Nullable String fullName) {
+        String[] out = new String[] {"", ""};
+        if (fullName == null || fullName.trim().isEmpty()) {
+            return out;
+        }
+        String t = fullName.trim();
+        int sp = t.indexOf(' ');
+        if (sp < 0) {
+            out[0] = t;
+            return out;
+        }
+        out[0] = t.substring(0, sp).trim();
+        out[1] = t.substring(sp + 1).trim();
+        return out;
     }
 
     private void loginUser() {

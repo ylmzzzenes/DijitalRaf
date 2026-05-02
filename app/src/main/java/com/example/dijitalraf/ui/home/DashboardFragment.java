@@ -25,6 +25,7 @@ import androidx.transition.TransitionManager;
 import com.example.dijitalraf.BuildConfig;
 import com.example.dijitalraf.R;
 import com.example.dijitalraf.data.AiService;
+import com.example.dijitalraf.data.FirebaseRtdb;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.firebase.auth.FirebaseAuth;
@@ -162,31 +163,52 @@ public class DashboardFragment extends Fragment {
         refreshAiRecommendationsBodyUi();
         loadChatPreviewFromPrefs();
 
-        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
-        if (user != null) {
-            String uid = user.getUid();
-            DatabaseReference ref = FirebaseDatabase
-                    .getInstance("https://dijitalraf-ec149-default-rtdb.europe-west1.firebasedatabase.app")
-                    .getReference("users")
-                    .child(uid);
+        loadWelcomeFromRtdb();
 
-            ref.child("fullName").get().addOnSuccessListener(snapshot -> {
-                if (snapshot.exists()) {
-                    String fullName = snapshot.getValue(String.class);
-                    if (fullName != null && !fullName.trim().isEmpty()) {
-                        tvWelcome.setText(getString(R.string.welcome_with_name, fullName.trim()));
+        viewModel.getBooks().observe(getViewLifecycleOwner(), this::applyBookRows);
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        loadWelcomeFromRtdb();
+    }
+
+    private void loadWelcomeFromRtdb() {
+        if (tvWelcome == null) {
+            return;
+        }
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+        if (user == null) {
+            tvWelcome.setText(R.string.welcome_generic);
+            return;
+        }
+        String uid = user.getUid();
+        FirebaseDatabase.getInstance(FirebaseRtdb.URL)
+                .getReference("users")
+                .child(uid)
+                .child("fullName")
+                .get()
+                .addOnSuccessListener(snapshot -> {
+                    if (!isAdded()) {
+                        return;
+                    }
+                    if (snapshot.exists()) {
+                        String fullName = snapshot.getValue(String.class);
+                        if (fullName != null && !fullName.trim().isEmpty()) {
+                            tvWelcome.setText(getString(R.string.welcome_with_name, fullName.trim()));
+                        } else {
+                            tvWelcome.setText(R.string.welcome_generic);
+                        }
                     } else {
                         tvWelcome.setText(R.string.welcome_generic);
                     }
-                } else {
-                    tvWelcome.setText(R.string.welcome_generic);
-                }
-            }).addOnFailureListener(e -> tvWelcome.setText(R.string.welcome_generic));
-        } else {
-            tvWelcome.setText(R.string.welcome_generic);
-        }
-
-        viewModel.getBooks().observe(getViewLifecycleOwner(), this::applyBookRows);
+                })
+                .addOnFailureListener(e -> {
+                    if (isAdded()) {
+                        tvWelcome.setText(R.string.welcome_generic);
+                    }
+                });
     }
 
     @Override
