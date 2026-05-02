@@ -88,9 +88,20 @@
                     android:layout_gravity="center_horizontal"
                     android:layout_marginTop="@dimen/grid_1"
                     android:numStars="5"
+                    android:progressTint="@color/primary"
                     android:rating="0"
+                    android:secondaryProgressTint="@color/secondary_alpha_40"
                     android:stepSize="1"
                     tools:rating="4" />
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/grid_1"
+                    android:gravity="center"
+                    android:text="@string/book_detail_rating_local_hint"
+                    android:textAppearance="@style/TextAppearance.DijitalRaf.Caption"
+                    android:textColor="@color/text_secondary" />
 
                 <TextView
                     android:layout_width="match_parent"

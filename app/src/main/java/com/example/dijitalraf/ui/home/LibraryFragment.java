@@ -353,4 +353,12 @@ public class LibraryFragment extends Fragment {
         emptyState.setVisibility(showEmpty ? View.VISIBLE : View.GONE);
         recyclerBooks.setVisibility(showEmpty ? View.GONE : View.VISIBLE);
     }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        if (adapter != null) {
+            adapter.notifyDataSetChanged();
+        }
+    }
 }

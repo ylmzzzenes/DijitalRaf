@@ -62,6 +62,7 @@
     <string name="info_not_available">Bilgi bulunamadı</string>
     <string name="book_detail_screen_title">Kitap detayı</string>
     <string name="book_detail_label_rating">Puanınız (1–5 yıldız)</string>
+    <string name="book_detail_rating_local_hint">Puanınız hesabınızla bulutta saklanır; tüm cihazlarda güncellenir.</string>
     <string name="book_detail_label_description">Özet / açıklama</string>
     <string name="rating_saved">Puan kaydedildi</string>
     <string name="book_detail_label_pages">Sayfa sayısı</string>
@@ -70,7 +71,7 @@
     <string name="book_detail_author_line">Yazar: %1$s</string>
     <string name="book_detail_load_error">Kitap yüklenemedi.</string>
     <string name="book_detail_label_personal_note">Kişisel not</string>
-    <string name="book_detail_personal_note_hint">Bu not yalnızca bu cihazda saklanır; hesabınızla buluta gönderilmez.</string>
+    <string name="book_detail_personal_note_hint">Notunuz hesabınızla bulutta saklanır; tüm cihazlarda güncellenir.</string>
     <string name="hint_personal_note">Kitap hakkında notunuz</string>
     <string name="action_save_note">Kaydet</string>
     <string name="action_delete_note">Notu sil</string>
