@@ -35,6 +35,7 @@ public class ProfileFragment extends Fragment {
     private View layoutEmailVerification;
     private MaterialButton btnResendVerificationEmail;
     private MaterialButton btnEditProfile;
+    private MaterialButton btnBookStatistics;
     private MaterialButton btnLogout;
 
     @Nullable
@@ -53,6 +54,7 @@ public class ProfileFragment extends Fragment {
         layoutEmailVerification = view.findViewById(R.id.layoutEmailVerification);
         btnResendVerificationEmail = view.findViewById(R.id.btnResendVerificationEmail);
         btnEditProfile = view.findViewById(R.id.btnEditProfile);
+        btnBookStatistics = view.findViewById(R.id.btnBookStatistics);
         btnLogout = view.findViewById(R.id.btnLogout);
 
         btnResendVerificationEmail.setOnClickListener(v -> {
@@ -83,6 +85,8 @@ public class ProfileFragment extends Fragment {
 
         btnEditProfile.setOnClickListener(v ->
                 startActivity(new Intent(requireContext(), EditProfileActivity.class)));
+
+        btnBookStatistics.setOnClickListener(v -> BookStatisticsActivity.start(requireContext()));
 
         btnLogout.setOnClickListener(v -> signOutEverywhere());
     }

@@ -113,6 +113,14 @@
                     android:text="@string/action_edit_profile" />
 
                 <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnBookStatistics"
+                    style="@style/Widget.DijitalRaf.Button.Tonal"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/grid_2"
+                    android:text="@string/stats_open" />
+
+                <com.google.android.material.button.MaterialButton
                     android:id="@+id/btnLogout"
                     style="@style/Widget.DijitalRaf.Button.Filled"
                     android:layout_width="match_parent"
