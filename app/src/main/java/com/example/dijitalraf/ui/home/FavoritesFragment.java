@@ -53,8 +53,11 @@ public class FavoritesFragment extends Fragment {
         tvEmptyMessage.setText(R.string.empty_favorites_message);
         MaterialButton btnEmpty = view.findViewById(R.id.btnEmptyAction);
         btnEmpty.setVisibility(View.VISIBLE);
-        btnEmpty.setOnClickListener(v ->
-                startActivity(new Intent(requireContext(), KitapEkleActivity.class)));
+        btnEmpty.setOnClickListener(v -> {
+            if (requireActivity() instanceof HomeActivity) {
+                ((HomeActivity) requireActivity()).showKitapEkleOverlay();
+            }
+        });
 
         recyclerBooks.setLayoutManager(new LinearLayoutManager(requireContext()));
         recyclerBooks.setItemAnimator(new DefaultItemAnimator());

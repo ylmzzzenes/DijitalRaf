@@ -97,9 +97,11 @@ public class LibraryFragment extends Fragment {
             tvEmptyMessage.setText(R.string.empty_to_read_message);
             tvInteractionNote.setText(R.string.library_long_press_hint_to_read);
             btnEmpty.setVisibility(View.VISIBLE);
-            btnEmpty.setOnClickListener(v ->
-                    startActivity(new Intent(requireContext(), KitapEkleActivity.class))
-            );
+            btnEmpty.setOnClickListener(v -> {
+                if (requireActivity() instanceof HomeActivity) {
+                    ((HomeActivity) requireActivity()).showKitapEkleOverlay();
+                }
+            });
         }
 
         recyclerBooks.setLayoutManager(new LinearLayoutManager(requireContext()));
