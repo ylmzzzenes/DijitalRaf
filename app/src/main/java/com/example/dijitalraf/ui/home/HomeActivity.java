@@ -2,32 +2,48 @@ package com.example.dijitalraf.ui.home;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.View;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.example.dijitalraf.R;
+import com.example.dijitalraf.auth.EmailVerificationHelper;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 
 public class HomeActivity extends AppCompatActivity {
+
+    private View bannerEmailVerification;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
 
+        bannerEmailVerification = findViewById(R.id.bannerEmailVerification);
+
         BooksViewModel viewModel = new ViewModelProvider(this).get(BooksViewModel.class);
         viewModel.startListening();
 
         BottomNavigationView bottomNav = findViewById(R.id.bottomNav);
         FloatingActionButton fabAddBook = findViewById(R.id.fabAddBook);
-        fabAddBook.setOnClickListener(v ->
-                startActivity(new Intent(HomeActivity.this, KitapEkleActivity.class)));
+        fabAddBook.setOnClickListener(v -> {
+            if (blockIfEmailUnverified()) {
+                return;
+            }
+            startActivity(new Intent(HomeActivity.this, KitapEkleActivity.class));
+        });
 
         bottomNav.setOnItemSelectedListener(item -> {
             int itemId = item.getItemId();
+            if (itemId == R.id.nav_assistant && blockIfEmailUnverified()) {
+                return false;
+            }
             if (itemId == R.id.nav_home) {
                 showFragment(new DashboardFragment());
                 return true;
@@ -57,6 +73,39 @@ public class HomeActivity extends AppCompatActivity {
         }
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        refreshEmailVerificationBanner();
+    }
+
+    private void refreshEmailVerificationBanner() {
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+        if (user == null || bannerEmailVerification == null) {
+            if (bannerEmailVerification != null) {
+                bannerEmailVerification.setVisibility(View.GONE);
+            }
+            return;
+        }
+        user.reload().addOnCompleteListener(task -> {
+            FirebaseUser fresh = FirebaseAuth.getInstance().getCurrentUser();
+            if (EmailVerificationHelper.mustVerifyEmail(fresh)) {
+                bannerEmailVerification.setVisibility(View.VISIBLE);
+            } else {
+                bannerEmailVerification.setVisibility(View.GONE);
+            }
+        });
+    }
+
+    private boolean blockIfEmailUnverified() {
+        FirebaseUser u = FirebaseAuth.getInstance().getCurrentUser();
+        if (EmailVerificationHelper.mustVerifyEmail(u)) {
+            Toast.makeText(this, R.string.feature_locked_email_unverified, Toast.LENGTH_LONG).show();
+            return true;
+        }
+        return false;
+    }
+
     /** Ana sayfa (gösterge paneli); alt menü seçimini tetikler. */
     public void openHomeDashboard() {
         BottomNavigationView bottomNav = findViewById(R.id.bottomNav);
@@ -65,6 +114,9 @@ public class HomeActivity extends AppCompatActivity {
 
     /** Sohbet asistanı; alt menü seçimini tetikler. */
     public void openChatAssistant() {
+        if (blockIfEmailUnverified()) {
+            return;
+        }
         BottomNavigationView bottomNav = findViewById(R.id.bottomNav);
         bottomNav.setSelectedItemId(R.id.nav_assistant);
     }

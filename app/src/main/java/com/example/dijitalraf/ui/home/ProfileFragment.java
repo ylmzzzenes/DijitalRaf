@@ -8,6 +8,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -15,6 +16,7 @@ import androidx.fragment.app.Fragment;
 
 import com.bumptech.glide.Glide;
 import com.example.dijitalraf.R;
+import com.example.dijitalraf.auth.EmailVerificationHelper;
 import com.example.dijitalraf.data.FirebaseRtdb;
 import com.example.dijitalraf.ui.auth.GoogleSignInHelper;
 import com.example.dijitalraf.ui.auth.LoginActivity;
@@ -30,6 +32,8 @@ public class ProfileFragment extends Fragment {
     private ShapeableImageView ivAvatar;
     private TextView tvProfileDisplayName;
     private TextView tvEmail;
+    private View layoutEmailVerification;
+    private MaterialButton btnResendVerificationEmail;
     private MaterialButton btnEditProfile;
     private MaterialButton btnLogout;
 
@@ -46,8 +50,36 @@ public class ProfileFragment extends Fragment {
         ivAvatar = view.findViewById(R.id.ivAvatar);
         tvProfileDisplayName = view.findViewById(R.id.tvProfileDisplayName);
         tvEmail = view.findViewById(R.id.tvEmail);
+        layoutEmailVerification = view.findViewById(R.id.layoutEmailVerification);
+        btnResendVerificationEmail = view.findViewById(R.id.btnResendVerificationEmail);
         btnEditProfile = view.findViewById(R.id.btnEditProfile);
         btnLogout = view.findViewById(R.id.btnLogout);
+
+        btnResendVerificationEmail.setOnClickListener(v -> {
+            FirebaseUser u = FirebaseAuth.getInstance().getCurrentUser();
+            if (u == null || !EmailVerificationHelper.mustVerifyEmail(u)) {
+                return;
+            }
+            btnResendVerificationEmail.setEnabled(false);
+            u.sendEmailVerification()
+                    .addOnCompleteListener(task -> {
+                        if (!isAdded()) {
+                            return;
+                        }
+                        btnResendVerificationEmail.setEnabled(true);
+                        if (task.isSuccessful()) {
+                            Toast.makeText(requireContext(), R.string.email_verification_sent, Toast.LENGTH_LONG)
+                                    .show();
+                        } else {
+                            String msg = task.getException() != null ? task.getException().getMessage() : "";
+                            Toast.makeText(
+                                    requireContext(),
+                                    getString(R.string.email_verification_send_failed, msg),
+                                    Toast.LENGTH_LONG
+                            ).show();
+                        }
+                    });
+        });
 
         btnEditProfile.setOnClickListener(v ->
                 startActivity(new Intent(requireContext(), EditProfileActivity.class)));
@@ -58,7 +90,12 @@ public class ProfileFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
-        bindProfileUi();
+        FirebaseUser u = FirebaseAuth.getInstance().getCurrentUser();
+        if (u != null) {
+            u.reload().addOnCompleteListener(t -> bindProfileUi());
+        } else {
+            bindProfileUi();
+        }
     }
 
     private void bindProfileUi() {
@@ -66,11 +103,15 @@ public class ProfileFragment extends Fragment {
         if (user == null) {
             tvProfileDisplayName.setText(R.string.profile_subtitle);
             tvEmail.setText("");
+            layoutEmailVerification.setVisibility(View.GONE);
             ivAvatar.setImageResource(R.drawable.ic_person_24);
             ivAvatar.setImageTintList(android.content.res.ColorStateList.valueOf(
                     requireContext().getColor(R.color.primary)));
             return;
         }
+
+        layoutEmailVerification.setVisibility(
+                EmailVerificationHelper.mustVerifyEmail(user) ? View.VISIBLE : View.GONE);
 
         String email = user.getEmail();
         tvEmail.setText(!TextUtils.isEmpty(email) ? email : getString(R.string.profile_email_unknown));
