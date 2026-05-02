@@ -25,9 +25,14 @@ public class KitapAdapter extends RecyclerView.Adapter<KitapAdapter.KitapViewHol
         void onFavoriteChanged(Kitap kitap, int position);
     }
 
+    public interface OnBookClickListener {
+        void onBookClick(Kitap kitap, int position);
+    }
+
     private final Context appContext;
     private final List<Kitap> kitapListesi;
     private OnFavoriteChangedListener favoriteChangedListener;
+    private OnBookClickListener bookClickListener;
 
     public KitapAdapter(Context context, List<Kitap> kitapListesi) {
         this.appContext = context.getApplicationContext();
@@ -36,6 +41,10 @@ public class KitapAdapter extends RecyclerView.Adapter<KitapAdapter.KitapViewHol
 
     public void setOnFavoriteChangedListener(OnFavoriteChangedListener listener) {
         this.favoriteChangedListener = listener;
+    }
+
+    public void setOnBookClickListener(OnBookClickListener listener) {
+        this.bookClickListener = listener;
     }
 
     @NonNull
@@ -94,6 +103,16 @@ public class KitapAdapter extends RecyclerView.Adapter<KitapAdapter.KitapViewHol
         });
 
         holder.ivShare.setOnClickListener(v -> shareBook(v.getContext(), kitap));
+
+        holder.itemView.setOnClickListener(v -> {
+            if (bookClickListener == null) {
+                return;
+            }
+            int pos = holder.getBindingAdapterPosition();
+            if (pos != RecyclerView.NO_POSITION) {
+                bookClickListener.onBookClick(kitap, pos);
+            }
+        });
     }
 
     private void shareBook(Context context, Kitap kitap) {

@@ -7,6 +7,7 @@ public class Kitap {
     private String tur;
     private String imageUrl;
     private boolean favorite;
+    private boolean okundu;
     private String note;
     private long createdAt;
     private long updatedAt;
@@ -21,6 +22,7 @@ public class Kitap {
         this.tur = tur;
         this.imageUrl = "";
         this.favorite = false;
+        this.okundu = false;
         this.note = "";
         this.createdAt = System.currentTimeMillis();
         this.updatedAt = System.currentTimeMillis();
@@ -32,6 +34,7 @@ public class Kitap {
         this.tur = tur;
         this.imageUrl = imageUrl;
         this.favorite = false;
+        this.okundu = false;
         this.note = "";
         this.createdAt = System.currentTimeMillis();
         this.updatedAt = System.currentTimeMillis();
@@ -83,6 +86,14 @@ public class Kitap {
 
     public void setFavorite(boolean favorite) {
         this.favorite = favorite;
+    }
+
+    public boolean isOkundu() {
+        return okundu;
+    }
+
+    public void setOkundu(boolean okundu) {
+        this.okundu = okundu;
     }
 
     public String getNote() {

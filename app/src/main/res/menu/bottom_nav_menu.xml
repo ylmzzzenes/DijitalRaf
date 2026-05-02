@@ -5,13 +5,21 @@
         android:icon="@drawable/ic_home_24"
         android:title="@string/nav_home" />
     <item
-        android:id="@+id/nav_library"
+        android:id="@+id/nav_read_books"
+        android:icon="@drawable/ic_menu_book_24"
+        android:title="@string/nav_read_books" />
+    <item
+        android:id="@+id/nav_to_read"
         android:icon="@drawable/ic_library_books_24"
-        android:title="@string/nav_library" />
+        android:title="@string/nav_to_read" />
     <item
         android:id="@+id/nav_favorites"
         android:icon="@drawable/ic_favorite_24"
         android:title="@string/nav_favorites" />
+    <item
+        android:id="@+id/nav_add_book"
+        android:icon="@drawable/ic_add_24"
+        android:title="@string/nav_add_book" />
     <item
         android:id="@+id/nav_profile"
         android:icon="@drawable/ic_person_24"

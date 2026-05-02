@@ -20,4 +20,7 @@
     <dimen name="book_cover_size_grid">88dp</dimen>
 
     <dimen name="bottom_nav_height">72dp</dimen>
+
+    <dimen name="dashboard_cover_width">76dp</dimen>
+    <dimen name="dashboard_cover_height">104dp</dimen>
 </resources>

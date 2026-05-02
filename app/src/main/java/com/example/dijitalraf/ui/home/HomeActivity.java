@@ -9,7 +9,6 @@ import androidx.lifecycle.ViewModelProvider;
 
 import com.example.dijitalraf.R;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 public class HomeActivity extends AppCompatActivity {
 
@@ -21,29 +20,27 @@ public class HomeActivity extends AppCompatActivity {
         BooksViewModel viewModel = new ViewModelProvider(this).get(BooksViewModel.class);
         viewModel.startListening();
 
-        FloatingActionButton fab = findViewById(R.id.fabAddBook);
         BottomNavigationView bottomNav = findViewById(R.id.bottomNav);
-
-        fab.setOnClickListener(v ->
-                startActivity(new Intent(HomeActivity.this, KitapEkleActivity.class)));
 
         bottomNav.setOnItemSelectedListener(item -> {
             int itemId = item.getItemId();
             if (itemId == R.id.nav_home) {
                 showFragment(new DashboardFragment());
-                fab.show();
                 return true;
-            } else if (itemId == R.id.nav_library) {
-                showFragment(new LibraryFragment());
-                fab.hide();
+            } else if (itemId == R.id.nav_read_books) {
+                showFragment(LibraryFragment.newInstance(true));
+                return true;
+            } else if (itemId == R.id.nav_to_read) {
+                showFragment(LibraryFragment.newInstance(false));
                 return true;
             } else if (itemId == R.id.nav_favorites) {
                 showFragment(new FavoritesFragment());
-                fab.hide();
                 return true;
+            } else if (itemId == R.id.nav_add_book) {
+                startActivity(new Intent(HomeActivity.this, KitapEkleActivity.class));
+                return false;
             } else if (itemId == R.id.nav_profile) {
                 showFragment(new ProfileFragment());
-                fab.hide();
                 return true;
             }
             return false;
@@ -51,9 +48,14 @@ public class HomeActivity extends AppCompatActivity {
 
         if (savedInstanceState == null) {
             showFragment(new DashboardFragment());
-            fab.show();
             bottomNav.setSelectedItemId(R.id.nav_home);
         }
+    }
+
+    /** Ana sayfadaki kitap satırından Okunan / Okunacak sekmesine geçer. */
+    public void openBookSection(boolean readBooks) {
+        BottomNavigationView bottomNav = findViewById(R.id.bottomNav);
+        bottomNav.setSelectedItemId(readBooks ? R.id.nav_read_books : R.id.nav_to_read);
     }
 
     private void showFragment(Fragment fragment) {

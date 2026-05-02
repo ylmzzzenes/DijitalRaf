@@ -23,6 +23,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.dijitalraf.R;
 import com.example.dijitalraf.data.FavoritesHelper;
+import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.auth.FirebaseAuth;
@@ -33,14 +34,32 @@ import java.util.List;
 
 public class LibraryFragment extends Fragment {
 
+    private static final String ARG_LIST_READ = "list_read";
+
     private BooksViewModel viewModel;
     private final List<Kitap> kitapListesi = new ArrayList<>();
     private KitapAdapter adapter;
     private View emptyState;
     private RecyclerView recyclerBooks;
     private View progress;
+    private boolean listRead;
 
     private final String databaseUrl = "https://dijitalraf-ec149-default-rtdb.europe-west1.firebasedatabase.app";
+
+    public static LibraryFragment newInstance(boolean listReadBooks) {
+        LibraryFragment fragment = new LibraryFragment();
+        Bundle args = new Bundle();
+        args.putBoolean(ARG_LIST_READ, listReadBooks);
+        fragment.setArguments(args);
+        return fragment;
+    }
+
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        Bundle args = getArguments();
+        listRead = args != null && args.getBoolean(ARG_LIST_READ, false);
+    }
 
     @Nullable
     @Override
@@ -55,6 +74,9 @@ public class LibraryFragment extends Fragment {
 
         viewModel = new ViewModelProvider(requireActivity()).get(BooksViewModel.class);
 
+        MaterialToolbar toolbar = view.findViewById(R.id.toolbar);
+        toolbar.setTitle(listRead ? R.string.nav_read_books : R.string.nav_to_read);
+
         recyclerBooks = view.findViewById(R.id.recyclerBooks);
         emptyState = view.findViewById(R.id.emptyInclude);
         progress = view.findViewById(R.id.progressLoading);
@@ -63,18 +85,36 @@ public class LibraryFragment extends Fragment {
         TextView tvEmptyMessage = view.findViewById(R.id.tvEmptyMessage);
         MaterialButton btnEmpty = view.findViewById(R.id.btnEmptyAction);
 
-        tvEmptyTitle.setText(R.string.empty_library_title);
-        tvEmptyMessage.setText(R.string.empty_library_message);
-
-        btnEmpty.setVisibility(View.VISIBLE);
-        btnEmpty.setOnClickListener(v ->
-                startActivity(new Intent(requireContext(), KitapEkleActivity.class))
-        );
+        if (listRead) {
+            tvEmptyTitle.setText(R.string.empty_read_books_title);
+            tvEmptyMessage.setText(R.string.empty_read_books_message);
+            btnEmpty.setVisibility(View.GONE);
+        } else {
+            tvEmptyTitle.setText(R.string.empty_to_read_title);
+            tvEmptyMessage.setText(R.string.empty_to_read_message);
+            btnEmpty.setVisibility(View.VISIBLE);
+            btnEmpty.setOnClickListener(v ->
+                    startActivity(new Intent(requireContext(), KitapEkleActivity.class))
+            );
+        }
 
         recyclerBooks.setLayoutManager(new LinearLayoutManager(requireContext()));
         recyclerBooks.setItemAnimator(new DefaultItemAnimator());
 
         adapter = new KitapAdapter(requireContext(), kitapListesi);
+        adapter.setOnBookClickListener((kitap, position) -> {
+            if (kitap.getId() == null) {
+                return;
+            }
+            boolean next = !kitap.isOkundu();
+            kitap.setOkundu(next);
+            viewModel.persistKitap(kitap);
+            Snackbar.make(
+                    recyclerBooks,
+                    next ? R.string.marked_as_read : R.string.marked_as_to_read,
+                    Snackbar.LENGTH_SHORT
+            ).show();
+        });
         recyclerBooks.setAdapter(adapter);
 
         setupSwipeActions();
@@ -88,7 +128,11 @@ public class LibraryFragment extends Fragment {
             kitapListesi.clear();
 
             if (books != null) {
-                kitapListesi.addAll(books);
+                for (Kitap k : books) {
+                    if (k.isOkundu() == listRead) {
+                        kitapListesi.add(k);
+                    }
+                }
             }
 
             adapter.notifyDataSetChanged();

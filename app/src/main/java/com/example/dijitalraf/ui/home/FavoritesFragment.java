@@ -59,6 +59,19 @@ public class FavoritesFragment extends Fragment {
         recyclerBooks.setLayoutManager(new LinearLayoutManager(requireContext()));
         recyclerBooks.setItemAnimator(new DefaultItemAnimator());
         adapter = new KitapAdapter(requireContext(), favoriteBooks);
+        adapter.setOnBookClickListener((kitap, position) -> {
+            if (kitap.getId() == null) {
+                return;
+            }
+            boolean next = !kitap.isOkundu();
+            kitap.setOkundu(next);
+            viewModel.persistKitap(kitap);
+            Snackbar.make(
+                    recyclerBooks,
+                    next ? R.string.marked_as_read : R.string.marked_as_to_read,
+                    Snackbar.LENGTH_SHORT
+            ).show();
+        });
         recyclerBooks.setAdapter(adapter);
 
         ItemTouchHelper touchHelper = new ItemTouchHelper(new ItemTouchHelper.SimpleCallback(0,

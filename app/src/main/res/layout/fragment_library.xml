@@ -12,8 +12,7 @@
         style="@style/Widget.DijitalRaf.Toolbar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@color/background"
-        app:title="@string/nav_library" />
+        android:background="@color/background" />
 
     <FrameLayout
         android:layout_width="match_parent"
@@ -50,7 +49,7 @@
         android:layout_height="wrap_content"
         android:gravity="center"
         android:padding="@dimen/grid_2"
-        android:text="@string/swipe_delete_hint"
+        android:text="@string/library_list_hints"
         android:textAppearance="@style/TextAppearance.DijitalRaf.Caption"
         android:textColor="@color/text_secondary_alpha_50" />
 </LinearLayout>

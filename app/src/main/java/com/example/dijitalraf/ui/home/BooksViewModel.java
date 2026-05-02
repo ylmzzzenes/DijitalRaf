@@ -32,6 +32,14 @@ public class BooksViewModel extends ViewModel {
         return loading;
     }
 
+    public void persistKitap(@NonNull Kitap kitap) {
+        if (kitaplarRef == null || kitap.getId() == null) {
+            return;
+        }
+        kitap.setUpdatedAt(System.currentTimeMillis());
+        kitaplarRef.child(kitap.getId()).setValue(kitap);
+    }
+
     public void startListening() {
         if (kitaplarListener != null) {
             return;
