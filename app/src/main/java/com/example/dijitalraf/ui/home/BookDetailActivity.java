@@ -6,17 +6,22 @@ import android.os.Bundle;
 import android.text.Layout;
 import android.text.TextUtils;
 import android.view.View;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.AppCompatRatingBar;
 import androidx.core.content.ContextCompat;
 import androidx.core.text.HtmlCompat;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.recyclerview.widget.DefaultItemAnimator;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 import com.example.dijitalraf.R;
@@ -32,6 +37,10 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 public class BookDetailActivity extends AppCompatActivity {
 
@@ -75,6 +84,15 @@ public class BookDetailActivity extends AppCompatActivity {
     @Nullable
     private ValueEventListener bookListener;
 
+    private RecyclerView recyclerQuotes;
+    private TextView tvQuotesEmpty;
+    private MaterialButton btnAddQuote;
+    private BookQuoteAdapter quoteAdapter;
+    @Nullable
+    private DatabaseReference quotesRef;
+    @Nullable
+    private ValueEventListener quotesListener;
+
     private String lastDescriptionRaw = "";
     private boolean descriptionExpanded;
     private boolean lastFavorite;
@@ -103,6 +121,9 @@ public class BookDetailActivity extends AppCompatActivity {
         btnSavePersonalNote = findViewById(R.id.btnSavePersonalNote);
         btnDeletePersonalNote = findViewById(R.id.btnDeletePersonalNote);
         ratingBar = findViewById(R.id.ratingBar);
+        recyclerQuotes = findViewById(R.id.recyclerQuotes);
+        tvQuotesEmpty = findViewById(R.id.tvQuotesEmpty);
+        btnAddQuote = findViewById(R.id.btnAddQuote);
 
         setSupportActionBar(toolbar);
         if (getSupportActionBar() != null) {
@@ -122,6 +143,7 @@ public class BookDetailActivity extends AppCompatActivity {
         setupRatingBarListener();
         setupFavoriteButton();
         setupReadSwitch();
+        setupQuotesSection();
         attachBookRealtimeListener(bookIdArg);
     }
 
@@ -133,6 +155,11 @@ public class BookDetailActivity extends AppCompatActivity {
         }
         bookRef = null;
         bookListener = null;
+        if (quotesRef != null && quotesListener != null) {
+            quotesRef.removeEventListener(quotesListener);
+        }
+        quotesRef = null;
+        quotesListener = null;
     }
 
     private void attachBookRealtimeListener(@NonNull String bookId) {
@@ -150,6 +177,8 @@ public class BookDetailActivity extends AppCompatActivity {
                 .getReference("books")
                 .child(user.getUid())
                 .child(bookId);
+
+        attachQuotesListener();
 
         bookListener = new ValueEventListener() {
             @Override
@@ -460,5 +489,123 @@ public class BookDetailActivity extends AppCompatActivity {
                     })
                     .show();
         });
+    }
+
+    private void setupQuotesSection() {
+        recyclerQuotes.setLayoutManager(new LinearLayoutManager(this));
+        recyclerQuotes.setItemAnimator(new DefaultItemAnimator());
+        recyclerQuotes.setNestedScrollingEnabled(false);
+        quoteAdapter = new BookQuoteAdapter(new BookQuoteAdapter.Listener() {
+            @Override
+            public void onEdit(@NonNull String quoteId, @NonNull String text) {
+                showQuoteEditorDialog(true, quoteId, text);
+            }
+
+            @Override
+            public void onDelete(@NonNull String quoteId, @NonNull String text) {
+                showDeleteQuoteDialog(quoteId);
+            }
+        });
+        recyclerQuotes.setAdapter(quoteAdapter);
+        btnAddQuote.setOnClickListener(v -> showQuoteEditorDialog(false, null, null));
+    }
+
+    private void attachQuotesListener() {
+        if (bookRef == null) {
+            return;
+        }
+        if (quotesRef != null && quotesListener != null) {
+            quotesRef.removeEventListener(quotesListener);
+        }
+        quotesRef = bookRef.child("quotes");
+        quotesListener = new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                applyQuotesSnapshot(snapshot);
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                // Aynı kitap dinleyicisi hata verdiyse zaten toast/finish olabilir; burada sessiz kal.
+            }
+        };
+        quotesRef.addValueEventListener(quotesListener);
+    }
+
+    private void applyQuotesSnapshot(@NonNull DataSnapshot snapshot) {
+        List<BookQuoteAdapter.Item> rows = new ArrayList<>();
+        for (DataSnapshot child : snapshot.getChildren()) {
+            KitapAlinti a = child.getValue(KitapAlinti.class);
+            if (a == null || a.getText() == null) {
+                continue;
+            }
+            String t = a.getText().trim();
+            if (t.isEmpty()) {
+                continue;
+            }
+            String key = child.getKey();
+            if (key == null) {
+                continue;
+            }
+            rows.add(new BookQuoteAdapter.Item(key, t, a.getCreatedAt()));
+        }
+        Collections.sort(rows, (a, b) -> Long.compare(b.createdAt, a.createdAt));
+        quoteAdapter.setItems(rows);
+        boolean empty = rows.isEmpty();
+        tvQuotesEmpty.setVisibility(empty ? View.VISIBLE : View.GONE);
+        recyclerQuotes.setVisibility(empty ? View.GONE : View.VISIBLE);
+    }
+
+    private void showQuoteEditorDialog(boolean edit, @Nullable String quoteId, @Nullable String initialText) {
+        View form = getLayoutInflater().inflate(R.layout.dialog_kitap_alinti_edit, null, false);
+        TextInputEditText etQuote = form.findViewById(R.id.etQuote);
+        if (initialText != null) {
+            etQuote.setText(initialText);
+            etQuote.setSelection(initialText.length());
+        }
+        int titleRes = edit ? R.string.book_quotes_dialog_edit_title : R.string.book_quotes_dialog_add_title;
+        MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(this)
+                .setTitle(titleRes)
+                .setView(form)
+                .setNegativeButton(R.string.dialog_cancel, (d, w) -> d.dismiss())
+                .setPositiveButton(R.string.book_quotes_save, null);
+        AlertDialog dialog = builder.create();
+        dialog.setOnShowListener(d -> {
+            Button positive = dialog.getButton(AlertDialog.BUTTON_POSITIVE);
+            positive.setOnClickListener(v -> {
+                if (bookIdArg == null || FirebaseAuth.getInstance().getCurrentUser() == null) {
+                    dialog.dismiss();
+                    return;
+                }
+                String raw = etQuote.getText() != null ? etQuote.getText().toString().trim() : "";
+                if (raw.isEmpty()) {
+                    Toast.makeText(BookDetailActivity.this, R.string.book_quotes_error_empty, Toast.LENGTH_SHORT)
+                            .show();
+                    return;
+                }
+                if (edit && quoteId != null) {
+                    booksViewModel.updateBookQuote(bookIdArg, quoteId, raw);
+                } else {
+                    booksViewModel.addBookQuote(bookIdArg, raw);
+                }
+                Toast.makeText(BookDetailActivity.this, R.string.book_quotes_saved, Toast.LENGTH_SHORT).show();
+                dialog.dismiss();
+            });
+        });
+        dialog.show();
+    }
+
+    private void showDeleteQuoteDialog(@NonNull String quoteId) {
+        if (bookIdArg == null || FirebaseAuth.getInstance().getCurrentUser() == null) {
+            return;
+        }
+        new MaterialAlertDialogBuilder(this)
+                .setMessage(R.string.book_quotes_delete_confirm)
+                .setNegativeButton(R.string.dialog_cancel, (d, w) -> d.dismiss())
+                .setPositiveButton(R.string.action_delete_generic, (d, w) -> {
+                    booksViewModel.deleteBookQuote(bookIdArg, quoteId);
+                    Toast.makeText(this, R.string.book_quotes_deleted, Toast.LENGTH_SHORT).show();
+                })
+                .show();
     }
 }

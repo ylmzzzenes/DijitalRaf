@@ -401,6 +401,69 @@
                             android:text="@string/action_delete_note" />
                     </LinearLayout>
                 </com.google.android.material.card.MaterialCardView>
+
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/cardQuotes"
+                    style="@style/Widget.DijitalRaf.Card"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/grid_2"
+                    app:contentPadding="@dimen/grid_2">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="@string/book_quotes_section_title"
+                            android:textAppearance="@style/TextAppearance.DijitalRaf.Caption"
+                            android:textColor="@color/text_secondary"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="@dimen/grid_1"
+                            android:text="@string/book_quotes_section_hint"
+                            android:textAppearance="@style/TextAppearance.DijitalRaf.Caption"
+                            android:textColor="@color/text_secondary" />
+
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/btnAddQuote"
+                            style="@style/Widget.DijitalRaf.Button.Outlined"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="@dimen/grid_2"
+                            android:text="@string/book_quotes_add"
+                            app:icon="@drawable/ic_add_24"
+                            app:iconGravity="textStart"
+                            app:iconPadding="@dimen/grid_1" />
+
+                        <TextView
+                            android:id="@+id/tvQuotesEmpty"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="@dimen/grid_2"
+                            android:text="@string/book_quotes_empty"
+                            android:textAppearance="@style/TextAppearance.DijitalRaf.Body"
+                            android:textColor="@color/text_secondary"
+                            android:visibility="gone"
+                            tools:visibility="visible" />
+
+                        <androidx.recyclerview.widget.RecyclerView
+                            android:id="@+id/recyclerQuotes"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="@dimen/grid_2"
+                            android:nestedScrollingEnabled="false"
+                            android:overScrollMode="never"
+                            tools:itemCount="2"
+                            tools:listitem="@layout/item_kitap_alinti" />
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
             </LinearLayout>
         </androidx.core.widget.NestedScrollView>
         </LinearLayout>
