@@ -38,6 +38,7 @@ public class LibraryFragment extends Fragment {
     private static final String ARG_LIST_READ = "list_read";
 
     private BooksViewModel viewModel;
+    private LibraryFilterViewModel filterViewModel;
     private final List<Kitap> kitapListesi = new ArrayList<>();
     private KitapAdapter adapter;
     private View emptyState;
@@ -74,6 +75,7 @@ public class LibraryFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
 
         viewModel = new ViewModelProvider(requireActivity()).get(BooksViewModel.class);
+        filterViewModel = new ViewModelProvider(requireActivity()).get(LibraryFilterViewModel.class);
 
         MaterialToolbar toolbar = view.findViewById(R.id.toolbar);
         toolbar.setVisibility(View.GONE);
@@ -138,23 +140,99 @@ public class LibraryFragment extends Fragment {
 
         viewModel.getLoading().observe(getViewLifecycleOwner(), loading -> {
             progress.setVisibility(Boolean.TRUE.equals(loading) ? View.VISIBLE : View.GONE);
-            updateEmpty();
-        });
-
-        viewModel.getBooks().observe(getViewLifecycleOwner(), books -> {
-            kitapListesi.clear();
-
-            if (books != null) {
-                for (Kitap k : books) {
-                    if (k.isOkundu() == listRead) {
-                        kitapListesi.add(k);
-                    }
-                }
+            if (Boolean.TRUE.equals(loading)) {
+                emptyState.setVisibility(View.GONE);
+                recyclerBooks.setVisibility(View.VISIBLE);
+                return;
             }
-
-            adapter.notifyDataSetChanged();
-            updateEmpty();
+            applyBooksAndEmpty(viewModel.getBooks().getValue(), filterViewModel.getSpec().getValue());
         });
+
+        filterViewModel.getSpec().observe(getViewLifecycleOwner(),
+                spec -> applyBooksAndEmpty(viewModel.getBooks().getValue(), spec));
+
+        viewModel.getBooks().observe(getViewLifecycleOwner(),
+                books -> applyBooksAndEmpty(books, filterViewModel.getSpec().getValue()));
+    }
+
+    private void applyBooksAndEmpty(@Nullable List<Kitap> books, @Nullable LibraryFilterSpec spec) {
+        if (spec == null) {
+            spec = new LibraryFilterSpec();
+        }
+        kitapListesi.clear();
+        if (books != null) {
+            for (Kitap k : books) {
+                if (k == null || k.getId() == null) {
+                    continue;
+                }
+                if (k.isOkundu() != listRead) {
+                    continue;
+                }
+                if (!BookFilterUtils.matches(k, spec)) {
+                    continue;
+                }
+                kitapListesi.add(k);
+            }
+        }
+        adapter.notifyDataSetChanged();
+        updateEmptyDisplay(books, spec);
+    }
+
+    private boolean hasBooksOnShelfInCurrentTab(@Nullable List<Kitap> books) {
+        if (books == null) {
+            return false;
+        }
+        for (Kitap k : books) {
+            if (k == null || k.getId() == null) {
+                continue;
+            }
+            if (k.isOkundu() == listRead) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private void updateEmptyDisplay(@Nullable List<Kitap> allBooks, @NonNull LibraryFilterSpec spec) {
+        Boolean loading = viewModel.getLoading().getValue();
+        if (Boolean.TRUE.equals(loading)) {
+            return;
+        }
+
+        boolean emptyList = kitapListesi.isEmpty();
+        boolean shelfHas = hasBooksOnShelfInCurrentTab(allBooks);
+
+        TextView tvEmptyTitle = emptyState.findViewById(R.id.tvEmptyTitle);
+        TextView tvEmptyMessage = emptyState.findViewById(R.id.tvEmptyMessage);
+
+        if (listRead) {
+            tvEmptyTitle.setText(R.string.empty_read_books_title);
+            tvEmptyMessage.setText(R.string.empty_read_books_message);
+        } else {
+            tvEmptyTitle.setText(R.string.empty_to_read_title);
+            tvEmptyMessage.setText(R.string.empty_to_read_message);
+        }
+
+        if (emptyList && shelfHas) {
+            tvEmptyTitle.setText(R.string.library_filter_empty_title);
+            tvEmptyMessage.setText(R.string.library_filter_empty_message);
+            MaterialButton btnEmpty = emptyState.findViewById(R.id.btnEmptyAction);
+            btnEmpty.setVisibility(View.GONE);
+            emptyState.setVisibility(View.VISIBLE);
+            recyclerBooks.setVisibility(View.GONE);
+            return;
+        }
+
+        MaterialButton btnEmpty = emptyState.findViewById(R.id.btnEmptyAction);
+        if (!listRead) {
+            btnEmpty.setVisibility(emptyList ? View.VISIBLE : View.GONE);
+        } else {
+            btnEmpty.setVisibility(View.GONE);
+        }
+
+        boolean showEmpty = emptyList;
+        emptyState.setVisibility(showEmpty ? View.VISIBLE : View.GONE);
+        recyclerBooks.setVisibility(showEmpty ? View.GONE : View.VISIBLE);
     }
 
     private void setupSwipeActions() {
@@ -303,7 +381,7 @@ public class LibraryFragment extends Fragment {
 
         kitapListesi.remove(position);
         adapter.notifyItemRemoved(position);
-        updateEmpty();
+        updateEmptyDisplay(viewModel.getBooks().getValue(), filterViewModel.getSpec().getValue());
 
         FirebaseDatabase
                 .getInstance(databaseUrl)
@@ -317,7 +395,7 @@ public class LibraryFragment extends Fragment {
                     kitapListesi.add(position, deletedBook);
                     adapter.notifyItemInserted(position);
                     recyclerBooks.scrollToPosition(position);
-                    updateEmpty();
+                    updateEmptyDisplay(viewModel.getBooks().getValue(), filterViewModel.getSpec().getValue());
 
                     FirebaseDatabase
                             .getInstance(databaseUrl)
@@ -335,28 +413,13 @@ public class LibraryFragment extends Fragment {
         kitap.setFavorite(nextFavorite);
         viewModel.persistKitap(kitap);
 
-        adapter.notifyItemChanged(position);
+        applyBooksAndEmpty(viewModel.getBooks().getValue(), filterViewModel.getSpec().getValue());
 
         Snackbar.make(
                 recyclerBooks,
                 nextFavorite ? R.string.favorite_added : R.string.favorite_removed,
                 Snackbar.LENGTH_SHORT
         ).show();
-    }
-
-    private void updateEmpty() {
-        Boolean loading = viewModel.getLoading().getValue();
-        boolean isLoading = Boolean.TRUE.equals(loading);
-
-        if (isLoading) {
-            emptyState.setVisibility(View.GONE);
-            recyclerBooks.setVisibility(View.VISIBLE);
-            return;
-        }
-
-        boolean showEmpty = kitapListesi.isEmpty();
-        emptyState.setVisibility(showEmpty ? View.VISIBLE : View.GONE);
-        recyclerBooks.setVisibility(showEmpty ? View.GONE : View.VISIBLE);
     }
 
     @Override
