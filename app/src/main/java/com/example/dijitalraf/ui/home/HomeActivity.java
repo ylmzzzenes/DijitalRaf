@@ -5,9 +5,13 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.Toast;
 
+import androidx.activity.OnBackPressedCallback;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.viewpager2.widget.ViewPager2;
 
 import com.example.dijitalraf.R;
 import com.example.dijitalraf.auth.EmailVerificationHelper;
@@ -18,7 +22,24 @@ import com.google.firebase.auth.FirebaseUser;
 
 public class HomeActivity extends AppCompatActivity {
 
+    public static final String EXTRA_OPEN_ADD_BOOK = "extra_open_add_book";
+
+    private static final int[] NAV_IDS = {
+            R.id.nav_home,
+            R.id.nav_library,
+            R.id.nav_favorites,
+            R.id.nav_assistant,
+            R.id.nav_profile,
+    };
+
     private View bannerEmailVerification;
+    private ViewPager2 mainViewPager;
+    private BottomNavigationView bottomNav;
+    private View kitapEkleOverlay;
+    private MainPagerAdapter pagerAdapter;
+    private int lastValidPagerPosition;
+    @Nullable
+    private Integer pendingLibraryTab;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -26,51 +47,115 @@ public class HomeActivity extends AppCompatActivity {
         setContentView(R.layout.activity_home);
 
         bannerEmailVerification = findViewById(R.id.bannerEmailVerification);
+        mainViewPager = findViewById(R.id.mainViewPager);
+        bottomNav = findViewById(R.id.bottomNav);
+        kitapEkleOverlay = findViewById(R.id.kitapEkleOverlay);
 
         BooksViewModel viewModel = new ViewModelProvider(this).get(BooksViewModel.class);
         viewModel.startListening();
 
-        BottomNavigationView bottomNav = findViewById(R.id.bottomNav);
-        FloatingActionButton fabAddBook = findViewById(R.id.fabAddBook);
-        fabAddBook.setOnClickListener(v -> {
-            if (blockIfEmailUnverified()) {
-                return;
-            }
-            startActivity(new Intent(HomeActivity.this, KitapEkleActivity.class));
-        });
+        pagerAdapter = new MainPagerAdapter(this);
+        mainViewPager.setAdapter(pagerAdapter);
+        mainViewPager.setOffscreenPageLimit(4);
+
+        lastValidPagerPosition = 0;
 
         bottomNav.setOnItemSelectedListener(item -> {
             int itemId = item.getItemId();
             if (itemId == R.id.nav_assistant && blockIfEmailUnverified()) {
                 return false;
             }
-            if (itemId == R.id.nav_home) {
-                showFragment(new DashboardFragment());
-                return true;
-            } else if (itemId == R.id.nav_library) {
-                Fragment current = getSupportFragmentManager().findFragmentById(R.id.fragmentContainer);
-                if (current instanceof LibraryPagerFragment) {
-                    return true;
-                }
-                showFragment(LibraryPagerFragment.newInstance(1));
-                return true;
-            } else if (itemId == R.id.nav_favorites) {
-                showFragment(new FavoritesFragment());
-                return true;
-            } else if (itemId == R.id.nav_assistant) {
-                showFragment(new ChatAssistantFragment());
-                return true;
-            } else if (itemId == R.id.nav_profile) {
-                showFragment(new ProfileFragment());
-                return true;
+            int index = menuIdToIndex(itemId);
+            if (index < 0) {
+                return false;
             }
-            return false;
+            if (mainViewPager.getCurrentItem() != index) {
+                mainViewPager.setCurrentItem(index, false);
+            }
+            return true;
+        });
+
+        mainViewPager.registerOnPageChangeCallback(new ViewPager2.OnPageChangeCallback() {
+            @Override
+            public void onPageSelected(int position) {
+                if (position == 3 && EmailVerificationHelper.mustVerifyEmail(FirebaseAuth.getInstance().getCurrentUser())) {
+                    mainViewPager.setCurrentItem(lastValidPagerPosition, false);
+                    Toast.makeText(HomeActivity.this, R.string.feature_locked_email_unverified, Toast.LENGTH_LONG)
+                            .show();
+                    return;
+                }
+                if (position != 3) {
+                    lastValidPagerPosition = position;
+                }
+                applyPendingLibraryTabIfNeeded(position);
+                int menuId = NAV_IDS[position];
+                if (bottomNav.getSelectedItemId() != menuId) {
+                    bottomNav.setSelectedItemId(menuId);
+                }
+            }
+        });
+
+        FloatingActionButton fabAddBook = findViewById(R.id.fabAddBook);
+        fabAddBook.setOnClickListener(v -> {
+            if (blockIfEmailUnverified()) {
+                return;
+            }
+            showKitapEkleOverlay();
+        });
+
+        getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
+            @Override
+            public void handleOnBackPressed() {
+                if (kitapEkleOverlay.getVisibility() == View.VISIBLE) {
+                    dismissKitapEkleOverlay();
+                } else {
+                    finish();
+                }
+            }
         });
 
         if (savedInstanceState == null) {
-            showFragment(new DashboardFragment());
+            mainViewPager.setCurrentItem(0, false);
             bottomNav.setSelectedItemId(R.id.nav_home);
         }
+
+        handleOpenAddBookIntent(getIntent());
+    }
+
+    @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        setIntent(intent);
+        handleOpenAddBookIntent(intent);
+    }
+
+    private void handleOpenAddBookIntent(@Nullable Intent intent) {
+        if (intent == null || !intent.getBooleanExtra(EXTRA_OPEN_ADD_BOOK, false)) {
+            return;
+        }
+        intent.removeExtra(EXTRA_OPEN_ADD_BOOK);
+        mainViewPager.post(() -> {
+            if (!blockIfEmailUnverified()) {
+                showKitapEkleOverlay();
+            }
+        });
+    }
+
+    public void showKitapEkleOverlay() {
+        kitapEkleOverlay.setVisibility(View.VISIBLE);
+        getSupportFragmentManager()
+                .beginTransaction()
+                .setReorderingAllowed(true)
+                .replace(R.id.kitapEkleOverlay, new KitapEkleFragment())
+                .commit();
+    }
+
+    public void dismissKitapEkleOverlay() {
+        Fragment f = getSupportFragmentManager().findFragmentById(R.id.kitapEkleOverlay);
+        if (f != null) {
+            getSupportFragmentManager().beginTransaction().remove(f).commit();
+        }
+        kitapEkleOverlay.setVisibility(View.GONE);
     }
 
     @Override
@@ -106,38 +191,57 @@ public class HomeActivity extends AppCompatActivity {
         return false;
     }
 
-    /** Ana sayfa (gösterge paneli); alt menü seçimini tetikler. */
+    private static int menuIdToIndex(int menuItemId) {
+        for (int i = 0; i < NAV_IDS.length; i++) {
+            if (NAV_IDS[i] == menuItemId) {
+                return i;
+            }
+        }
+        return -1;
+    }
+
+    private void applyPendingLibraryTabIfNeeded(int position) {
+        if (position != 1 || pendingLibraryTab == null) {
+            return;
+        }
+        mainViewPager.post(() -> {
+            LibraryPagerFragment lib = pagerAdapter.getLibraryPagerFragment();
+            if (lib != null && lib.getView() != null) {
+                lib.setCurrentItem(pendingLibraryTab);
+            }
+            pendingLibraryTab = null;
+        });
+    }
+
+    /** Ana sayfa (gösterge paneli); alt menü ve ViewPager senkron. */
     public void openHomeDashboard() {
-        BottomNavigationView bottomNav = findViewById(R.id.bottomNav);
+        mainViewPager.setCurrentItem(0, false);
         bottomNav.setSelectedItemId(R.id.nav_home);
     }
 
-    /** Sohbet asistanı; alt menü seçimini tetikler. */
+    /** Sohbet asistanı sekmesi. */
     public void openChatAssistant() {
         if (blockIfEmailUnverified()) {
             return;
         }
-        BottomNavigationView bottomNav = findViewById(R.id.bottomNav);
+        mainViewPager.setCurrentItem(3, false);
         bottomNav.setSelectedItemId(R.id.nav_assistant);
     }
 
     /**
-     * Kütüphane sekmesini açar: {@code readBooks true} → Okunan, {@code false} → Okunacak.
+     * Kütüphane sekmesi: {@code readBooks true} → Okunan, {@code false} → Okunacak.
      */
     public void openBookSection(boolean readBooks) {
-        int page = readBooks ? 0 : 1;
-        showFragment(LibraryPagerFragment.newInstance(page));
-        getSupportFragmentManager().executePendingTransactions();
-        BottomNavigationView bottomNav = findViewById(R.id.bottomNav);
+        pendingLibraryTab = readBooks ? 0 : 1;
+        if (mainViewPager.getCurrentItem() == 1) {
+            LibraryPagerFragment lib = pagerAdapter.getLibraryPagerFragment();
+            if (lib != null) {
+                lib.setCurrentItem(pendingLibraryTab);
+            }
+            pendingLibraryTab = null;
+        } else {
+            mainViewPager.setCurrentItem(1, false);
+        }
         bottomNav.setSelectedItemId(R.id.nav_library);
-    }
-
-    private void showFragment(Fragment fragment) {
-        getSupportFragmentManager()
-                .beginTransaction()
-                .setReorderingAllowed(true)
-                .setCustomAnimations(android.R.anim.fade_in, android.R.anim.fade_out)
-                .replace(R.id.fragmentContainer, fragment)
-                .commit();
     }
 }
