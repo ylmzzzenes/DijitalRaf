@@ -75,6 +75,25 @@
     <string name="reading_goal_saved">Okuma hedefi kaydedildi.</string>
     <string name="reading_goal_dialog_confirm">Kaydet</string>
 
+    <string name="stats_screen_title">Kitap istatistikleri</string>
+    <string name="stats_open">İstatistikler</string>
+    <string name="stats_total_books">Rafdaki toplam kitap</string>
+    <string name="stats_read_books">Okunan kitaplar</string>
+    <string name="stats_read_value_format">%1$d / %2$d kitap</string>
+    <string name="stats_read_share_hint">Toplam rafınıza göre okunan kitap oranı</string>
+    <string name="stats_favorites">Favori kitaplar</string>
+    <string name="stats_favorite_value_format">%1$d / %2$d kitap</string>
+    <string name="stats_favorite_share_hint">Favori işaretli kitapların rafa oranı</string>
+    <string name="stats_avg_rating">Puan verilen kitaplara ortalama yıldız</string>
+    <string name="stats_avg_rating_value">%1$s / 5</string>
+    <string name="stats_avg_rating_none">Henüz yıldız verilmemiş</string>
+    <string name="stats_avg_rating_hint">Ölçek: 1–5 yıldız ortalaması</string>
+    <string name="stats_avg_rating_count">%1$d kitapta puan mevcut</string>
+    <string name="stats_avg_rating_hint_empty">En az bir kitaba 1–5 arası puan verdiğinizde burada görünür</string>
+    <string name="stats_genres_title">Okunan kitaplarda öne çıkan türler</string>
+    <string name="stats_genres_empty">Henüz okunan kitabınız yok veya tür bilgisi yok; okudukça bu bölüm dolacaktır.</string>
+    <string name="stats_genre_untagged">Tür belirtilmemiş</string>
+
     <string name="dashboard_section_read">Okunan Kitaplar</string>
     <string name="dashboard_section_to_read">Okunacak Kitaplar</string>
     <string name="dashboard_row_empty_read">Henüz okunan kitap yok. Okunacak listesinde karta basılı tutarak işaretleyebilirsin.</string>
