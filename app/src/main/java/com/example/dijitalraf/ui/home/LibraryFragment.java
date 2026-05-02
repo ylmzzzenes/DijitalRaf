@@ -118,13 +118,16 @@ public class LibraryFragment extends Fragment {
                 return;
             }
             boolean next = !kitap.isOkundu();
-            kitap.setOkundu(next);
-            viewModel.persistKitap(kitap);
-            Snackbar.make(
-                    recyclerBooks,
-                    next ? R.string.marked_as_read : R.string.marked_as_to_read,
-                    Snackbar.LENGTH_SHORT
-            ).show();
+            Runnable apply = () -> {
+                kitap.setOkundu(next);
+                viewModel.persistKitap(kitap);
+                Snackbar.make(
+                        recyclerBooks,
+                        next ? R.string.marked_as_read : R.string.marked_as_to_read,
+                        Snackbar.LENGTH_SHORT
+                ).show();
+            };
+            MarkAsReadDialogHelper.runWithConfirmationIfMarkingRead(this, next, apply);
         });
 
         recyclerBooks.setAdapter(adapter);

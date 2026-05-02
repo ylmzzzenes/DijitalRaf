@@ -30,6 +30,10 @@
     <string name="library_long_press_hint_to_read">Karta basılı tutarak okundu / okunacak durumunu değiştirebilirsiniz.</string>
     <string name="marked_as_read">Okundu olarak işaretlendi</string>
     <string name="marked_as_to_read">Okunacaklara alındı</string>
+    <string name="mark_as_read_dialog_title">Okunan kitaplara ekle</string>
+    <string name="mark_as_read_dialog_message">Bu kitap okunan kitaplar listenize eklenecektir. Daha sonra Okunan Kitaplar ekranından tekrar görüntüleyebilir, not ve puan bilgilerinizi düzenleyebilirsiniz.</string>
+    <string name="mark_as_read_dialog_confirm">Ekle</string>
+    <string name="dialog_cancel">İptal</string>
 
     <string name="welcome_with_name">Hoş geldin, %1$s</string>
     <string name="welcome_generic">Hoş geldin</string>
