@@ -168,6 +168,14 @@
     <string name="register_button">Kayıt Ol</string>
     <string name="go_login">Zaten hesabın var mı? Giriş Yap</string>
     <string name="error_email_empty">E-posta boş olamaz</string>
+    <string name="error_email_invalid_format">Geçerli bir e-posta adresi girin (ör. ad@site.com).</string>
+    <string name="error_email_invalid_domain">Alan adı geçersiz görünüyor. Gerçek bir alan adı ve uzantı kullanın (ör. gmail.com).</string>
+    <string name="email_verification_sent">Doğrulama e-postası gönderildi. Gelen kutunuzu ve spam klasörünü kontrol edin.</string>
+    <string name="email_verification_send_failed">Doğrulama e-postası gönderilemedi: %1$s</string>
+    <string name="email_verification_banner_message">E-posta adresinizi doğrulayın. Bazı özellikler doğrulama sonrası açılır.</string>
+    <string name="email_verification_profile_hint">Hesabınız e-posta ile doğrulanmadı. Gelen kutunuzdaki bağlantıya tıklayın.</string>
+    <string name="email_verification_resend">Doğrulama e-postasını yeniden gönder</string>
+    <string name="feature_locked_email_unverified">Bu özellik için önce e-postanızı doğrulayın. Profil sekmesinden yeniden gönderebilirsiniz.</string>
     <string name="error_password_empty">Şifre boş olamaz</string>
     <string name="error_full_name_empty">Ad soyad boş olamaz</string>
     <string name="error_password_short">Şifre en az 6 karakter olmalı</string>
