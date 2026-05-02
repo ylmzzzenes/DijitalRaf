@@ -15,6 +15,8 @@ public class Kitap {
     private String sayfaSayisi;
     /** Yayın tarihi (örn. 2021-03-15 veya 2021); API ham değeri. */
     private String yayinTarihi;
+    /** Kullanıcı puanı 0–5 (0 = verilmemiş). */
+    private int yildiz;
     private long createdAt;
     private long updatedAt;
 
@@ -132,6 +134,20 @@ public class Kitap {
 
     public void setYayinTarihi(String yayinTarihi) {
         this.yayinTarihi = yayinTarihi;
+    }
+
+    public int getYildiz() {
+        return yildiz;
+    }
+
+    public void setYildiz(int yildiz) {
+        if (yildiz < 0) {
+            this.yildiz = 0;
+        } else if (yildiz > 5) {
+            this.yildiz = 5;
+        } else {
+            this.yildiz = yildiz;
+        }
     }
 
     public long getCreatedAt() {

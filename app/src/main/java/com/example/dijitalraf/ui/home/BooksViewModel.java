@@ -12,11 +12,16 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 
 public class BooksViewModel extends ViewModel {
+
+    private static final String DATABASE_URL =
+            "https://dijitalraf-ec149-default-rtdb.europe-west1.firebasedatabase.app";
 
     private final MutableLiveData<List<Kitap>> books = new MutableLiveData<>(new ArrayList<>());
     private final MutableLiveData<Boolean> loading = new MutableLiveData<>(true);
@@ -40,6 +45,25 @@ public class BooksViewModel extends ViewModel {
         kitaplarRef.child(kitap.getId()).setValue(kitap);
     }
 
+    /**
+     * Yıldız puanını yazar; {@link #startListening()} çağrılmamış olsa bile çalışır (ör. detay ekranı).
+     */
+    public void persistYildiz(@NonNull String bookId, int yildiz) {
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+        if (user == null) {
+            return;
+        }
+        int v = Math.max(0, Math.min(5, yildiz));
+        DatabaseReference ref = FirebaseDatabase.getInstance(DATABASE_URL)
+                .getReference("books")
+                .child(user.getUid())
+                .child(bookId);
+        Map<String, Object> updates = new HashMap<>();
+        updates.put("yildiz", v);
+        updates.put("updatedAt", System.currentTimeMillis());
+        ref.updateChildren(updates);
+    }
+
     public void startListening() {
         if (kitaplarListener != null) {
             return;
@@ -58,7 +82,7 @@ public class BooksViewModel extends ViewModel {
         String uid = currentUser.getUid();
 
         kitaplarRef = FirebaseDatabase
-                .getInstance("https://dijitalraf-ec149-default-rtdb.europe-west1.firebasedatabase.app")
+                .getInstance(DATABASE_URL)
                 .getReference("books")
                 .child(uid);
 

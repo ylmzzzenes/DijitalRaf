@@ -80,10 +80,10 @@ public class KitapAdapter extends RecyclerView.Adapter<KitapAdapter.KitapViewHol
         boolean isRead = kitap.isOkundu();
         holder.ivReadStatus.setVisibility(isRead ? View.VISIBLE : View.GONE);
         holder.tvReadDate.setVisibility(isRead ? View.VISIBLE : View.GONE);
-        holder.tvRating.setVisibility(isRead ? View.VISIBLE : View.GONE);
+        holder.tvRating.setVisibility(View.VISIBLE);
+        holder.tvRating.setText(starsEmoji(kitap.getYildiz()));
         if (isRead) {
             holder.tvReadDate.setText(formatReadDate(kitap.getUpdatedAt()));
-            holder.tvRating.setText(buildRatingStars(kitap.isFavorite()));
         }
 
         String imageUrl = kitap.getImageUrl();
@@ -157,8 +157,20 @@ public class KitapAdapter extends RecyclerView.Adapter<KitapAdapter.KitapViewHol
         return "Okundu: " + date;
     }
 
-    private String buildRatingStars(boolean favorite) {
-        return favorite ? "⭐⭐⭐⭐⭐" : "⭐⭐⭐⭐☆";
+    /** 0–5 yıldız; 0 ise nötr gösterim. */
+    private String starsEmoji(int yildiz) {
+        int n = Math.max(0, Math.min(5, yildiz));
+        if (n == 0) {
+            return "☆☆☆☆☆";
+        }
+        StringBuilder sb = new StringBuilder(10);
+        for (int i = 0; i < n; i++) {
+            sb.append("⭐");
+        }
+        for (int i = n; i < 5; i++) {
+            sb.append("☆");
+        }
+        return sb.toString();
     }
 
     private void shareBook(Context context, Kitap kitap) {
@@ -181,6 +193,11 @@ public class KitapAdapter extends RecyclerView.Adapter<KitapAdapter.KitapViewHol
 
         if (!tur.isEmpty()) {
             shareText.append("\n🏷️ Tür: ").append(tur);
+        }
+
+        int y = kitap.getYildiz();
+        if (y > 0) {
+            shareText.append("\n⭐ Puan: ").append(y).append("/5");
         }
 
         if (!imageUrl.isEmpty()) {
