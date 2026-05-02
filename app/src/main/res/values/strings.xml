@@ -60,6 +60,21 @@
 
     <string name="welcome_with_name">Hoş geldin, %1$s</string>
     <string name="welcome_generic">Hoş geldin</string>
+    <string name="reading_goal_title">Okuma hedefi</string>
+    <string name="reading_goal_monthly">Aylık</string>
+    <string name="reading_goal_yearly">Yıllık</string>
+    <string name="reading_goal_target_hint">Hedef kitap sayısı</string>
+    <string name="reading_goal_edit">Düzenle</string>
+    <string name="reading_goal_set">Hedef belirle</string>
+    <string name="reading_goal_summary_monthly">Bu ay okunan: %1$d / %2$d kitap</string>
+    <string name="reading_goal_summary_yearly">Bu yıl okunan: %1$d / %2$d kitap</string>
+    <string name="reading_goal_not_set">Henüz hedef belirlemediniz. Okuma alışkanlığınızı takip etmek için bir hedef ekleyebilirsiniz.</string>
+    <string name="reading_goal_congrats_title">Hedefinize ulaştınız</string>
+    <string name="reading_goal_congrats_message">Tebrikler. Belirlediğiniz okuma hedefini tamamladınız. Bu düzenli çabanın okuma kültürünüze katkı sağlamasını dileriz. Yeni dönemde hedefinizi güncelleyerek yolculuğunuza devam edebilirsiniz.</string>
+    <string name="reading_goal_error_invalid_target">Lütfen 1 ile 999 arasında bir sayı girin.</string>
+    <string name="reading_goal_saved">Okuma hedefi kaydedildi.</string>
+    <string name="reading_goal_dialog_confirm">Kaydet</string>
+
     <string name="dashboard_section_read">Okunan Kitaplar</string>
     <string name="dashboard_section_to_read">Okunacak Kitaplar</string>
     <string name="dashboard_row_empty_read">Henüz okunan kitap yok. Okunacak listesinde karta basılı tutarak işaretleyebilirsin.</string>

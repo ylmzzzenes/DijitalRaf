@@ -22,6 +22,68 @@
             android:textAppearance="@style/TextAppearance.DijitalRaf.Title"
             tools:text="Hoş geldin, Ayşe" />
 
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/cardReadingGoal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/grid_2"
+            app:cardBackgroundColor="@color/card_background"
+            app:cardCornerRadius="@dimen/corner_medium"
+            app:cardElevation="@dimen/elevation_card"
+            app:strokeColor="@color/secondary_alpha_40"
+            app:strokeWidth="1dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="@dimen/grid_2">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="@string/reading_goal_title"
+                        android:textAppearance="@style/TextAppearance.DijitalRaf.Subtitle"
+                        android:textStyle="bold" />
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btnReadingGoalEdit"
+                        style="@style/Widget.DijitalRaf.Button.Tonal"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/reading_goal_set" />
+                </LinearLayout>
+
+                <TextView
+                    android:id="@+id/tvReadingGoalSummary"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/grid_2"
+                    android:textAppearance="@style/TextAppearance.DijitalRaf.Body"
+                    android:textColor="@color/text_secondary"
+                    tools:text="Bu ay okunan: 2 / 5 kitap" />
+
+                <com.google.android.material.progressindicator.LinearProgressIndicator
+                    android:id="@+id/readingGoalProgress"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/grid_2"
+                    android:max="100"
+                    android:progress="0"
+                    app:indicatorColor="@color/primary"
+                    app:trackColor="@color/secondary_alpha_40"
+                    app:trackCornerRadius="4dp"
+                    app:trackThickness="8dp" />
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
