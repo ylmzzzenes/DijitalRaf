@@ -112,9 +112,11 @@ public class DashboardFragment extends Fragment {
             showHistoryOverlay(R.string.ai_history_dialog_title, KEY_LAST_AI, R.string.ai_no_history_yet);
             return true;
         });
-        btnAiAssistant.setOnClickListener(v ->
-                Toast.makeText(requireContext(), R.string.ai_chat_assistant_coming_soon, Toast.LENGTH_SHORT).show()
-        );
+        btnAiAssistant.setOnClickListener(v -> {
+            if (requireActivity() instanceof HomeActivity) {
+                ((HomeActivity) requireActivity()).openChatAssistant();
+            }
+        });
         tvChatHistoryLabel.setOnClickListener(v ->
                 showHistoryOverlay(
                         R.string.ai_chat_history_dialog_title,

@@ -3,6 +3,8 @@ package com.example.dijitalraf.data;
 import android.os.Handler;
 import android.os.Looper;
 
+import androidx.annotation.NonNull;
+
 import com.example.dijitalraf.ui.home.Kitap;
 
 import org.json.JSONArray;
@@ -61,14 +63,38 @@ public class AiRecommendationService {
         }
         try {
             String prompt = buildPrompt(kitaplar);
-            enqueueChat(apiKey.trim(), prompt, 0, 0, callback);
+            JSONArray messages = new JSONArray();
+            JSONObject systemMessage = new JSONObject();
+            systemMessage.put("role", "system");
+            systemMessage.put("content", "Sen Türkçe konuşan profesyonel bir kitap öneri asistanısın. "
+                    + "Kullanıcının kitap zevkine göre kısa, net ve mantıklı öneriler ver.");
+            JSONObject userMessage = new JSONObject();
+            userMessage.put("role", "user");
+            userMessage.put("content", prompt);
+            messages.put(systemMessage);
+            messages.put(userMessage);
+            enqueueChatMessages(apiKey.trim(), messages, 500, 0, 0, callback);
         } catch (Exception e) {
-            callback.onError("İstek hazırlanamadı" + e.getMessage());
+            mainHandler.post(() -> callback.onError("İstek hazırlanamadı: " + e.getMessage()));
         }
     }
 
-    private void enqueueChat(String apiKey, String prompt, int modelIndex, int retryIndex,
-                             AiCallback callback) {
+    /**
+     * Genel sohbet: {@code messages} içinde system / user / assistant sıralı olmalı.
+     * Ağ çağrısı arka planda; geri dönüşler ana iş parçacığında.
+     */
+    public void sendChat(@NonNull String apiKey, @NonNull JSONArray messages, int maxTokens,
+                         @NonNull AiCallback callback) {
+        if (apiKey.trim().isEmpty()) {
+            mainHandler.post(() -> callback.onError("OpenRouter API anahtarı yapılandırılmamış."));
+            return;
+        }
+        enqueueChatMessages(apiKey.trim(), messages, maxTokens, 0, 0, callback);
+    }
+
+    private void enqueueChatMessages(String apiKey, JSONArray messages, int maxTokens,
+                                     int modelIndex, int retryIndex,
+                                     AiCallback callback) {
         if (modelIndex >= MODEL_CHAIN.length) {
             mainHandler.post(() -> callback.onError(
                     "Öneri servisi şu an çok yoğun (kotayı aştınız). Birkaç dakika sonra tekrar deneyin."));
@@ -77,7 +103,7 @@ public class AiRecommendationService {
 
         final JSONObject body;
         try {
-            body = buildRequestBody(MODEL_CHAIN[modelIndex], prompt);
+            body = buildRequestBody(MODEL_CHAIN[modelIndex], messages, maxTokens);
         } catch (JSONException e) {
             mainHandler.post(() -> callback.onError("İstek hazırlanamadı: " + e.getMessage()));
             return;
@@ -99,12 +125,12 @@ public class AiRecommendationService {
 
         client.newCall(request).enqueue(new Callback() {
             @Override
-            public void onFailure(Call call, IOException e) {
+            public void onFailure(@NonNull Call call, @NonNull IOException e) {
                 mainHandler.post(() -> callback.onError(e.getMessage()));
             }
 
             @Override
-            public void onResponse(Call call, Response response) {
+            public void onResponse(@NonNull Call call, @NonNull Response response) {
                 final int code = response.code();
                 final long retryAfterMs = parseRetryAfterMs(response);
                 String responseBody;
@@ -121,13 +147,15 @@ public class AiRecommendationService {
                     long delayMs = backoffDelayMs(retryIndex, retryAfterMs);
                     if (retryIndex + 1 < MAX_RETRIES_PER_MODEL) {
                         mainHandler.postDelayed(
-                                () -> enqueueChat(apiKey, prompt, modelIndex, retryIndex + 1, callback),
+                                () -> enqueueChatMessages(apiKey, messages, maxTokens, modelIndex,
+                                        retryIndex + 1, callback),
                                 delayMs);
                         return;
                     }
                     if (modelIndex + 1 < MODEL_CHAIN.length) {
                         mainHandler.postDelayed(
-                                () -> enqueueChat(apiKey, prompt, modelIndex + 1, 0, callback),
+                                () -> enqueueChatMessages(apiKey, messages, maxTokens, modelIndex + 1,
+                                        0, callback),
                                 Math.min(delayMs, 2000L));
                         return;
                     }
@@ -145,7 +173,8 @@ public class AiRecommendationService {
                 }
 
                 if (code == 404 && modelIndex + 1 < MODEL_CHAIN.length) {
-                    mainHandler.post(() -> enqueueChat(apiKey, prompt, modelIndex + 1, 0, callback));
+                    mainHandler.post(() -> enqueueChatMessages(apiKey, messages, maxTokens,
+                            modelIndex + 1, 0, callback));
                     return;
                 }
 
@@ -191,24 +220,13 @@ public class AiRecommendationService {
         return Math.min(BASE_BACKOFF_MS * (1L << retryIndex), 60_000L);
     }
 
-    private static JSONObject buildRequestBody(String model, String prompt) throws JSONException {
+    private static JSONObject buildRequestBody(String model, JSONArray messages, int maxTokens)
+            throws JSONException {
         JSONObject body = new JSONObject();
         body.put("model", model);
-
-        JSONArray messages = new JSONArray();
-        JSONObject systemMessage = new JSONObject();
-        systemMessage.put("role", "system");
-        systemMessage.put("content", "Sen Türkçe konuşan profesyonel bir kitap öneri asistanısın. "
-                + "Kullanıcının kitap zevkine göre kısa, net ve mantıklı öneriler ver.");
-        JSONObject userMessage = new JSONObject();
-        userMessage.put("role", "user");
-        userMessage.put("content", prompt);
-        messages.put(systemMessage);
-        messages.put(userMessage);
-
         body.put("messages", messages);
         body.put("temperature", 0.7);
-        body.put("max_tokens", 500);
+        body.put("max_tokens", maxTokens);
         return body;
     }
 
