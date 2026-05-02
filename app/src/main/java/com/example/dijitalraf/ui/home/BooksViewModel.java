@@ -105,6 +105,58 @@ public class BooksViewModel extends ViewModel {
         ref.updateChildren(updates);
     }
 
+    /** Alıntı ekler; yol {@code books/{uid}/{bookId}/quotes/{pushId}}. */
+    public void addBookQuote(@NonNull String bookId, @NonNull String text) {
+        DatabaseReference ref = bookRefForCurrentUser(bookId);
+        if (ref == null) {
+            return;
+        }
+        String trimmed = text.trim();
+        if (trimmed.isEmpty()) {
+            return;
+        }
+        String key = ref.child("quotes").push().getKey();
+        if (key == null) {
+            return;
+        }
+        long now = System.currentTimeMillis();
+        Map<String, Object> updates = new HashMap<>();
+        updates.put("quotes/" + key + "/text", trimmed);
+        updates.put("quotes/" + key + "/createdAt", now);
+        updates.put("quotes/" + key + "/updatedAt", now);
+        updates.put("updatedAt", now);
+        ref.updateChildren(updates);
+    }
+
+    public void updateBookQuote(@NonNull String bookId, @NonNull String quoteId, @NonNull String text) {
+        DatabaseReference ref = bookRefForCurrentUser(bookId);
+        if (ref == null) {
+            return;
+        }
+        String trimmed = text.trim();
+        if (trimmed.isEmpty()) {
+            return;
+        }
+        long now = System.currentTimeMillis();
+        Map<String, Object> updates = new HashMap<>();
+        updates.put("quotes/" + quoteId + "/text", trimmed);
+        updates.put("quotes/" + quoteId + "/updatedAt", now);
+        updates.put("updatedAt", now);
+        ref.updateChildren(updates);
+    }
+
+    public void deleteBookQuote(@NonNull String bookId, @NonNull String quoteId) {
+        DatabaseReference ref = bookRefForCurrentUser(bookId);
+        if (ref == null) {
+            return;
+        }
+        long now = System.currentTimeMillis();
+        Map<String, Object> updates = new HashMap<>();
+        updates.put("quotes/" + quoteId, null);
+        updates.put("updatedAt", now);
+        ref.updateChildren(updates);
+    }
+
     public void startListening() {
         if (kitaplarListener != null) {
             return;
