@@ -8,19 +8,16 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
-import androidx.viewpager2.widget.ViewPager2;
 
 import com.example.dijitalraf.R;
 import com.google.android.material.tabs.TabLayout;
-import com.google.android.material.tabs.TabLayoutMediator;
 
 public class LibraryPagerFragment extends Fragment {
 
     private static final String ARG_INITIAL_PAGE = "initial_page";
 
-    private ViewPager2 viewPager;
-    @Nullable
-    private TabLayoutMediator tabLayoutMediator;
+    private TabLayout tabLayout;
+    private int currentPage;
 
     public static LibraryPagerFragment newInstance(int initialPage) {
         LibraryPagerFragment fragment = new LibraryPagerFragment();
@@ -40,48 +37,74 @@ public class LibraryPagerFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        TabLayout tabLayout = view.findViewById(R.id.libraryTabLayout);
-        viewPager = view.findViewById(R.id.libraryViewPager);
-        viewPager.setAdapter(new LibraryPagerAdapter(this));
+        tabLayout = view.findViewById(R.id.libraryTabLayout);
 
-        int initial = 0;
+        int initial = 1;
         if (getArguments() != null) {
-            initial = getArguments().getInt(ARG_INITIAL_PAGE, 0);
+            initial = getArguments().getInt(ARG_INITIAL_PAGE, 1);
         }
+        currentPage = Math.max(0, Math.min(1, initial));
 
-        tabLayoutMediator = new TabLayoutMediator(tabLayout, viewPager, (tab, position) -> {
-            if (position == 0) {
-                tab.setText(R.string.library_tab_read);
-            } else {
-                tab.setText(R.string.library_tab_to_read);
+        tabLayout.removeAllTabs();
+        tabLayout.addTab(tabLayout.newTab().setText(R.string.library_tab_read));
+        tabLayout.addTab(tabLayout.newTab().setText(R.string.library_tab_to_read));
+
+        tabLayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
+            @Override
+            public void onTabSelected(TabLayout.Tab tab) {
+                currentPage = tab.getPosition();
+                showLibraryPage(currentPage);
+            }
+
+            @Override
+            public void onTabUnselected(TabLayout.Tab tab) {
+            }
+
+            @Override
+            public void onTabReselected(TabLayout.Tab tab) {
             }
         });
-        tabLayoutMediator.attach();
 
-        viewPager.setCurrentItem(Math.max(0, Math.min(1, initial)), false);
-    }
-
-    @Override
-    public void onDestroyView() {
-        if (tabLayoutMediator != null) {
-            tabLayoutMediator.detach();
-            tabLayoutMediator = null;
+        TabLayout.Tab tab = tabLayout.getTabAt(currentPage);
+        if (tab != null) {
+            tabLayout.selectTab(tab);
+        } else {
+            showLibraryPage(currentPage);
         }
-        viewPager = null;
-        super.onDestroyView();
     }
 
-    public int getCurrentItem() {
-        return viewPager != null ? viewPager.getCurrentItem() : 0;
-    }
-
-    public void setCurrentItem(int page) {
-        if (viewPager == null) {
+    private void showLibraryPage(int page) {
+        if (!isAdded()) {
             return;
         }
         int p = Math.max(0, Math.min(1, page));
-        if (viewPager.getCurrentItem() != p) {
-            viewPager.setCurrentItem(p, true);
+        getChildFragmentManager()
+                .beginTransaction()
+                .setReorderingAllowed(true)
+                .replace(R.id.libraryFragmentHost, LibraryFragment.newInstance(p == 0))
+                .commit();
+    }
+
+    public int getCurrentItem() {
+        return currentPage;
+    }
+
+    public void setCurrentItem(int page) {
+        int p = Math.max(0, Math.min(1, page));
+        currentPage = p;
+        if (tabLayout != null) {
+            TabLayout.Tab tab = tabLayout.getTabAt(p);
+            if (tab != null) {
+                if (tabLayout.getSelectedTabPosition() != p) {
+                    tabLayout.selectTab(tab);
+                } else {
+                    showLibraryPage(p);
+                }
+            } else {
+                showLibraryPage(p);
+            }
+        } else {
+            showLibraryPage(p);
         }
     }
 }
