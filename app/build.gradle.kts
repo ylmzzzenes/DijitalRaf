@@ -76,6 +76,7 @@ dependencies {
     implementation(libs.constraintlayout)
     implementation(libs.coordinatorlayout)
     implementation(libs.recyclerview)
+    implementation(libs.viewpager2)
     implementation(libs.fragment)
     implementation(libs.lifecycle.viewmodel)
     implementation(libs.lifecycle.livedata)

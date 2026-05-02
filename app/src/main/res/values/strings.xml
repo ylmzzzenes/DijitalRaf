@@ -49,6 +49,8 @@
     <string name="ai_chat_no_history_yet">Kayıtlı konuşma özeti yok.</string>
     <string name="ai_chat_history_dialog_title">Eski konuşma</string>
     <string name="ai_chat_assistant_coming_soon">Sohbet asistanı yakında eklenecek.</string>
+    <string name="dialog_close">Kapat</string>
+    <string name="cd_ai_history_long_press">Geçmişi görmek için basılı tutun veya dokunun</string>
     <string name="book_deleted">Kitap silindi</string>
     <string name="favorite_added">Favorilere eklendi</string>
     <string name="favorite_removed">Favorilerden çıkarıldı</string>

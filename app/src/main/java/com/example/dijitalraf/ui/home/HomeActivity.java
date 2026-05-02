@@ -27,11 +27,17 @@ public class HomeActivity extends AppCompatActivity {
             if (itemId == R.id.nav_home) {
                 showFragment(new DashboardFragment());
                 return true;
-            } else if (itemId == R.id.nav_read_books) {
-                showFragment(LibraryFragment.newInstance(true));
-                return true;
-            } else if (itemId == R.id.nav_to_read) {
-                showFragment(LibraryFragment.newInstance(false));
+            } else if (itemId == R.id.nav_read_books || itemId == R.id.nav_to_read) {
+                int page = itemId == R.id.nav_read_books ? 0 : 1;
+                Fragment current = getSupportFragmentManager().findFragmentById(R.id.fragmentContainer);
+                if (current instanceof LibraryPagerFragment) {
+                    LibraryPagerFragment pager = (LibraryPagerFragment) current;
+                    if (pager.getCurrentItem() != page) {
+                        pager.setCurrentItem(page);
+                    }
+                    return true;
+                }
+                showFragment(LibraryPagerFragment.newInstance(page));
                 return true;
             } else if (itemId == R.id.nav_favorites) {
                 showFragment(new FavoritesFragment());
@@ -56,6 +62,17 @@ public class HomeActivity extends AppCompatActivity {
     public void openBookSection(boolean readBooks) {
         BottomNavigationView bottomNav = findViewById(R.id.bottomNav);
         bottomNav.setSelectedItemId(readBooks ? R.id.nav_read_books : R.id.nav_to_read);
+    }
+
+    /**
+     * Kütüphane ViewPager kaydırıldığında alt menüde Okunan / Okunacak ile senkron tutar.
+     */
+    public void syncLibraryBottomNavFromSwipe(int page) {
+        BottomNavigationView bottomNav = findViewById(R.id.bottomNav);
+        int targetId = page == 0 ? R.id.nav_read_books : R.id.nav_to_read;
+        if (bottomNav.getSelectedItemId() != targetId) {
+            bottomNav.setSelectedItemId(targetId);
+        }
     }
 
     private void showFragment(Fragment fragment) {

@@ -100,11 +100,31 @@ public class DashboardFragment extends Fragment {
         rvToReadBooks.setAdapter(toReadAdapter);
 
         btnAiRecommend.setOnClickListener(v -> getAiRecommendations());
-        tvAiHistoryLabel.setOnClickListener(v -> showAiHistoryDialog());
+        tvAiHistoryLabel.setOnClickListener(v ->
+                showHistoryOverlay(R.string.ai_history_dialog_title, KEY_LAST_AI, R.string.ai_no_history_yet)
+        );
+        tvAiHistoryLabel.setOnLongClickListener(v -> {
+            showHistoryOverlay(R.string.ai_history_dialog_title, KEY_LAST_AI, R.string.ai_no_history_yet);
+            return true;
+        });
         btnAiAssistant.setOnClickListener(v ->
                 Toast.makeText(requireContext(), R.string.ai_chat_assistant_coming_soon, Toast.LENGTH_SHORT).show()
         );
-        tvChatHistoryLabel.setOnClickListener(v -> showChatHistoryDialog());
+        tvChatHistoryLabel.setOnClickListener(v ->
+                showHistoryOverlay(
+                        R.string.ai_chat_history_dialog_title,
+                        KEY_LAST_CHAT_SNIPPET,
+                        R.string.ai_chat_no_history_yet
+                )
+        );
+        tvChatHistoryLabel.setOnLongClickListener(v -> {
+            showHistoryOverlay(
+                    R.string.ai_chat_history_dialog_title,
+                    KEY_LAST_CHAT_SNIPPET,
+                    R.string.ai_chat_no_history_yet
+            );
+            return true;
+        });
 
         loadAiPreviewFromPrefs();
         loadChatPreviewFromPrefs();
@@ -189,19 +209,6 @@ public class DashboardFragment extends Fragment {
         }
     }
 
-    private void showAiHistoryDialog() {
-        String saved = dashboardPrefs.getString(KEY_LAST_AI, "");
-        if (saved == null || saved.trim().isEmpty()) {
-            Toast.makeText(requireContext(), R.string.ai_no_history_yet, Toast.LENGTH_SHORT).show();
-            return;
-        }
-        new MaterialAlertDialogBuilder(requireContext())
-                .setTitle(R.string.ai_history_dialog_title)
-                .setMessage(saved.trim())
-                .setPositiveButton(android.R.string.ok, (d, w) -> d.dismiss())
-                .show();
-    }
-
     private void loadChatPreviewFromPrefs() {
         String saved = dashboardPrefs.getString(KEY_LAST_CHAT_SNIPPET, "");
         if (saved != null && !saved.trim().isEmpty()) {
@@ -213,16 +220,17 @@ public class DashboardFragment extends Fragment {
         }
     }
 
-    private void showChatHistoryDialog() {
-        String saved = dashboardPrefs.getString(KEY_LAST_CHAT_SNIPPET, "");
+    /** AI öneri ve sohbet kartlarında geçmiş metni gösterir; boşsa Toast. */
+    private void showHistoryOverlay(int titleRes, String prefsKey, int emptyToastRes) {
+        String saved = dashboardPrefs.getString(prefsKey, "");
         if (saved == null || saved.trim().isEmpty()) {
-            Toast.makeText(requireContext(), R.string.ai_chat_no_history_yet, Toast.LENGTH_SHORT).show();
+            Toast.makeText(requireContext(), emptyToastRes, Toast.LENGTH_SHORT).show();
             return;
         }
         new MaterialAlertDialogBuilder(requireContext())
-                .setTitle(R.string.ai_chat_history_dialog_title)
+                .setTitle(titleRes)
                 .setMessage(saved.trim())
-                .setPositiveButton(android.R.string.ok, (d, w) -> d.dismiss())
+                .setPositiveButton(R.string.dialog_close, (d, w) -> d.dismiss())
                 .show();
     }
 
