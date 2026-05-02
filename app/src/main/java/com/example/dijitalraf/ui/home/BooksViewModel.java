@@ -83,6 +83,28 @@ public class BooksViewModel extends ViewModel {
         ref.updateChildren(updates);
     }
 
+    public void updateBookFavorite(@NonNull String bookId, boolean favorite) {
+        DatabaseReference ref = bookRefForCurrentUser(bookId);
+        if (ref == null) {
+            return;
+        }
+        Map<String, Object> updates = new HashMap<>();
+        updates.put("favorite", favorite);
+        updates.put("updatedAt", System.currentTimeMillis());
+        ref.updateChildren(updates);
+    }
+
+    public void updateBookOkundu(@NonNull String bookId, boolean okundu) {
+        DatabaseReference ref = bookRefForCurrentUser(bookId);
+        if (ref == null) {
+            return;
+        }
+        Map<String, Object> updates = new HashMap<>();
+        updates.put("okundu", okundu);
+        updates.put("updatedAt", System.currentTimeMillis());
+        ref.updateChildren(updates);
+    }
+
     public void startListening() {
         if (kitaplarListener != null) {
             return;

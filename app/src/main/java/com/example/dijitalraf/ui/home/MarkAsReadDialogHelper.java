@@ -1,5 +1,9 @@
 package com.example.dijitalraf.ui.home;
 
+import android.content.Context;
+
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 
 import com.example.dijitalraf.R;
@@ -21,11 +25,28 @@ public final class MarkAsReadDialogHelper {
             Fragment fragment,
             boolean markingAsRead,
             Runnable onConfirmed) {
+        runWithConfirmationIfMarkingReadInternal(fragment.requireContext(), markingAsRead, onConfirmed);
+    }
+
+    /**
+     * {@link BookDetailActivity} gibi Fragment dışı ekranlar için aynı onay akışı.
+     */
+    public static void runWithConfirmationIfMarkingRead(
+            @NonNull AppCompatActivity activity,
+            boolean markingAsRead,
+            @NonNull Runnable onConfirmed) {
+        runWithConfirmationIfMarkingReadInternal(activity, markingAsRead, onConfirmed);
+    }
+
+    private static void runWithConfirmationIfMarkingReadInternal(
+            @NonNull Context context,
+            boolean markingAsRead,
+            @NonNull Runnable onConfirmed) {
         if (!markingAsRead) {
             onConfirmed.run();
             return;
         }
-        new MaterialAlertDialogBuilder(fragment.requireContext())
+        new MaterialAlertDialogBuilder(context)
                 .setTitle(R.string.mark_as_read_dialog_title)
                 .setMessage(R.string.mark_as_read_dialog_message)
                 .setNegativeButton(R.string.dialog_cancel, (d, w) -> d.dismiss())
