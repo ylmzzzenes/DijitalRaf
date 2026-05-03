@@ -61,7 +61,8 @@ public class FavoritesFragment extends Fragment {
 
         recyclerBooks.setLayoutManager(new LinearLayoutManager(requireContext()));
         recyclerBooks.setItemAnimator(new DefaultItemAnimator());
-        adapter = new KitapAdapter(requireContext(), favoriteBooks);
+        adapter = new KitapAdapter(requireContext());
+        adapter.submitFrom(favoriteBooks);
         adapter.setOnBookClickListener((kitap, position) -> {
             if (kitap.getId() == null) {
                 return;
@@ -138,7 +139,7 @@ public class FavoritesFragment extends Fragment {
                 favoriteBooks.add(k);
             }
         }
-        adapter.notifyDataSetChanged();
+        adapter.submitFrom(favoriteBooks);
         boolean showEmpty = favoriteBooks.isEmpty();
         emptyState.setVisibility(showEmpty ? View.VISIBLE : View.GONE);
         recyclerBooks.setVisibility(showEmpty ? View.GONE : View.VISIBLE);

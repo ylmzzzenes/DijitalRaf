@@ -10,6 +10,8 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.recyclerview.widget.DiffUtil;
+import androidx.recyclerview.widget.ListAdapter;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
@@ -18,11 +20,13 @@ import com.example.dijitalraf.data.FavoritesHelper;
 import com.google.android.material.chip.Chip;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
+import java.util.Objects;
 
-public class KitapAdapter extends RecyclerView.Adapter<KitapAdapter.KitapViewHolder> {
+public class KitapAdapter extends ListAdapter<Kitap, KitapAdapter.KitapViewHolder> {
 
     public interface OnFavoriteChangedListener {
         void onFavoriteChanged(Kitap kitap, int position);
@@ -37,14 +41,18 @@ public class KitapAdapter extends RecyclerView.Adapter<KitapAdapter.KitapViewHol
     }
 
     private final Context appContext;
-    private final List<Kitap> kitapListesi;
     private OnFavoriteChangedListener favoriteChangedListener;
     private OnBookClickListener bookClickListener;
     private OnBookLongClickListener bookLongClickListener;
 
-    public KitapAdapter(Context context, List<Kitap> kitapListesi) {
+    public KitapAdapter(Context context) {
+        super(new KitapDiffCallback());
         this.appContext = context.getApplicationContext();
-        this.kitapListesi = kitapListesi;
+    }
+
+    /** Fragment’teki liste ile adapter içeriğini senkronlar (DiffUtil). */
+    public void submitFrom(@NonNull List<Kitap> source) {
+        submitList(new ArrayList<>(source));
     }
 
     public void setOnFavoriteChangedListener(OnFavoriteChangedListener listener) {
@@ -68,7 +76,7 @@ public class KitapAdapter extends RecyclerView.Adapter<KitapAdapter.KitapViewHol
 
     @Override
     public void onBindViewHolder(@NonNull KitapViewHolder holder, int position) {
-        Kitap kitap = kitapListesi.get(position);
+        Kitap kitap = getItem(position);
 
         holder.tvKitapAdi.setText(kitap.getKitapAdi());
         holder.tvYazar.setText(kitap.getYazar());
@@ -105,7 +113,9 @@ public class KitapAdapter extends RecyclerView.Adapter<KitapAdapter.KitapViewHol
         );
 
         holder.ivFavorite.setOnClickListener(v -> {
-            if (kitap.getId() == null) return;
+            if (kitap.getId() == null) {
+                return;
+            }
 
             boolean newFav = !kitap.isFavorite();
 
@@ -213,11 +223,6 @@ public class KitapAdapter extends RecyclerView.Adapter<KitapAdapter.KitapViewHol
         context.startActivity(Intent.createChooser(shareIntent, "Kitap paylaş"));
     }
 
-    @Override
-    public int getItemCount() {
-        return kitapListesi.size();
-    }
-
     public static class KitapViewHolder extends RecyclerView.ViewHolder {
         final TextView tvKitapAdi;
         final TextView tvYazar;
@@ -240,6 +245,29 @@ public class KitapAdapter extends RecyclerView.Adapter<KitapAdapter.KitapViewHol
             ivReadStatus = itemView.findViewById(R.id.ivReadStatus);
             tvRating = itemView.findViewById(R.id.tvRating);
             tvReadDate = itemView.findViewById(R.id.tvReadDate);
+        }
+    }
+
+    static final class KitapDiffCallback extends DiffUtil.ItemCallback<Kitap> {
+
+        @Override
+        public boolean areItemsTheSame(@NonNull Kitap oldItem, @NonNull Kitap newItem) {
+            if (oldItem.getId() != null && newItem.getId() != null) {
+                return oldItem.getId().equals(newItem.getId());
+            }
+            return oldItem == newItem;
+        }
+
+        @Override
+        public boolean areContentsTheSame(@NonNull Kitap oldItem, @NonNull Kitap newItem) {
+            return Objects.equals(oldItem.getKitapAdi(), newItem.getKitapAdi())
+                    && Objects.equals(oldItem.getYazar(), newItem.getYazar())
+                    && Objects.equals(oldItem.getTur(), newItem.getTur())
+                    && oldItem.isFavorite() == newItem.isFavorite()
+                    && oldItem.isOkundu() == newItem.isOkundu()
+                    && oldItem.getYildiz() == newItem.getYildiz()
+                    && Objects.equals(oldItem.getImageUrl(), newItem.getImageUrl())
+                    && oldItem.getUpdatedAt() == newItem.getUpdatedAt();
         }
     }
 }

@@ -109,7 +109,8 @@ public class LibraryFragment extends Fragment {
         recyclerBooks.setLayoutManager(new LinearLayoutManager(requireContext()));
         recyclerBooks.setItemAnimator(new DefaultItemAnimator());
 
-        adapter = new KitapAdapter(requireContext(), kitapListesi);
+        adapter = new KitapAdapter(requireContext());
+        adapter.submitFrom(kitapListesi);
 
         adapter.setOnBookClickListener((kitap, position) -> {
             if (kitap.getId() == null) {
@@ -174,7 +175,7 @@ public class LibraryFragment extends Fragment {
                 kitapListesi.add(k);
             }
         }
-        adapter.notifyDataSetChanged();
+        adapter.submitFrom(kitapListesi);
         updateEmptyDisplay(books, spec);
     }
 
@@ -380,7 +381,7 @@ public class LibraryFragment extends Fragment {
         String uid = currentUser.getUid();
 
         kitapListesi.remove(position);
-        adapter.notifyItemRemoved(position);
+        adapter.submitFrom(kitapListesi);
         updateEmptyDisplay(viewModel.getBooks().getValue(), filterViewModel.getSpec().getValue());
 
         FirebaseDatabase
@@ -393,7 +394,7 @@ public class LibraryFragment extends Fragment {
         Snackbar.make(recyclerBooks, R.string.book_deleted, Snackbar.LENGTH_LONG)
                 .setAction("GERİ AL", v -> {
                     kitapListesi.add(position, deletedBook);
-                    adapter.notifyItemInserted(position);
+                    adapter.submitFrom(kitapListesi);
                     recyclerBooks.scrollToPosition(position);
                     updateEmptyDisplay(viewModel.getBooks().getValue(), filterViewModel.getSpec().getValue());
 
@@ -426,7 +427,7 @@ public class LibraryFragment extends Fragment {
     public void onResume() {
         super.onResume();
         if (adapter != null) {
-            adapter.notifyDataSetChanged();
+            adapter.submitFrom(kitapListesi);
         }
     }
 }
