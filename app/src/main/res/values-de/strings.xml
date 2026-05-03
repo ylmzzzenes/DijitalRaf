@@ -4,6 +4,7 @@
     <string name="error_user_profile_unavailable">Benutzerinformationen konnten nicht abgerufen werden.</string>
     <string name="error_user_session_missing">Benutzersitzung nicht gefunden.</string>
     <string name="error_register_failed">Registrierung fehlgeschlagen: %1$s</string>
+    <string name="books_sync_failed">Bücher konnten nicht geladen werden: %1$s</string>
     <string name="dashboard_need_books_for_recommendation">Fügen Sie zunächst ein paar Bücher hinzu, um Empfehlungen zu erhalten.</string>
     <string name="nav_home">Startseite</string>
     <string name="nav_read_books">Bücher gelesen</string>

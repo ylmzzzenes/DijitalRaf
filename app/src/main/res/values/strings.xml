@@ -4,6 +4,7 @@
     <string name="error_user_profile_unavailable">Kullanıcı bilgisi alınamadı.</string>
     <string name="error_user_session_missing">Kullanıcı oturumu bulunamadı.</string>
     <string name="error_register_failed">Kayıt başarısız: %1$s</string>
+    <string name="books_sync_failed">Kitaplar yüklenemedi: %1$s</string>
     <string name="dashboard_need_books_for_recommendation">Öneri almak için önce birkaç kitap ekleyin.</string>
 
     <string name="nav_home">Ana Sayfa</string>

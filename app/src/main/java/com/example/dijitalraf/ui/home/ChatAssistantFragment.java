@@ -23,6 +23,8 @@ import com.example.dijitalraf.BuildConfig;
 import com.example.dijitalraf.R;
 import com.example.dijitalraf.auth.EmailVerificationHelper;
 import com.example.dijitalraf.data.AiService;
+import com.example.dijitalraf.data.repository.AiRepository;
+import com.example.dijitalraf.data.repository.OpenRouterAiRepository;
 import com.example.dijitalraf.ui.util.UiMessages;
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.button.MaterialButton;
@@ -46,7 +48,7 @@ public class ChatAssistantFragment extends Fragment {
     private static final int SNIPPET_MAX = 320;
 
     private BooksViewModel viewModel;
-    private AiService aiService;
+    private AiRepository aiRepository;
     private SharedPreferences prefs;
     private ChatMessagesAdapter adapter;
     private RecyclerView recyclerChat;
@@ -68,7 +70,7 @@ public class ChatAssistantFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         viewModel = new ViewModelProvider(requireActivity()).get(BooksViewModel.class);
-        aiService = new AiService(requireContext());
+        aiRepository = new OpenRouterAiRepository(requireContext());
         prefs = requireContext().getSharedPreferences(PREFS_DASHBOARD, Context.MODE_PRIVATE);
 
         MaterialToolbar toolbar = view.findViewById(R.id.toolbar);
@@ -186,7 +188,7 @@ public class ChatAssistantFragment extends Fragment {
             return;
         }
 
-        aiService.sendChatMessage(apiKey, messages, new AiService.LlmCallback() {
+        aiRepository.sendChatMessage(apiKey, messages, new AiService.LlmCallback() {
             @Override
             public void onSuccess(@NonNull String result) {
                 if (!isAdded()) {

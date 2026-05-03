@@ -17,6 +17,7 @@ import androidx.lifecycle.ViewModelProvider;
 import com.example.dijitalraf.R;
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.progressindicator.LinearProgressIndicator;
+import com.google.android.material.snackbar.Snackbar;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -65,6 +66,18 @@ public class BookStatisticsActivity extends AppCompatActivity {
 
         booksViewModel = new ViewModelProvider(this).get(BooksViewModel.class);
         booksViewModel.startListening();
+        booksViewModel.getBooksError().observe(this, event -> {
+            if (event == null) {
+                return;
+            }
+            String msg = event.getContentIfNotHandled();
+            if (msg != null && !msg.isEmpty()) {
+                Snackbar.make(
+                        findViewById(android.R.id.content),
+                        getString(R.string.books_sync_failed, msg),
+                        Snackbar.LENGTH_LONG).show();
+            }
+        });
         booksViewModel.getBooks().observe(this, this::render);
     }
 

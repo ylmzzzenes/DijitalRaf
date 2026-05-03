@@ -41,6 +41,7 @@ public class HomeActivity extends AppCompatActivity {
     @Nullable
     private Integer pendingLibraryTab;
     private FloatingActionButton fabAddBook;
+    private BooksViewModel booksViewModel;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -52,8 +53,8 @@ public class HomeActivity extends AppCompatActivity {
         bottomNav = findViewById(R.id.bottomNav);
         kitapEkleOverlay = findViewById(R.id.kitapEkleOverlay);
 
-        BooksViewModel viewModel = new ViewModelProvider(this).get(BooksViewModel.class);
-        viewModel.startListening();
+        booksViewModel = new ViewModelProvider(this).get(BooksViewModel.class);
+        booksViewModel.startListening();
 
         pagerAdapter = new MainPagerAdapter(this);
         mainViewPager.setAdapter(pagerAdapter);
@@ -102,6 +103,19 @@ public class HomeActivity extends AppCompatActivity {
         });
 
         fabAddBook = findViewById(R.id.fabAddBook);
+        booksViewModel.getBooksError().observe(this, event -> {
+            if (event == null) {
+                return;
+            }
+            String msg = event.getContentIfNotHandled();
+            if (msg != null && !msg.isEmpty()) {
+                UiMessages.snackbar(
+                        HomeActivity.this,
+                        getString(R.string.books_sync_failed, msg),
+                        Snackbar.LENGTH_LONG,
+                        fabAddBook);
+            }
+        });
         fabAddBook.setOnClickListener(v -> {
             if (blockIfEmailUnverified()) {
                 return;

@@ -4,6 +4,7 @@
     <string name="error_user_profile_unavailable">Could not retrieve user information.</string>
     <string name="error_user_session_missing">User session not found.</string>
     <string name="error_register_failed">Registration failed: %1$s</string>
+    <string name="books_sync_failed">Could not load books: %1$s</string>
     <string name="dashboard_need_books_for_recommendation">Add a few books first to get recommendations.</string>
     <string name="nav_home">Home Page</string>
     <string name="nav_read_books">Books Read</string>

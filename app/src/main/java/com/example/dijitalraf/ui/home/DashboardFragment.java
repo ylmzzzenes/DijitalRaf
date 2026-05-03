@@ -27,6 +27,8 @@ import com.example.dijitalraf.BuildConfig;
 import com.example.dijitalraf.R;
 import com.example.dijitalraf.auth.EmailVerificationHelper;
 import com.example.dijitalraf.data.AiService;
+import com.example.dijitalraf.data.repository.AiRepository;
+import com.example.dijitalraf.data.repository.OpenRouterAiRepository;
 import com.example.dijitalraf.data.FirebaseRtdb;
 import com.example.dijitalraf.ui.util.UiMessages;
 import com.google.android.material.button.MaterialButton;
@@ -54,7 +56,7 @@ public class DashboardFragment extends Fragment {
     private static final int DASHBOARD_BOOKS_MAX = 24;
 
     private BooksViewModel viewModel;
-    private AiService aiService;
+    private AiRepository aiRepository;
     private MaterialButton btnAiRecommend;
     private MaterialButton btnAiAssistant;
     private TextView tvAiPreview;
@@ -94,7 +96,7 @@ public class DashboardFragment extends Fragment {
         viewModel = new ViewModelProvider(requireActivity()).get(BooksViewModel.class);
         dashboardPrefs = requireContext().getSharedPreferences(PREFS_DASHBOARD, Context.MODE_PRIVATE);
 
-        aiService = new AiService(requireContext());
+        aiRepository = new OpenRouterAiRepository(requireContext());
         btnAiRecommend = view.findViewById(R.id.btnAiRecommend);
         btnAiAssistant = view.findViewById(R.id.btnAiAssistant);
         tvAiPreview = view.findViewById(R.id.tvAiPreview);
@@ -465,7 +467,7 @@ public class DashboardFragment extends Fragment {
         aiRecommendationsLoading = true;
         refreshAiRecommendationsBodyUi();
 
-        aiService.generateBookRecommendations(
+        aiRepository.generateBookRecommendations(
                 apiKey,
                 viewModel.getBooks().getValue(),
                 new AiService.LlmCallback() {
