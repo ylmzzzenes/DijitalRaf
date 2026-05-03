@@ -3,8 +3,6 @@ package com.example.dijitalraf.ui.home;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
-import android.widget.Toast;
-
 import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -15,8 +13,10 @@ import androidx.viewpager2.widget.ViewPager2;
 
 import com.example.dijitalraf.R;
 import com.example.dijitalraf.auth.EmailVerificationHelper;
+import com.example.dijitalraf.ui.util.UiMessages;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 
@@ -40,6 +40,7 @@ public class HomeActivity extends AppCompatActivity {
     private int lastValidPagerPosition;
     @Nullable
     private Integer pendingLibraryTab;
+    private FloatingActionButton fabAddBook;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -80,8 +81,11 @@ public class HomeActivity extends AppCompatActivity {
             public void onPageSelected(int position) {
                 if (position == 3 && EmailVerificationHelper.mustVerifyEmail(FirebaseAuth.getInstance().getCurrentUser())) {
                     mainViewPager.setCurrentItem(lastValidPagerPosition, false);
-                    Toast.makeText(HomeActivity.this, R.string.feature_locked_email_unverified, Toast.LENGTH_LONG)
-                            .show();
+                    UiMessages.snackbar(
+                            HomeActivity.this,
+                            R.string.feature_locked_email_unverified,
+                            Snackbar.LENGTH_LONG,
+                            fabAddBook);
                     return;
                 }
                 if (position != 3) {
@@ -95,7 +99,7 @@ public class HomeActivity extends AppCompatActivity {
             }
         });
 
-        FloatingActionButton fabAddBook = findViewById(R.id.fabAddBook);
+        fabAddBook = findViewById(R.id.fabAddBook);
         fabAddBook.setOnClickListener(v -> {
             if (blockIfEmailUnverified()) {
                 return;
@@ -185,7 +189,7 @@ public class HomeActivity extends AppCompatActivity {
     private boolean blockIfEmailUnverified() {
         FirebaseUser u = FirebaseAuth.getInstance().getCurrentUser();
         if (EmailVerificationHelper.mustVerifyEmail(u)) {
-            Toast.makeText(this, R.string.feature_locked_email_unverified, Toast.LENGTH_LONG).show();
+            UiMessages.snackbar(this, R.string.feature_locked_email_unverified, Snackbar.LENGTH_LONG, fabAddBook);
             return true;
         }
         return false;

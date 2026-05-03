@@ -1,6 +1,11 @@
 <resources>
     <string name="app_name">DijitalRaf</string>
 
+    <string name="error_user_profile_unavailable">Kullanıcı bilgisi alınamadı.</string>
+    <string name="error_user_session_missing">Kullanıcı oturumu bulunamadı.</string>
+    <string name="error_register_failed">Kayıt başarısız: %1$s</string>
+    <string name="dashboard_need_books_for_recommendation">Öneri almak için önce birkaç kitap ekleyin.</string>
+
     <string name="nav_home">Ana Sayfa</string>
     <string name="nav_read_books">Okunan Kitaplar</string>
     <string name="nav_to_read">Okunacak Kitaplar</string>
@@ -203,6 +208,7 @@
     <string name="personal_note_delete_confirm">Kişisel notu silmek istiyor musunuz?</string>
     <string name="book_quotes_section_title">Alıntılarım</string>
     <string name="book_quotes_section_hint">Bu kitaptan beğendiğiniz cümleleri burada saklayın; hesabınızla bulutta tutulur.</string>
+    <string name="book_quotes_fab_hint">Yeni alıntı için sağ alttaki + düğmesine dokunun.</string>
     <string name="book_quotes_add">Alıntı ekle</string>
     <string name="book_quotes_empty">Henüz alıntı yok. Yukarıdaki düğmeyle ekleyebilirsiniz.</string>
     <string name="book_quotes_hint">Alıntı metni</string>

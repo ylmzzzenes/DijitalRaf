@@ -10,7 +10,6 @@ import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -24,10 +23,12 @@ import com.example.dijitalraf.BuildConfig;
 import com.example.dijitalraf.R;
 import com.example.dijitalraf.auth.EmailVerificationHelper;
 import com.example.dijitalraf.data.AiService;
+import com.example.dijitalraf.ui.util.UiMessages;
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.card.MaterialCardView;
 import com.google.android.material.textfield.TextInputEditText;
+import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.textfield.TextInputLayout;
 import com.google.firebase.auth.FirebaseAuth;
 
@@ -136,7 +137,7 @@ public class ChatAssistantFragment extends Fragment {
                 ? BuildConfig.OPENROUTER_API_KEY.trim()
                 : "";
         if (apiKey.isEmpty()) {
-            Toast.makeText(requireContext(), R.string.error_openrouter_key_missing, Toast.LENGTH_LONG).show();
+            UiMessages.snackbar(this, R.string.error_openrouter_key_missing, Snackbar.LENGTH_LONG, snackbarAnchorFab());
             showError(getString(R.string.error_openrouter_key_missing));
             return;
         }
@@ -149,12 +150,12 @@ public class ChatAssistantFragment extends Fragment {
         tilMessage.setError(null);
 
         if (FirebaseAuth.getInstance().getCurrentUser() == null) {
-            Toast.makeText(requireContext(), R.string.chat_error_not_signed_in, Toast.LENGTH_SHORT).show();
+            UiMessages.snackbar(this, R.string.chat_error_not_signed_in, Snackbar.LENGTH_SHORT, snackbarAnchorFab());
             return;
         }
 
         if (EmailVerificationHelper.mustVerifyEmail(FirebaseAuth.getInstance().getCurrentUser())) {
-            Toast.makeText(requireContext(), R.string.feature_locked_email_unverified, Toast.LENGTH_LONG).show();
+            UiMessages.snackbar(this, R.string.feature_locked_email_unverified, Snackbar.LENGTH_LONG, snackbarAnchorFab());
             return;
         }
 
@@ -282,5 +283,13 @@ public class ChatAssistantFragment extends Fragment {
 
     private static String nullSafe(String s) {
         return s == null || s.trim().isEmpty() ? "—" : s.trim();
+    }
+
+    @Nullable
+    private View snackbarAnchorFab() {
+        if (getActivity() == null) {
+            return null;
+        }
+        return getActivity().findViewById(R.id.fabAddBook);
     }
 }

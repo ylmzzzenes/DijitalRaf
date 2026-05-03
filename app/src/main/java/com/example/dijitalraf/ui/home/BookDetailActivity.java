@@ -9,7 +9,6 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -25,10 +24,13 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 import com.example.dijitalraf.R;
+import com.example.dijitalraf.ui.util.UiMessages;
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.materialswitch.MaterialSwitch;
+import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -86,7 +88,7 @@ public class BookDetailActivity extends AppCompatActivity {
 
     private RecyclerView recyclerQuotes;
     private TextView tvQuotesEmpty;
-    private MaterialButton btnAddQuote;
+    private FloatingActionButton fabAddQuote;
     private BookQuoteAdapter quoteAdapter;
     @Nullable
     private DatabaseReference quotesRef;
@@ -123,7 +125,7 @@ public class BookDetailActivity extends AppCompatActivity {
         ratingBar = findViewById(R.id.ratingBar);
         recyclerQuotes = findViewById(R.id.recyclerQuotes);
         tvQuotesEmpty = findViewById(R.id.tvQuotesEmpty);
-        btnAddQuote = findViewById(R.id.btnAddQuote);
+        fabAddQuote = findViewById(R.id.fabAddQuote);
 
         setSupportActionBar(toolbar);
         if (getSupportActionBar() != null) {
@@ -133,8 +135,7 @@ public class BookDetailActivity extends AppCompatActivity {
 
         String bookId = getIntent().getStringExtra(EXTRA_BOOK_ID);
         if (TextUtils.isEmpty(bookId)) {
-            Toast.makeText(this, R.string.book_detail_load_error, Toast.LENGTH_SHORT).show();
-            finish();
+            UiMessages.snackbarShortThenFinish(this, R.string.book_detail_load_error);
             return;
         }
 
@@ -165,8 +166,7 @@ public class BookDetailActivity extends AppCompatActivity {
     private void attachBookRealtimeListener(@NonNull String bookId) {
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
         if (user == null) {
-            Toast.makeText(this, R.string.book_detail_load_error, Toast.LENGTH_SHORT).show();
-            finish();
+            UiMessages.snackbarShortThenFinish(this, R.string.book_detail_load_error);
             return;
         }
 
@@ -187,17 +187,16 @@ public class BookDetailActivity extends AppCompatActivity {
                 scrollContent.setVisibility(View.VISIBLE);
 
                 if (!snapshot.exists()) {
-                    Toast.makeText(BookDetailActivity.this, R.string.book_not_found, Toast.LENGTH_SHORT).show();
-                    finish();
+                    UiMessages.snackbarShortThenFinish(BookDetailActivity.this, R.string.book_not_found);
                     return;
                 }
 
                 Kitap kitap = snapshot.getValue(Kitap.class);
                 if (kitap == null) {
-                    Toast.makeText(BookDetailActivity.this, R.string.book_detail_load_error, Toast.LENGTH_SHORT).show();
-                    finish();
+                    UiMessages.snackbarShortThenFinish(BookDetailActivity.this, R.string.book_detail_load_error);
                     return;
                 }
+                fabAddQuote.setVisibility(View.VISIBLE);
                 kitap.setId(bookId);
                 bind(kitap);
                 applyUserActionsMerged(kitap);
@@ -206,12 +205,9 @@ public class BookDetailActivity extends AppCompatActivity {
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
                 progress.setVisibility(View.GONE);
-                Toast.makeText(
+                UiMessages.snackbarLongThenFinish(
                         BookDetailActivity.this,
-                        getString(R.string.error_generic, error.getMessage()),
-                        Toast.LENGTH_LONG
-                ).show();
-                finish();
+                        getString(R.string.error_generic, error.getMessage()));
             }
         };
         bookRef.addValueEventListener(bookListener);
@@ -389,11 +385,11 @@ public class BookDetailActivity extends AppCompatActivity {
             booksViewModel.updateBookFavorite(bookIdArg, next);
             applyFavoriteButtonUi(next);
             persistSnapshotFromUi();
-            Toast.makeText(
+            UiMessages.snackbar(
                     this,
-                    next ? R.string.favorite_added : R.string.favorite_removed,
-                    Toast.LENGTH_SHORT
-            ).show();
+                    getString(next ? R.string.favorite_added : R.string.favorite_removed),
+                    Snackbar.LENGTH_SHORT,
+                    fabAddQuote);
         });
     }
 
@@ -421,12 +417,12 @@ public class BookDetailActivity extends AppCompatActivity {
                     switchReadProgrammatic = false;
                     booksViewModel.updateBookOkundu(bookIdArg, true);
                     persistSnapshotFromUi();
-                    Toast.makeText(this, R.string.marked_as_read, Toast.LENGTH_SHORT).show();
+                    UiMessages.snackbar(this, R.string.marked_as_read, Snackbar.LENGTH_SHORT, fabAddQuote);
                 });
             } else {
                 booksViewModel.updateBookOkundu(bookIdArg, false);
                 persistSnapshotFromUi();
-                Toast.makeText(this, R.string.marked_as_to_read, Toast.LENGTH_SHORT).show();
+                UiMessages.snackbar(this, R.string.marked_as_to_read, Snackbar.LENGTH_SHORT, fabAddQuote);
             }
         });
     }
@@ -448,7 +444,7 @@ public class BookDetailActivity extends AppCompatActivity {
             int stars = Math.max(0, Math.min(5, (int) rating));
             booksViewModel.updateBookYildiz(bookIdArg, stars);
             persistSnapshotFromUi();
-            Toast.makeText(this, R.string.rating_saved, Toast.LENGTH_SHORT).show();
+            UiMessages.snackbar(this, R.string.rating_saved, Snackbar.LENGTH_SHORT, fabAddQuote);
         });
     }
 
@@ -464,7 +460,7 @@ public class BookDetailActivity extends AppCompatActivity {
             booksViewModel.updateBookNote(bookIdArg, text);
             booksViewModel.updateBookYildiz(bookIdArg, stars);
             persistSnapshotFromUi();
-            Toast.makeText(this, R.string.book_detail_actions_saved, Toast.LENGTH_SHORT).show();
+            UiMessages.snackbar(this, R.string.book_detail_actions_saved, Snackbar.LENGTH_SHORT, fabAddQuote);
         });
 
         btnDeletePersonalNote.setOnClickListener(v -> {
@@ -475,7 +471,7 @@ public class BookDetailActivity extends AppCompatActivity {
                     ? etPersonalNote.getText().toString().trim()
                     : "";
             if (current.isEmpty()) {
-                Toast.makeText(this, R.string.personal_note_already_empty, Toast.LENGTH_SHORT).show();
+                UiMessages.snackbar(this, R.string.personal_note_already_empty, Snackbar.LENGTH_SHORT, fabAddQuote);
                 return;
             }
             new MaterialAlertDialogBuilder(this)
@@ -485,7 +481,11 @@ public class BookDetailActivity extends AppCompatActivity {
                         booksViewModel.updateBookNote(bookIdArg, "");
                         etPersonalNote.setText("");
                         persistSnapshotFromUi();
-                        Toast.makeText(this, R.string.personal_note_deleted, Toast.LENGTH_SHORT).show();
+                        UiMessages.snackbar(
+                                BookDetailActivity.this,
+                                R.string.personal_note_deleted,
+                                Snackbar.LENGTH_SHORT,
+                                fabAddQuote);
                     })
                     .show();
         });
@@ -507,7 +507,7 @@ public class BookDetailActivity extends AppCompatActivity {
             }
         });
         recyclerQuotes.setAdapter(quoteAdapter);
-        btnAddQuote.setOnClickListener(v -> showQuoteEditorDialog(false, null, null));
+        fabAddQuote.setOnClickListener(v -> showQuoteEditorDialog(false, null, null));
     }
 
     private void attachQuotesListener() {
@@ -579,8 +579,7 @@ public class BookDetailActivity extends AppCompatActivity {
                 }
                 String raw = etQuote.getText() != null ? etQuote.getText().toString().trim() : "";
                 if (raw.isEmpty()) {
-                    Toast.makeText(BookDetailActivity.this, R.string.book_quotes_error_empty, Toast.LENGTH_SHORT)
-                            .show();
+                    UiMessages.snackbar(BookDetailActivity.this, R.string.book_quotes_error_empty, Snackbar.LENGTH_SHORT);
                     return;
                 }
                 if (edit && quoteId != null) {
@@ -588,7 +587,7 @@ public class BookDetailActivity extends AppCompatActivity {
                 } else {
                     booksViewModel.addBookQuote(bookIdArg, raw);
                 }
-                Toast.makeText(BookDetailActivity.this, R.string.book_quotes_saved, Toast.LENGTH_SHORT).show();
+                UiMessages.snackbar(BookDetailActivity.this, R.string.book_quotes_saved, Snackbar.LENGTH_SHORT);
                 dialog.dismiss();
             });
         });
@@ -604,7 +603,7 @@ public class BookDetailActivity extends AppCompatActivity {
                 .setNegativeButton(R.string.dialog_cancel, (d, w) -> d.dismiss())
                 .setPositiveButton(R.string.action_delete_generic, (d, w) -> {
                     booksViewModel.deleteBookQuote(bookIdArg, quoteId);
-                    Toast.makeText(this, R.string.book_quotes_deleted, Toast.LENGTH_SHORT).show();
+                    UiMessages.snackbar(BookDetailActivity.this, R.string.book_quotes_deleted, Snackbar.LENGTH_SHORT, fabAddQuote);
                 })
                 .show();
     }

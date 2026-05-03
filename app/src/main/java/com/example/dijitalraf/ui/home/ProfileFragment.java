@@ -8,7 +8,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -20,8 +19,10 @@ import com.example.dijitalraf.auth.EmailVerificationHelper;
 import com.example.dijitalraf.data.FirebaseRtdb;
 import com.example.dijitalraf.ui.auth.GoogleSignInHelper;
 import com.example.dijitalraf.ui.auth.LoginActivity;
+import com.example.dijitalraf.ui.util.UiMessages;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.material.button.MaterialButton;
+import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.imageview.ShapeableImageView;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -70,15 +71,13 @@ public class ProfileFragment extends Fragment {
                         }
                         btnResendVerificationEmail.setEnabled(true);
                         if (task.isSuccessful()) {
-                            Toast.makeText(requireContext(), R.string.email_verification_sent, Toast.LENGTH_LONG)
-                                    .show();
+                            UiMessages.snackbar(ProfileFragment.this, R.string.email_verification_sent, Snackbar.LENGTH_LONG);
                         } else {
                             String msg = task.getException() != null ? task.getException().getMessage() : "";
-                            Toast.makeText(
-                                    requireContext(),
+                            UiMessages.snackbar(
+                                    ProfileFragment.this,
                                     getString(R.string.email_verification_send_failed, msg),
-                                    Toast.LENGTH_LONG
-                            ).show();
+                                    Snackbar.LENGTH_LONG);
                         }
                     });
         });

@@ -30,6 +30,9 @@
         <item name="textAppearanceTitleMedium">@style/TextAppearance.DijitalRaf.Subtitle</item>
         <item name="textAppearanceBodyLarge">@style/TextAppearance.DijitalRaf.Body</item>
         <item name="textAppearanceBodySmall">@style/TextAppearance.DijitalRaf.Caption</item>
+
+        <item name="shapeAppearanceSmallComponent">@style/ShapeAppearance.DijitalRaf.Small</item>
+        <item name="shapeAppearanceMediumComponent">@style/ShapeAppearance.DijitalRaf.Medium</item>
     </style>
 
     <style name="Theme.DijitalRaf" parent="Base.Theme.DijitalRaf" />

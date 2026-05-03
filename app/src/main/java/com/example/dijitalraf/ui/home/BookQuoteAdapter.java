@@ -3,13 +3,13 @@ package com.example.dijitalraf.ui.home;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageButton;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.dijitalraf.R;
+import com.google.android.material.button.MaterialButton;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -70,8 +70,8 @@ public class BookQuoteAdapter extends RecyclerView.Adapter<BookQuoteAdapter.Hold
 
     static final class Holder extends RecyclerView.ViewHolder {
         final TextView tvText;
-        final ImageButton btnEdit;
-        final ImageButton btnDelete;
+        final MaterialButton btnEdit;
+        final MaterialButton btnDelete;
 
         Holder(@NonNull View itemView) {
             super(itemView);

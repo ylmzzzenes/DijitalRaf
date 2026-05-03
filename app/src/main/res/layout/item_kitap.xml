@@ -111,26 +111,36 @@
             app:layout_constraintTop_toBottomOf="@+id/tvRating"
             tools:text="Okundu: 12.04.2026" />
 
-        <ImageButton
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/ivFavorite"
+            style="@style/Widget.DijitalRaf.Button.Icon.Tonal"
             android:layout_width="@dimen/touch_target_min"
             android:layout_height="@dimen/touch_target_min"
-            android:background="?attr/selectableItemBackgroundBorderless"
             android:contentDescription="@string/nav_favorites"
-            android:padding="@dimen/grid_1"
-            android:src="@drawable/ic_favorite_border_24"
+            android:insetTop="0dp"
+            android:insetBottom="0dp"
+            android:insetLeft="0dp"
+            android:insetRight="0dp"
+            app:icon="@drawable/ic_favorite_border_24"
+            app:iconGravity="textStart"
+            app:iconPadding="0dp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="@+id/ivCover" />
 
-        <ImageButton
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/ivShare"
+            style="@style/Widget.DijitalRaf.Button.Icon.Tonal"
             android:layout_width="@dimen/touch_target_min"
             android:layout_height="@dimen/touch_target_min"
             android:layout_marginTop="@dimen/grid_1"
-            android:background="?attr/selectableItemBackgroundBorderless"
             android:contentDescription="@string/cd_share_book"
-            android:padding="@dimen/grid_1"
-            android:src="@android:drawable/ic_menu_share"
+            android:insetTop="0dp"
+            android:insetBottom="0dp"
+            android:insetLeft="0dp"
+            android:insetRight="0dp"
+            app:icon="@drawable/ic_share_24"
+            app:iconGravity="textStart"
+            app:iconPadding="0dp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/ivFavorite" />
 

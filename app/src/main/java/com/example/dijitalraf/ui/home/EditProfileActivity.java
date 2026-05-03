@@ -6,7 +6,6 @@ import android.text.TextUtils;
 import android.view.View;
 import android.widget.ProgressBar;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
 import androidx.activity.result.ActivityResultLauncher;
@@ -18,10 +17,12 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.bumptech.glide.Glide;
 import com.example.dijitalraf.R;
 import com.example.dijitalraf.data.FirebaseRtdb;
+import com.example.dijitalraf.ui.util.UiMessages;
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.imageview.ShapeableImageView;
 import com.google.android.material.textfield.TextInputEditText;
+import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.textfield.TextInputLayout;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -92,8 +93,7 @@ public class EditProfileActivity extends AppCompatActivity {
 
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
         if (user == null) {
-            Toast.makeText(this, R.string.chat_error_not_signed_in, Toast.LENGTH_SHORT).show();
-            finish();
+            UiMessages.snackbarShortThenFinish(this, R.string.chat_error_not_signed_in);
             return;
         }
 
@@ -117,7 +117,7 @@ public class EditProfileActivity extends AppCompatActivity {
         ref.get().addOnCompleteListener(task -> {
             setLoading(false);
             if (!task.isSuccessful() || task.getResult() == null) {
-                Toast.makeText(this, R.string.profile_load_failed, Toast.LENGTH_LONG).show();
+                UiMessages.snackbar(this, R.string.profile_load_failed, Snackbar.LENGTH_LONG);
                 prefillFromAuth(authUser);
                 return;
             }
@@ -233,7 +233,7 @@ public class EditProfileActivity extends AppCompatActivity {
                     .addOnCompleteListener(task -> {
                         if (!task.isSuccessful() || task.getResult() == null) {
                             setLoading(false);
-                            Toast.makeText(this, R.string.profile_photo_upload_failed, Toast.LENGTH_LONG).show();
+                            UiMessages.snackbar(this, R.string.profile_photo_upload_failed, Snackbar.LENGTH_LONG);
                             return;
                         }
                         pendingImageUri = null;
@@ -270,13 +270,12 @@ public class EditProfileActivity extends AppCompatActivity {
         ref.updateChildren(updates).addOnCompleteListener(task -> {
             if (!task.isSuccessful()) {
                 setLoading(false);
-                Toast.makeText(
+                UiMessages.snackbar(
                         this,
                         getString(R.string.profile_save_failed, task.getException() != null
                                 ? task.getException().getMessage()
                                 : ""),
-                        Toast.LENGTH_LONG
-                ).show();
+                        Snackbar.LENGTH_LONG);
                 return;
             }
 
@@ -288,16 +287,12 @@ public class EditProfileActivity extends AppCompatActivity {
             authUser.updateProfile(b.build()).addOnCompleteListener(t2 -> {
                 setLoading(false);
                 if (t2.isSuccessful()) {
-                    Toast.makeText(this, R.string.profile_save_success, Toast.LENGTH_SHORT).show();
-                    finish();
+                    UiMessages.snackbarShortThenFinish(this, R.string.profile_save_success);
                 } else {
-                    Toast.makeText(
+                    UiMessages.snackbarLongThenFinish(
                             this,
                             getString(R.string.profile_auth_update_failed,
-                                    t2.getException() != null ? t2.getException().getMessage() : ""),
-                            Toast.LENGTH_LONG
-                    ).show();
-                    finish();
+                                    t2.getException() != null ? t2.getException().getMessage() : ""));
                 }
             });
         });

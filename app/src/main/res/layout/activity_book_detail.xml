@@ -417,16 +417,13 @@
                                 android:textAppearance="@style/TextAppearance.DijitalRaf.Caption"
                                 android:textColor="@color/text_secondary" />
 
-                            <com.google.android.material.button.MaterialButton
-                                android:id="@+id/btnAddQuote"
-                                style="@style/Widget.DijitalRaf.Button.Tonal"
+                            <TextView
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
-                                android:layout_marginTop="@dimen/grid_2"
-                                android:text="@string/book_quotes_add"
-                                app:icon="@drawable/ic_add_24"
-                                app:iconGravity="textStart"
-                                app:iconPadding="@dimen/grid_1" />
+                                android:layout_marginTop="@dimen/grid_1"
+                                android:text="@string/book_quotes_fab_hint"
+                                android:textAppearance="@style/TextAppearance.DijitalRaf.Caption"
+                                android:textColor="@color/primary" />
 
                             <TextView
                                 android:id="@+id/tvQuotesEmpty"
@@ -465,4 +462,16 @@
             app:indicatorColor="@color/primary"
             tools:visibility="visible" />
     </FrameLayout>
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/fabAddQuote"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|end"
+        android:layout_margin="@dimen/grid_2"
+        android:contentDescription="@string/book_quotes_add"
+        android:visibility="gone"
+        app:srcCompat="@drawable/ic_add_24"
+        app:tint="@color/white"
+        tools:visibility="visible" />
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

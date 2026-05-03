@@ -4,7 +4,6 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
 import androidx.annotation.NonNull;
@@ -15,7 +14,9 @@ import com.example.dijitalraf.R;
 import com.example.dijitalraf.data.EmailValidation;
 import com.example.dijitalraf.data.FirebaseRtdb;
 import com.example.dijitalraf.ui.home.HomeActivity;
+import com.example.dijitalraf.ui.util.UiMessages;
 import com.google.android.material.button.MaterialButton;
+import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 import com.google.firebase.auth.FirebaseAuth;
@@ -128,7 +129,10 @@ public class RegisterActivity extends AppCompatActivity {
                         FirebaseUser firebaseUser = mAuth.getCurrentUser();
 
                         if (firebaseUser == null) {
-                            Toast.makeText(RegisterActivity.this, "Kullanıcı bilgisi alınamadı", Toast.LENGTH_LONG).show();
+                            UiMessages.snackbar(
+                                    RegisterActivity.this,
+                                    R.string.error_user_profile_unavailable,
+                                    Snackbar.LENGTH_LONG);
                             return;
                         }
 
@@ -146,20 +150,18 @@ public class RegisterActivity extends AppCompatActivity {
                         firebaseUser.sendEmailVerification()
                                 .addOnCompleteListener(sendTask -> {
                                     if (sendTask.isSuccessful()) {
-                                        Toast.makeText(
+                                        UiMessages.snackbar(
                                                 RegisterActivity.this,
                                                 R.string.email_verification_sent,
-                                                Toast.LENGTH_LONG
-                                        ).show();
+                                                Snackbar.LENGTH_LONG);
                                     } else {
                                         String msg = sendTask.getException() != null
                                                 ? sendTask.getException().getMessage()
                                                 : "";
-                                        Toast.makeText(
+                                        UiMessages.snackbar(
                                                 RegisterActivity.this,
                                                 getString(R.string.email_verification_send_failed, msg),
-                                                Toast.LENGTH_LONG
-                                        ).show();
+                                                Snackbar.LENGTH_LONG);
                                     }
 
                                     usersRef.child(uid).setValue(userMap)
@@ -168,19 +170,19 @@ public class RegisterActivity extends AppCompatActivity {
                                                 startActivity(intent);
                                                 finish();
                                             })
-                                            .addOnFailureListener(e -> Toast.makeText(
+                                            .addOnFailureListener(e -> UiMessages.snackbar(
                                                     RegisterActivity.this,
                                                     getString(R.string.profile_save_failed, e.getMessage()),
-                                                    Toast.LENGTH_LONG
-                                            ).show());
+                                                    Snackbar.LENGTH_LONG));
                                 });
 
                     } else {
-                        Toast.makeText(
+                        Exception ex = task.getException();
+                        String err = ex != null && ex.getMessage() != null ? ex.getMessage() : "";
+                        UiMessages.snackbar(
                                 RegisterActivity.this,
-                                "Kayıt başarısız: " + task.getException().getMessage(),
-                                Toast.LENGTH_LONG
-                        ).show();
+                                getString(R.string.error_register_failed, err),
+                                Snackbar.LENGTH_LONG);
                     }
                 });
     }

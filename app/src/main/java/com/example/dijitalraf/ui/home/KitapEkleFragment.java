@@ -9,7 +9,6 @@ import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.util.Log;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -18,10 +17,12 @@ import androidx.fragment.app.Fragment;
 import com.example.dijitalraf.R;
 import com.example.dijitalraf.auth.EmailVerificationHelper;
 import com.example.dijitalraf.data.FirebaseRtdb;
+import com.example.dijitalraf.ui.util.UiMessages;
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.chip.Chip;
 import com.google.android.material.progressindicator.LinearProgressIndicator;
+import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 import com.google.firebase.auth.FirebaseAuth;
@@ -82,7 +83,11 @@ public class KitapEkleFragment extends Fragment {
             return;
         }
         if (EmailVerificationHelper.mustVerifyEmail(FirebaseAuth.getInstance().getCurrentUser())) {
-            Toast.makeText(requireContext(), R.string.feature_locked_email_unverified, Toast.LENGTH_LONG).show();
+            UiMessages.snackbar(
+                    requireActivity(),
+                    R.string.feature_locked_email_unverified,
+                    Snackbar.LENGTH_LONG,
+                    snackbarAnchorFab());
             dismissKitapEkleOverlay();
             return;
         }
@@ -170,7 +175,7 @@ public class KitapEkleFragment extends Fragment {
 
         if (TextUtils.isEmpty(query)) {
             tilKitapAdi.setError(getString(R.string.error_enter_title_first));
-            Toast.makeText(requireContext(), R.string.error_search_empty, Toast.LENGTH_SHORT).show();
+            UiMessages.snackbar(this, R.string.error_search_empty, Snackbar.LENGTH_SHORT, snackbarAnchorFab());
             etKitapAdi.requestFocus();
             return;
         }
@@ -196,11 +201,14 @@ public class KitapEkleFragment extends Fragment {
             public void onFailure(@NonNull Call call, @NonNull IOException e) {
                 requireActivity().runOnUiThread(() -> {
                     setApiLoading(false);
-                    Toast.makeText(
-                            requireContext(),
+                    if (!isAdded()) {
+                        return;
+                    }
+                    UiMessages.snackbar(
+                            KitapEkleFragment.this,
                             getString(R.string.api_error, e.getMessage()),
-                            Toast.LENGTH_LONG
-                    ).show();
+                            Snackbar.LENGTH_LONG,
+                            snackbarAnchorFab());
                 });
             }
 
@@ -211,11 +219,14 @@ public class KitapEkleFragment extends Fragment {
                     if (!r.isSuccessful() || r.body() == null) {
                         requireActivity().runOnUiThread(() -> {
                             setApiLoading(false);
-                            Toast.makeText(
-                                    requireContext(),
+                            if (!isAdded()) {
+                                return;
+                            }
+                            UiMessages.snackbar(
+                                    KitapEkleFragment.this,
                                     R.string.result_not_found,
-                                    Toast.LENGTH_LONG
-                            ).show();
+                                    Snackbar.LENGTH_LONG,
+                                    snackbarAnchorFab());
                         });
                         return;
                     }
@@ -242,11 +253,14 @@ public class KitapEkleFragment extends Fragment {
                     if (doc == null) {
                         requireActivity().runOnUiThread(() -> {
                             setApiLoading(false);
-                            Toast.makeText(
-                                    requireContext(),
+                            if (!isAdded()) {
+                                return;
+                            }
+                            UiMessages.snackbar(
+                                    KitapEkleFragment.this,
                                     R.string.open_library_no_results,
-                                    Toast.LENGTH_LONG
-                            ).show();
+                                    Snackbar.LENGTH_LONG,
+                                    snackbarAnchorFab());
                         });
                         return;
                     }
@@ -289,7 +303,14 @@ public class KitapEkleFragment extends Fragment {
                         apiYayinTarihi = finalPublished;
 
                         updatePreview();
-                        Toast.makeText(requireContext(), R.string.book_info_loaded, Toast.LENGTH_SHORT).show();
+                        if (!isAdded()) {
+                            return;
+                        }
+                        UiMessages.snackbar(
+                                KitapEkleFragment.this,
+                                R.string.book_info_loaded,
+                                Snackbar.LENGTH_SHORT,
+                                snackbarAnchorFab());
 
                         Log.d(TAG, "Open Library seçimi: " + finalTitle + " | kapak: " + selectedImageUrl);
                     });
@@ -297,11 +318,14 @@ public class KitapEkleFragment extends Fragment {
                     Log.e(TAG, "Open Library parse/akış hatası", e);
                     requireActivity().runOnUiThread(() -> {
                         setApiLoading(false);
-                        Toast.makeText(
-                                requireContext(),
+                        if (!isAdded()) {
+                            return;
+                        }
+                        UiMessages.snackbar(
+                                KitapEkleFragment.this,
                                 R.string.data_parse_error,
-                                Toast.LENGTH_LONG
-                        ).show();
+                                Snackbar.LENGTH_LONG,
+                                snackbarAnchorFab());
                     });
                 }
             }
@@ -556,15 +580,27 @@ public class KitapEkleFragment extends Fragment {
 
         kitaplarRef.push().setValue(kitap)
                 .addOnSuccessListener(unused -> {
-                    Toast.makeText(requireContext(), R.string.book_added, Toast.LENGTH_SHORT).show();
+                    UiMessages.snackbar(
+                            requireActivity(),
+                            R.string.book_added,
+                            Snackbar.LENGTH_SHORT,
+                            snackbarAnchorFab());
                     dismissKitapEkleOverlay();
                 })
                 .addOnFailureListener(e ->
-                        Toast.makeText(
-                                requireContext(),
+                        UiMessages.snackbar(
+                                KitapEkleFragment.this,
                                 getString(R.string.error_generic, e.getMessage()),
-                                Toast.LENGTH_LONG
-                        ).show()
+                                Snackbar.LENGTH_LONG,
+                                snackbarAnchorFab())
                 );
+    }
+
+    @Nullable
+    private View snackbarAnchorFab() {
+        if (getActivity() == null) {
+            return null;
+        }
+        return getActivity().findViewById(R.id.fabAddBook);
     }
 }

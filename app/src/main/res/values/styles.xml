@@ -51,6 +51,13 @@
         <item name="android:minHeight">@dimen/grid_5</item>
     </style>
 
+    <style name="Widget.DijitalRaf.Button.Icon.Tonal" parent="Widget.Material3.Button.IconButton.Filled.Tonal">
+        <item name="iconTint">@color/text_secondary</item>
+        <item name="android:minWidth">@dimen/touch_target_min</item>
+        <item name="android:minHeight">@dimen/touch_target_min</item>
+        <item name="iconPadding">0dp</item>
+    </style>
+
     <style name="Widget.DijitalRaf.Card" parent="Widget.Material3.CardView.Elevated">
         <item name="cardCornerRadius">@dimen/corner_medium</item>
         <item name="cardElevation">@dimen/elevation_card</item>
@@ -109,5 +116,15 @@
         <item name="cornerSizeTopRight">0dp</item>
         <item name="cornerSizeBottomLeft">@dimen/corner_large</item>
         <item name="cornerSizeBottomRight">@dimen/corner_large</item>
+    </style>
+
+    <style name="ShapeAppearance.DijitalRaf.Small" parent="ShapeAppearance.Material3.SmallComponent">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">@dimen/corner_small</item>
+    </style>
+
+    <style name="ShapeAppearance.DijitalRaf.Medium" parent="ShapeAppearance.Material3.MediumComponent">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">@dimen/corner_medium</item>
     </style>
 </resources>

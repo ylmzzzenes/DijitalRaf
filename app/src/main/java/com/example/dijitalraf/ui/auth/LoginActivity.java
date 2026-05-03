@@ -4,7 +4,6 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
 import androidx.activity.result.ActivityResultLauncher;
@@ -17,6 +16,7 @@ import com.example.dijitalraf.R;
 import com.example.dijitalraf.data.EmailValidation;
 import com.example.dijitalraf.data.FirebaseRtdb;
 import com.example.dijitalraf.ui.home.HomeActivity;
+import com.example.dijitalraf.ui.util.UiMessages;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
@@ -24,6 +24,7 @@ import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 import com.google.firebase.auth.AuthCredential;
@@ -51,7 +52,7 @@ public class LoginActivity extends AppCompatActivity {
     private final ActivityResultLauncher<Intent> googleSignInLauncher =
             registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), result -> {
                 if (result.getResultCode() != RESULT_OK) {
-                    Toast.makeText(LoginActivity.this, R.string.google_sign_in_cancelled, Toast.LENGTH_SHORT).show();
+                    UiMessages.snackbar(LoginActivity.this, R.string.google_sign_in_cancelled, Snackbar.LENGTH_SHORT);
                     return;
                 }
                 if (result.getData() == null) {
@@ -61,17 +62,18 @@ public class LoginActivity extends AppCompatActivity {
                 try {
                     GoogleSignInAccount account = task.getResult(ApiException.class);
                     if (account == null || account.getIdToken() == null) {
-                        Toast.makeText(LoginActivity.this, R.string.google_sign_in_token_missing, Toast.LENGTH_LONG)
-                                .show();
+                        UiMessages.snackbar(
+                                LoginActivity.this,
+                                R.string.google_sign_in_token_missing,
+                                Snackbar.LENGTH_LONG);
                         return;
                     }
                     firebaseAuthWithGoogle(account.getIdToken());
                 } catch (ApiException e) {
-                    Toast.makeText(
+                    UiMessages.snackbar(
                             LoginActivity.this,
                             AuthUiMessages.forGoogleSignIn(e, LoginActivity.this),
-                            Toast.LENGTH_LONG
-                    ).show();
+                            Snackbar.LENGTH_LONG);
                 }
             });
 
@@ -146,18 +148,19 @@ public class LoginActivity extends AppCompatActivity {
         mAuth.signInWithCredential(credential).addOnCompleteListener(this, task -> {
             if (task.isSuccessful()) {
                 FirebaseUser user = task.getResult() != null ? task.getResult().getUser() : null;
-                Toast.makeText(LoginActivity.this, R.string.login_success, Toast.LENGTH_SHORT).show();
-                syncGoogleUserToRtdb(user, () -> {
-                    Intent intent = new Intent(LoginActivity.this, HomeActivity.class);
-                    startActivity(intent);
-                    finish();
-                });
+                syncGoogleUserToRtdb(user, () -> UiMessages.snackbarShortThenRun(
+                        LoginActivity.this,
+                        R.string.login_success,
+                        () -> {
+                            Intent intent = new Intent(LoginActivity.this, HomeActivity.class);
+                            startActivity(intent);
+                            finish();
+                        }));
             } else {
-                Toast.makeText(
+                UiMessages.snackbar(
                         LoginActivity.this,
                         AuthUiMessages.forFirebaseAuth(task.getException(), LoginActivity.this),
-                        Toast.LENGTH_LONG
-                ).show();
+                        Snackbar.LENGTH_LONG);
             }
         });
     }
@@ -231,17 +234,19 @@ public class LoginActivity extends AppCompatActivity {
         mAuth.signInWithEmailAndPassword(email, password)
                 .addOnCompleteListener(this, task -> {
                     if (task.isSuccessful()) {
-                        Toast.makeText(LoginActivity.this, R.string.login_success, Toast.LENGTH_SHORT).show();
-
-                        Intent intent = new Intent(LoginActivity.this, HomeActivity.class);
-                        startActivity(intent);
-                        finish();
+                        UiMessages.snackbarShortThenRun(
+                                LoginActivity.this,
+                                R.string.login_success,
+                                () -> {
+                                    Intent intent = new Intent(LoginActivity.this, HomeActivity.class);
+                                    startActivity(intent);
+                                    finish();
+                                });
                     } else {
-                        Toast.makeText(
+                        UiMessages.snackbar(
                                 LoginActivity.this,
                                 AuthUiMessages.forFirebaseAuth(task.getException(), LoginActivity.this),
-                                Toast.LENGTH_LONG
-                        ).show();
+                                Snackbar.LENGTH_LONG);
                     }
                 });
     }
@@ -264,17 +269,15 @@ public class LoginActivity extends AppCompatActivity {
                     tvForgotPassword.setEnabled(true);
                     btnLogin.setEnabled(true);
                     if (task.isSuccessful()) {
-                        Toast.makeText(
+                        UiMessages.snackbar(
                                 LoginActivity.this,
                                 R.string.password_reset_email_sent,
-                                Toast.LENGTH_LONG
-                        ).show();
+                                Snackbar.LENGTH_LONG);
                     } else {
-                        Toast.makeText(
+                        UiMessages.snackbar(
                                 LoginActivity.this,
                                 AuthUiMessages.forPasswordReset(task.getException(), LoginActivity.this),
-                                Toast.LENGTH_LONG
-                        ).show();
+                                Snackbar.LENGTH_LONG);
                     }
                 });
     }

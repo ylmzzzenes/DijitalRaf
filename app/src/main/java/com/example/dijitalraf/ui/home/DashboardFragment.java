@@ -12,7 +12,6 @@ import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.RadioButton;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -30,9 +29,11 @@ import com.example.dijitalraf.R;
 import com.example.dijitalraf.auth.EmailVerificationHelper;
 import com.example.dijitalraf.data.AiService;
 import com.example.dijitalraf.data.FirebaseRtdb;
+import com.example.dijitalraf.ui.util.UiMessages;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.progressindicator.LinearProgressIndicator;
+import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 import com.google.firebase.auth.FirebaseAuth;
@@ -398,7 +399,7 @@ public class DashboardFragment extends Fragment {
             }
             til.setError(null);
             ReadingGoalStore.saveGoal(requireContext(), isMonthly, t);
-            Toast.makeText(requireContext(), R.string.reading_goal_saved, Toast.LENGTH_SHORT).show();
+            UiMessages.snackbar(this, R.string.reading_goal_saved, Snackbar.LENGTH_SHORT);
             updateReadingGoalUi(viewModel.getBooks().getValue());
             dialog.dismiss();
         }));
@@ -426,11 +427,11 @@ public class DashboardFragment extends Fragment {
         }
     }
 
-    /** AI öneri ve sohbet kartlarında geçmiş metni gösterir; boşsa Toast. */
+    /** AI öneri ve sohbet kartlarında geçmiş metni gösterir; boşsa Snackbar. */
     private void showHistoryOverlay(int titleRes, String prefsKey, int emptyToastRes) {
         String saved = dashboardPrefs.getString(prefsKey, "");
         if (saved == null || saved.trim().isEmpty()) {
-            Toast.makeText(requireContext(), emptyToastRes, Toast.LENGTH_SHORT).show();
+            UiMessages.snackbar(this, emptyToastRes, Snackbar.LENGTH_SHORT);
             return;
         }
         new MaterialAlertDialogBuilder(requireContext())
@@ -445,17 +446,17 @@ public class DashboardFragment extends Fragment {
                 ? BuildConfig.OPENROUTER_API_KEY.trim()
                 : "";
         if (apiKey.isEmpty()) {
-            Toast.makeText(requireContext(), R.string.error_openrouter_key_missing, Toast.LENGTH_LONG).show();
+            UiMessages.snackbar(this, R.string.error_openrouter_key_missing, Snackbar.LENGTH_LONG);
             return;
         }
 
         if (EmailVerificationHelper.mustVerifyEmail(FirebaseAuth.getInstance().getCurrentUser())) {
-            Toast.makeText(requireContext(), R.string.feature_locked_email_unverified, Toast.LENGTH_LONG).show();
+            UiMessages.snackbar(this, R.string.feature_locked_email_unverified, Snackbar.LENGTH_LONG);
             return;
         }
 
         if (viewModel.getBooks().getValue() == null || viewModel.getBooks().getValue().isEmpty()) {
-            Toast.makeText(requireContext(), "Öneri almak için önce birkaç kitap ekleyin.", Toast.LENGTH_SHORT).show();
+            UiMessages.snackbar(this, R.string.dashboard_need_books_for_recommendation, Snackbar.LENGTH_SHORT);
             return;
         }
 
@@ -489,7 +490,7 @@ public class DashboardFragment extends Fragment {
                         btnAiRecommend.setText(R.string.ai_get_recommendation);
                         aiRecommendationsLoading = false;
                         refreshAiRecommendationsBodyUi();
-                        Toast.makeText(requireContext(), error, Toast.LENGTH_LONG).show();
+                        UiMessages.snackbar(DashboardFragment.this, error, Snackbar.LENGTH_LONG);
                     }
                 }
         );

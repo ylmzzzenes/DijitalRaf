@@ -3,13 +3,14 @@ package com.example.dijitalraf.ui.home;
 import android.content.Context;
 import android.content.Intent;
 import android.view.LayoutInflater;
+import android.content.res.ColorStateList;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.DiffUtil;
 import androidx.recyclerview.widget.ListAdapter;
 import androidx.recyclerview.widget.RecyclerView;
@@ -17,6 +18,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.bumptech.glide.Glide;
 import com.example.dijitalraf.R;
 import com.example.dijitalraf.data.FavoritesHelper;
+import com.google.android.material.button.MaterialButton;
 import com.google.android.material.chip.Chip;
 
 import java.text.SimpleDateFormat;
@@ -108,9 +110,10 @@ public class KitapAdapter extends ListAdapter<Kitap, KitapAdapter.KitapViewHolde
         }
 
         boolean fav = kitap.isFavorite();
-        holder.ivFavorite.setImageResource(
-                fav ? R.drawable.ic_favorite_24 : R.drawable.ic_favorite_border_24
-        );
+        holder.ivFavorite.setIconResource(fav ? R.drawable.ic_favorite_24 : R.drawable.ic_favorite_border_24);
+        holder.ivFavorite.setIconTint(ColorStateList.valueOf(
+                ContextCompat.getColor(holder.itemView.getContext(),
+                        fav ? R.color.primary : R.color.text_secondary)));
 
         holder.ivFavorite.setOnClickListener(v -> {
             if (kitap.getId() == null) {
@@ -228,8 +231,8 @@ public class KitapAdapter extends ListAdapter<Kitap, KitapAdapter.KitapViewHolde
         final TextView tvYazar;
         final Chip chipTur;
         final ImageView ivCover;
-        final ImageButton ivFavorite;
-        final ImageButton ivShare;
+        final MaterialButton ivFavorite;
+        final MaterialButton ivShare;
         final ImageView ivReadStatus;
         final TextView tvRating;
         final TextView tvReadDate;
