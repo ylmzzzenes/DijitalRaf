@@ -143,17 +143,6 @@
                     app:singleSelection="true">
 
                     <com.google.android.material.button.MaterialButton
-                        android:id="@+id/btnThemeFollowSystem"
-                        style="@style/Widget.Material3.Button.OutlinedButton"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:ellipsize="end"
-                        android:maxLines="2"
-                        android:text="@string/theme_follow_system"
-                        app:checkedIcon="@null" />
-
-                    <com.google.android.material.button.MaterialButton
                         android:id="@+id/btnThemeLight"
                         style="@style/Widget.Material3.Button.OutlinedButton"
                         android:layout_width="0dp"

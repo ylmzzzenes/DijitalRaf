@@ -219,6 +219,8 @@
     <string name="action_delete_generic">Delete</string>
     <string name="cd_ai_history_long_press">Press and hold or tap to see history</string>
     <string name="book_deleted">book deleted</string>
+    <string name="book_delete_confirm_title">Delete book</string>
+    <string name="book_delete_confirm_message">Remove this book from your library permanently? You can undo for a short time with Undo below.</string>
     <string name="favorite_added">added to favorites</string>
     <string name="favorite_removed">Removed from favorites</string>
     <string name="loading_books">Books are loading…</string>
@@ -294,7 +296,6 @@
     <string name="language_changed">Language updated</string>
 
     <string name="theme_section_title">Appearance</string>
-    <string name="theme_follow_system">System</string>
     <string name="theme_light">Light</string>
     <string name="theme_dark">Dark</string>
     <string name="theme_changed">Appearance updated</string>

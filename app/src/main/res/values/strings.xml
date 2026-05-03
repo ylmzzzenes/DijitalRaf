@@ -225,6 +225,8 @@
     <string name="action_delete_generic">Sil</string>
     <string name="cd_ai_history_long_press">Geçmişi görmek için basılı tutun veya dokunun</string>
     <string name="book_deleted">Kitap silindi</string>
+    <string name="book_delete_confirm_title">Kitabı sil</string>
+    <string name="book_delete_confirm_message">Bu kitabı raflarınızdan kalıcı olarak silmek istediğinize emin misiniz? İsterseniz alttaki Geri Al ile kısa süre içinde iptal edebilirsiniz.</string>
     <string name="favorite_added">Favorilere eklendi</string>
     <string name="favorite_removed">Favorilerden çıkarıldı</string>
     <string name="loading_books">Kitaplar yükleniyor…</string>
@@ -301,7 +303,6 @@
     <string name="language_changed">Dil güncellendi</string>
 
     <string name="theme_section_title">Görünüm</string>
-    <string name="theme_follow_system">Sistem</string>
     <string name="theme_light">Açık</string>
     <string name="theme_dark">Koyu</string>
     <string name="theme_changed">Görünüm güncellendi</string>

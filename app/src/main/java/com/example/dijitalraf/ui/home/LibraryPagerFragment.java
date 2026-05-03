@@ -165,4 +165,15 @@ public class LibraryPagerFragment extends Fragment {
             showLibraryPage(p);
         }
     }
+
+    /** Kitap ekleme ekranı kapanınca; kaydırmalı satır çiziminin takılı kalmaması için. */
+    public void resetHostLibrarySwipeUi() {
+        if (!isAdded()) {
+            return;
+        }
+        Fragment host = getChildFragmentManager().findFragmentById(R.id.libraryFragmentHost);
+        if (host instanceof LibraryFragment) {
+            ((LibraryFragment) host).resetStuckSwipeUi();
+        }
+    }
 }

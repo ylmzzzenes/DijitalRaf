@@ -219,6 +219,8 @@
     <string name="action_delete_generic">Löschen</string>
     <string name="cd_ai_history_long_press">Halten Sie gedrückt oder tippen Sie, um den Verlauf anzuzeigen</string>
     <string name="book_deleted">Buch gelöscht</string>
+    <string name="book_delete_confirm_title">Buch löschen</string>
+    <string name="book_delete_confirm_message">Dieses Buch dauerhaft aus Ihrer Bibliothek entfernen? Sie können die Aktion kurz mit Rückgängig widerrufen.</string>
     <string name="favorite_added">zu den Favoriten hinzugefügt</string>
     <string name="favorite_removed">Aus den Favoriten entfernt</string>
     <string name="loading_books">Bücher werden geladen…</string>
@@ -294,7 +296,6 @@
     <string name="language_changed">Sprache aktualisiert</string>
 
     <string name="theme_section_title">Darstellung</string>
-    <string name="theme_follow_system">System</string>
     <string name="theme_light">Hell</string>
     <string name="theme_dark">Dunkel</string>
     <string name="theme_changed">Darstellung aktualisiert</string>

@@ -23,6 +23,7 @@ import com.example.dijitalraf.R;
 import com.example.dijitalraf.ui.util.UiMessages;
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.button.MaterialButton;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -310,7 +311,7 @@ public class LibraryFragment extends Fragment {
                 }
 
                 if (direction == ItemTouchHelper.LEFT) {
-                    deleteBookWithUndo(selectedBook, position);
+                    confirmDeleteThenMaybeRemove(selectedBook, position);
                 } else if (direction == ItemTouchHelper.RIGHT) {
                     toggleFavorite(selectedBook, position);
                 }
@@ -318,6 +319,41 @@ public class LibraryFragment extends Fragment {
         });
 
         touchHelper.attachToRecyclerView(recyclerBooks);
+    }
+
+    void resetStuckSwipeUi() {
+        if (recyclerBooks == null || adapter == null) {
+            return;
+        }
+        recyclerBooks.post(() -> {
+            if (!isAdded()) {
+                return;
+            }
+            for (int i = 0; i < recyclerBooks.getChildCount(); i++) {
+                View child = recyclerBooks.getChildAt(i);
+                child.setTranslationX(0f);
+                int pos = recyclerBooks.getChildAdapterPosition(child);
+                if (pos != RecyclerView.NO_POSITION) {
+                    adapter.notifyItemChanged(pos);
+                }
+            }
+        });
+    }
+
+    private void confirmDeleteThenMaybeRemove(@NonNull Kitap book, int position) {
+        new MaterialAlertDialogBuilder(requireContext())
+                .setTitle(R.string.book_delete_confirm_title)
+                .setMessage(R.string.book_delete_confirm_message)
+                .setNegativeButton(R.string.dialog_cancel, (d, w) -> {
+                    adapter.notifyItemChanged(position);
+                    d.dismiss();
+                })
+                .setPositiveButton(R.string.action_delete_generic, (d, w) -> {
+                    deleteBookWithUndo(book, position);
+                    d.dismiss();
+                })
+                .setOnCancelListener(d -> adapter.notifyItemChanged(position))
+                .show();
     }
 
     private void drawSwipeBackground(Canvas canvas,
@@ -406,13 +442,36 @@ public class LibraryFragment extends Fragment {
                 .show();
     }
 
-    private void toggleFavorite(Kitap kitap, int position) {
+    private void toggleFavorite(@NonNull Kitap kitap, int swipedPosition) {
         boolean nextFavorite = !kitap.isFavorite();
 
         kitap.setFavorite(nextFavorite);
         viewModel.persistKitap(kitap);
 
         applyBooksAndEmpty(viewModel.getBooks().getValue(), filterViewModel.getSpec().getValue());
+
+        final String bookId = kitap.getId();
+        recyclerBooks.post(() -> {
+            if (!isAdded()) {
+                return;
+            }
+            int pos = -1;
+            if (bookId != null) {
+                for (int i = 0; i < kitapListesi.size(); i++) {
+                    Kitap k = kitapListesi.get(i);
+                    if (k != null && bookId.equals(k.getId())) {
+                        pos = i;
+                        break;
+                    }
+                }
+            }
+            if (pos < 0 && swipedPosition >= 0 && swipedPosition < adapter.getItemCount()) {
+                pos = swipedPosition;
+            }
+            if (pos >= 0) {
+                adapter.notifyItemChanged(pos);
+            }
+        });
 
         Snackbar.make(
                 recyclerBooks,

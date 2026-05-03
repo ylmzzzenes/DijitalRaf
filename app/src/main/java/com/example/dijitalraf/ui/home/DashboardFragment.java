@@ -53,6 +53,7 @@ public class DashboardFragment extends Fragment {
     private static final String KEY_LAST_AI = "last_ai_recommendation";
     private static final String KEY_LAST_CHAT_SNIPPET = "last_chat_snippet";
     private static final String STATE_AI_RECOMMENDATIONS_EXPANDED = "state_ai_recommendations_expanded";
+    private static final String STATE_AI_CHAT_EXPANDED = "state_ai_chat_expanded";
     private static final int DASHBOARD_BOOKS_MAX = 24;
 
     private BooksViewModel viewModel;
@@ -72,6 +73,9 @@ public class DashboardFragment extends Fragment {
     private View headerAiRecommendationsAccordion;
     private ViewGroup layoutAiRecommendationsExpanded;
     private ImageView ivAiAccordionChevron;
+    private View headerAiChatAccordion;
+    private ViewGroup layoutAiChatExpanded;
+    private ImageView ivAiChatAccordionChevron;
     private CircularProgressIndicator pbAiRecommendations;
     private ViewGroup dashboardContent;
     private DashboardBookRowAdapter readAdapter;
@@ -81,6 +85,7 @@ public class DashboardFragment extends Fragment {
     private TextView tvReadingGoalSummary;
     private LinearProgressIndicator readingGoalProgress;
     private boolean aiRecommendationsExpanded;
+    private boolean aiChatExpanded;
     private boolean aiRecommendationsLoading;
 
     @Nullable
@@ -105,6 +110,9 @@ public class DashboardFragment extends Fragment {
         headerAiRecommendationsAccordion = view.findViewById(R.id.headerAiRecommendationsAccordion);
         layoutAiRecommendationsExpanded = view.findViewById(R.id.layoutAiRecommendationsExpanded);
         ivAiAccordionChevron = view.findViewById(R.id.ivAiAccordionChevron);
+        headerAiChatAccordion = view.findViewById(R.id.headerAiChatAccordion);
+        layoutAiChatExpanded = view.findViewById(R.id.layoutAiChatExpanded);
+        ivAiChatAccordionChevron = view.findViewById(R.id.ivAiChatAccordionChevron);
         pbAiRecommendations = view.findViewById(R.id.pbAiRecommendations);
         dashboardContent = view.findViewById(R.id.dashboardContent);
         tvWelcome = view.findViewById(R.id.tvWelcome);
@@ -143,10 +151,14 @@ public class DashboardFragment extends Fragment {
 
         if (savedInstanceState != null) {
             aiRecommendationsExpanded = savedInstanceState.getBoolean(STATE_AI_RECOMMENDATIONS_EXPANDED, false);
+            aiChatExpanded = savedInstanceState.getBoolean(STATE_AI_CHAT_EXPANDED, false);
         }
         headerAiRecommendationsAccordion.setOnClickListener(v ->
                 setAiRecommendationsExpanded(!aiRecommendationsExpanded, true));
         setAiRecommendationsExpanded(aiRecommendationsExpanded, false);
+
+        headerAiChatAccordion.setOnClickListener(v -> setAiChatExpanded(!aiChatExpanded, true));
+        setAiChatExpanded(aiChatExpanded, false);
 
         btnAiRecommend.setOnClickListener(v -> getAiRecommendations());
         tvAiHistoryLabel.setOnClickListener(v ->
@@ -189,6 +201,9 @@ public class DashboardFragment extends Fragment {
     public void onResume() {
         super.onResume();
         loadWelcomeFromRtdb();
+        if (aiChatExpanded) {
+            loadChatPreviewFromPrefs();
+        }
     }
 
     private void loadWelcomeFromRtdb() {
@@ -232,6 +247,7 @@ public class DashboardFragment extends Fragment {
     public void onSaveInstanceState(@NonNull Bundle outState) {
         super.onSaveInstanceState(outState);
         outState.putBoolean(STATE_AI_RECOMMENDATIONS_EXPANDED, aiRecommendationsExpanded);
+        outState.putBoolean(STATE_AI_CHAT_EXPANDED, aiChatExpanded);
     }
 
     private void setAiRecommendationsExpanded(boolean expanded, boolean animate) {
@@ -247,6 +263,22 @@ public class DashboardFragment extends Fragment {
         }
         if (expanded) {
             refreshAiRecommendationsBodyUi();
+        }
+    }
+
+    private void setAiChatExpanded(boolean expanded, boolean animate) {
+        if (dashboardContent != null && animate) {
+            TransitionManager.beginDelayedTransition(dashboardContent, new AutoTransition());
+        }
+        aiChatExpanded = expanded;
+        layoutAiChatExpanded.setVisibility(expanded ? View.VISIBLE : View.GONE);
+        if (animate) {
+            ivAiChatAccordionChevron.animate().rotation(expanded ? 180f : 0f).setDuration(220L).start();
+        } else {
+            ivAiChatAccordionChevron.setRotation(expanded ? 180f : 0f);
+        }
+        if (expanded) {
+            loadChatPreviewFromPrefs();
         }
     }
 

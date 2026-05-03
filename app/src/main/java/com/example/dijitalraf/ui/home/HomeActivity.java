@@ -42,6 +42,8 @@ public class HomeActivity extends AppCompatActivity {
     private Integer pendingLibraryTab;
     private FloatingActionButton fabAddBook;
     private BooksViewModel booksViewModel;
+    /** Avoids ViewPager2 ↔ BottomNavigationView feedback when {@link BottomNavigationView#setSelectedItemId(int)} runs from {@link ViewPager2.OnPageChangeCallback}. */
+    private boolean syncingBottomNavFromPager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -59,12 +61,14 @@ public class HomeActivity extends AppCompatActivity {
         pagerAdapter = new MainPagerAdapter(this);
         mainViewPager.setAdapter(pagerAdapter);
         mainViewPager.setOffscreenPageLimit(4);
-        // Bottom nav is the primary tab control; disable horizontal swipe to avoid accidental tab changes.
-        mainViewPager.setUserInputEnabled(false);
+        mainViewPager.setUserInputEnabled(true);
 
         lastValidPagerPosition = 0;
 
         bottomNav.setOnItemSelectedListener(item -> {
+            if (syncingBottomNavFromPager) {
+                return true;
+            }
             int itemId = item.getItemId();
             if (itemId == R.id.nav_assistant && blockIfEmailUnverified()) {
                 return false;
@@ -89,16 +93,14 @@ public class HomeActivity extends AppCompatActivity {
                             R.string.feature_locked_email_unverified,
                             Snackbar.LENGTH_LONG,
                             fabAddBook);
+                    applyBottomNavSelectionForPagerIndex(lastValidPagerPosition);
                     return;
                 }
                 if (position != 3) {
                     lastValidPagerPosition = position;
                 }
                 applyPendingLibraryTabIfNeeded(position);
-                int menuId = NAV_IDS[position];
-                if (bottomNav.getSelectedItemId() != menuId) {
-                    bottomNav.setSelectedItemId(menuId);
-                }
+                applyBottomNavSelectionForPagerIndex(position);
             }
         });
 
@@ -136,7 +138,9 @@ public class HomeActivity extends AppCompatActivity {
 
         if (savedInstanceState == null) {
             mainViewPager.setCurrentItem(0, false);
-            bottomNav.setSelectedItemId(R.id.nav_home);
+            applyBottomNavSelectionForPagerIndex(0);
+        } else {
+            mainViewPager.post(() -> applyBottomNavSelectionForPagerIndex(mainViewPager.getCurrentItem()));
         }
 
         handleOpenAddBookIntent(getIntent());
@@ -176,6 +180,12 @@ public class HomeActivity extends AppCompatActivity {
             getSupportFragmentManager().beginTransaction().remove(f).commit();
         }
         kitapEkleOverlay.setVisibility(View.GONE);
+        mainViewPager.post(() -> {
+            LibraryPagerFragment lib = pagerAdapter != null ? pagerAdapter.getLibraryPagerFragment() : null;
+            if (lib != null) {
+                lib.resetHostLibrarySwipeUi();
+            }
+        });
     }
 
     @Override
@@ -220,6 +230,22 @@ public class HomeActivity extends AppCompatActivity {
         return -1;
     }
 
+    private void applyBottomNavSelectionForPagerIndex(int pagerIndex) {
+        if (pagerIndex < 0 || pagerIndex >= NAV_IDS.length) {
+            return;
+        }
+        int menuId = NAV_IDS[pagerIndex];
+        if (bottomNav.getSelectedItemId() == menuId) {
+            return;
+        }
+        syncingBottomNavFromPager = true;
+        try {
+            bottomNav.setSelectedItemId(menuId);
+        } finally {
+            syncingBottomNavFromPager = false;
+        }
+    }
+
     private void applyPendingLibraryTabIfNeeded(int position) {
         if (position != 1 || pendingLibraryTab == null) {
             return;
@@ -236,7 +262,7 @@ public class HomeActivity extends AppCompatActivity {
     /** Ana sayfa (gösterge paneli); alt menü ve ViewPager senkron. */
     public void openHomeDashboard() {
         mainViewPager.setCurrentItem(0, false);
-        bottomNav.setSelectedItemId(R.id.nav_home);
+        applyBottomNavSelectionForPagerIndex(0);
     }
 
     /** Sohbet asistanı sekmesi. */
@@ -245,7 +271,7 @@ public class HomeActivity extends AppCompatActivity {
             return;
         }
         mainViewPager.setCurrentItem(3, false);
-        bottomNav.setSelectedItemId(R.id.nav_assistant);
+        applyBottomNavSelectionForPagerIndex(3);
     }
 
     /**
@@ -262,6 +288,6 @@ public class HomeActivity extends AppCompatActivity {
         } else {
             mainViewPager.setCurrentItem(1, false);
         }
-        bottomNav.setSelectedItemId(R.id.nav_library);
+        applyBottomNavSelectionForPagerIndex(1);
     }
 }

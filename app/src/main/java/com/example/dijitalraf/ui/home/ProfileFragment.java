@@ -203,23 +203,17 @@ public class ProfileFragment extends Fragment {
             return;
         }
         String saved = NightModePreference.getSavedOrDefault(requireContext());
-        int checkId = R.id.btnThemeFollowSystem;
-        if (NightModePreference.LIGHT.equals(saved)) {
-            checkId = R.id.btnThemeLight;
-        } else if (NightModePreference.DARK.equals(saved)) {
-            checkId = R.id.btnThemeDark;
-        }
+        int checkId = NightModePreference.DARK.equals(saved)
+                ? R.id.btnThemeDark
+                : R.id.btnThemeLight;
         toggle.check(checkId);
         toggle.addOnButtonCheckedListener((group, checkedId, isChecked) -> {
             if (!isChecked) {
                 return;
             }
-            String mode = NightModePreference.FOLLOW_SYSTEM;
-            if (checkedId == R.id.btnThemeLight) {
-                mode = NightModePreference.LIGHT;
-            } else if (checkedId == R.id.btnThemeDark) {
-                mode = NightModePreference.DARK;
-            }
+            String mode = checkedId == R.id.btnThemeDark
+                    ? NightModePreference.DARK
+                    : NightModePreference.LIGHT;
             if (mode.equals(NightModePreference.getSavedOrDefault(requireContext()))) {
                 return;
             }
