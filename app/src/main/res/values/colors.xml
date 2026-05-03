@@ -12,6 +12,12 @@
     <color name="primary_variant">#3A4A24</color>
     <color name="secondary">#9AAA7E</color>
     <color name="on_primary">#FFFFFFFF</color>
+    <color name="primary_container">#D5E4B8</color>
+    <color name="on_primary_container">#1A2E0F</color>
+    <color name="secondary_container">#E3E8D4</color>
+    <color name="on_secondary_container">#1A1F16</color>
+    <color name="on_secondary">#1A1F16</color>
+    <color name="on_error">#FFFFFFFF</color>
 
     <!-- Text -->
     <color name="text_primary">#1A1F16</color>
@@ -39,5 +45,10 @@
     <color name="chat_error_background">#33B3261E</color>
     <color name="chat_error_stroke">#99B3261E</color>
     <color name="message_assistant_surface">#F0EBE2</color>
+
+    <!-- Swipe actions (library list) -->
+    <color name="swipe_delete_background">#C62828</color>
+    <color name="swipe_favorite_background">#4A5D2E</color>
+    <color name="swipe_icon_tint">#FFFFFFFF</color>
 
 </resources>

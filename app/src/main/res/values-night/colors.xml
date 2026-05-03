@@ -10,6 +10,12 @@
     <color name="primary_variant">#8A9874</color>
     <color name="secondary">#6B7558</color>
     <color name="on_primary">#1A1F16</color>
+    <color name="primary_container">#3A4A28</color>
+    <color name="on_primary_container">#D5E4B8</color>
+    <color name="secondary_container">#3D4532</color>
+    <color name="on_secondary_container">#E3E8D4</color>
+    <color name="on_secondary">#E8EBE3</color>
+    <color name="on_error">#690005</color>
 
     <color name="text_primary">#E8EBE3</color>
     <color name="text_secondary">#A8AEA0</color>
@@ -30,5 +36,9 @@
     <color name="chat_error_background">#408C1D18</color>
     <color name="chat_error_stroke">#99F2B8B5</color>
     <color name="message_assistant_surface">#2A2F26</color>
+
+    <color name="swipe_delete_background">#93000A</color>
+    <color name="swipe_favorite_background">#5C7A32</color>
+    <color name="swipe_icon_tint">#FFFFFFFF</color>
 
 </resources>

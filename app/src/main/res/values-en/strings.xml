@@ -291,6 +291,12 @@
     <string name="language_english">English</string>
     <string name="language_german">Deutsch</string>
     <string name="language_changed">Language updated</string>
+
+    <string name="theme_section_title">Appearance</string>
+    <string name="theme_follow_system">System</string>
+    <string name="theme_light">Light</string>
+    <string name="theme_dark">Dark</string>
+    <string name="theme_changed">Appearance updated</string>
     <string name="snackbar_undo">undo</string>
     <string name="share_chooser_title">Share the book</string>
     <string name="share_book_title_fallback">Book</string>

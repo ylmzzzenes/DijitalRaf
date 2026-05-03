@@ -19,6 +19,7 @@ import com.example.dijitalraf.auth.EmailVerificationHelper;
 import com.example.dijitalraf.data.FirebaseRtdb;
 import com.example.dijitalraf.ui.auth.GoogleSignInHelper;
 import com.example.dijitalraf.locale.LanguagePreference;
+import com.example.dijitalraf.theme.NightModePreference;
 import com.example.dijitalraf.ui.auth.LoginActivity;
 import com.example.dijitalraf.ui.util.UiMessages;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
@@ -60,6 +61,7 @@ public class ProfileFragment extends Fragment {
         btnBookStatistics = view.findViewById(R.id.btnBookStatistics);
         btnLogout = view.findViewById(R.id.btnLogout);
 
+        setupThemeToggle(view);
         setupLanguageToggle(view);
 
         btnResendVerificationEmail.setOnClickListener(v -> {
@@ -193,6 +195,37 @@ public class ProfileFragment extends Fragment {
             return f;
         }
         return f + " " + l;
+    }
+
+    private void setupThemeToggle(@NonNull View root) {
+        MaterialButtonToggleGroup toggle = root.findViewById(R.id.toggleTheme);
+        if (toggle == null) {
+            return;
+        }
+        String saved = NightModePreference.getSavedOrDefault(requireContext());
+        int checkId = R.id.btnThemeFollowSystem;
+        if (NightModePreference.LIGHT.equals(saved)) {
+            checkId = R.id.btnThemeLight;
+        } else if (NightModePreference.DARK.equals(saved)) {
+            checkId = R.id.btnThemeDark;
+        }
+        toggle.check(checkId);
+        toggle.addOnButtonCheckedListener((group, checkedId, isChecked) -> {
+            if (!isChecked) {
+                return;
+            }
+            String mode = NightModePreference.FOLLOW_SYSTEM;
+            if (checkedId == R.id.btnThemeLight) {
+                mode = NightModePreference.LIGHT;
+            } else if (checkedId == R.id.btnThemeDark) {
+                mode = NightModePreference.DARK;
+            }
+            if (mode.equals(NightModePreference.getSavedOrDefault(requireContext()))) {
+                return;
+            }
+            NightModePreference.setAndApply(requireContext(), mode);
+            UiMessages.snackbar(ProfileFragment.this, R.string.theme_changed, Snackbar.LENGTH_SHORT);
+        });
     }
 
     private void setupLanguageToggle(@NonNull View root) {

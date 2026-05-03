@@ -299,6 +299,12 @@
     <string name="language_german">Deutsch</string>
     <string name="language_changed">Dil güncellendi</string>
 
+    <string name="theme_section_title">Görünüm</string>
+    <string name="theme_follow_system">Sistem</string>
+    <string name="theme_light">Açık</string>
+    <string name="theme_dark">Koyu</string>
+    <string name="theme_changed">Görünüm güncellendi</string>
+
     <string name="snackbar_undo">Geri al</string>
     <string name="share_chooser_title">Kitabı paylaş</string>
     <string name="share_book_title_fallback">Kitap</string>

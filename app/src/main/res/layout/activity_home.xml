@@ -82,6 +82,7 @@
         android:contentDescription="@string/nav_add_book"
         app:layout_anchor="@id/bottomNav"
         app:layout_anchorGravity="top|end"
+        app:backgroundTint="?attr/colorPrimaryContainer"
         app:srcCompat="@drawable/ic_add_24"
-        app:tint="@color/white" />
+        app:tint="?attr/colorOnPrimaryContainer" />
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

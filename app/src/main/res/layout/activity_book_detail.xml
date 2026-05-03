@@ -471,7 +471,8 @@
         android:layout_margin="@dimen/grid_2"
         android:contentDescription="@string/book_quotes_add"
         android:visibility="gone"
+        app:backgroundTint="?attr/colorPrimaryContainer"
         app:srcCompat="@drawable/ic_add_24"
-        app:tint="@color/white"
+        app:tint="?attr/colorOnPrimaryContainer"
         tools:visibility="visible" />
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

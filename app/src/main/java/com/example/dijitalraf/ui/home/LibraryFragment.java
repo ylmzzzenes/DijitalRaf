@@ -2,7 +2,6 @@ package com.example.dijitalraf.ui.home;
 
 import android.content.Intent;
 import android.graphics.Canvas;
-import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
@@ -241,10 +240,10 @@ public class LibraryFragment extends Fragment {
                 ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT
         ) {
             private final ColorDrawable deleteBackground =
-                    new ColorDrawable(Color.parseColor("#D32F2F"));
+                    new ColorDrawable(ContextCompat.getColor(requireContext(), R.color.swipe_delete_background));
 
             private final ColorDrawable favoriteBackground =
-                    new ColorDrawable(Color.parseColor("#6B8E23"));
+                    new ColorDrawable(ContextCompat.getColor(requireContext(), R.color.swipe_favorite_background));
 
             private final Drawable deleteIcon = ContextCompat.getDrawable(
                     requireContext(),
@@ -346,7 +345,7 @@ public class LibraryFragment extends Fragment {
         background.draw(canvas);
 
         if (icon != null) {
-            icon.setTint(Color.WHITE);
+            icon.setTint(ContextCompat.getColor(requireContext(), R.color.swipe_icon_tint));
 
             int iconMargin = (itemView.getHeight() - icon.getIntrinsicHeight()) / 2;
             int iconTop = itemView.getTop() + iconMargin;
