@@ -9,28 +9,33 @@
     android:fillViewport="true"
     android:padding="@dimen/grid_2">
 
-    <LinearLayout
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/dashboardContent"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical">
+        android:layout_height="wrap_content">
 
         <TextView
             android:id="@+id/tvWelcome"
-            android:layout_width="match_parent"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:textAppearance="@style/TextAppearance.DijitalRaf.Title"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
             tools:text="Hoş geldin, Ayşe" />
 
         <com.google.android.material.card.MaterialCardView
             android:id="@+id/cardReadingGoal"
-            android:layout_width="match_parent"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/grid_2"
             app:cardBackgroundColor="@color/card_background"
             app:cardCornerRadius="@dimen/corner_medium"
             app:cardElevation="@dimen/elevation_card"
-            app:strokeColor="@color/secondary_alpha_40"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/tvWelcome"
+            app:strokeColor="@color/outline_variant"
             app:strokeWidth="1dp">
 
             <LinearLayout
@@ -50,8 +55,7 @@
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
                         android:text="@string/reading_goal_title"
-                        android:textAppearance="@style/TextAppearance.DijitalRaf.Subtitle"
-                        android:textStyle="bold" />
+                        android:textAppearance="@style/TextAppearance.DijitalRaf.SectionLabel" />
 
                     <com.google.android.material.button.MaterialButton
                         android:id="@+id/btnReadingGoalEdit"
@@ -85,21 +89,28 @@
         </com.google.android.material.card.MaterialCardView>
 
         <TextView
-            android:layout_width="match_parent"
+            android:id="@+id/tvDashboardSectionRead"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/grid_3"
             android:text="@string/dashboard_section_read"
-            android:textAppearance="@style/TextAppearance.DijitalRaf.Subtitle"
-            android:textStyle="bold" />
+            android:textAppearance="@style/TextAppearance.DijitalRaf.SectionLabel"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/cardReadingGoal" />
 
         <com.google.android.material.card.MaterialCardView
-            android:layout_width="match_parent"
+            android:id="@+id/cardDashboardReadBooks"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/grid_1"
             app:cardBackgroundColor="@color/card_background"
             app:cardCornerRadius="@dimen/corner_medium"
             app:cardElevation="@dimen/elevation_card"
-            app:strokeColor="@color/secondary_alpha_40"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/tvDashboardSectionRead"
+            app:strokeColor="@color/outline_variant"
             app:strokeWidth="1dp">
 
             <FrameLayout
@@ -111,9 +122,9 @@
                     android:id="@+id/rvReadBooks"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:clipToPadding="false"
                     android:nestedScrollingEnabled="false"
                     android:orientation="horizontal"
-                    android:clipToPadding="false"
                     tools:listitem="@layout/item_dashboard_book" />
 
                 <TextView
@@ -130,21 +141,28 @@
         </com.google.android.material.card.MaterialCardView>
 
         <TextView
-            android:layout_width="match_parent"
+            android:id="@+id/tvDashboardSectionToRead"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/grid_3"
             android:text="@string/dashboard_section_to_read"
-            android:textAppearance="@style/TextAppearance.DijitalRaf.Subtitle"
-            android:textStyle="bold" />
+            android:textAppearance="@style/TextAppearance.DijitalRaf.SectionLabel"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/cardDashboardReadBooks" />
 
         <com.google.android.material.card.MaterialCardView
-            android:layout_width="match_parent"
+            android:id="@+id/cardDashboardToReadBooks"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/grid_1"
             app:cardBackgroundColor="@color/card_background"
             app:cardCornerRadius="@dimen/corner_medium"
             app:cardElevation="@dimen/elevation_card"
-            app:strokeColor="@color/secondary_alpha_40"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/tvDashboardSectionToRead"
+            app:strokeColor="@color/outline_variant"
             app:strokeWidth="1dp">
 
             <FrameLayout
@@ -156,9 +174,9 @@
                     android:id="@+id/rvToReadBooks"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:clipToPadding="false"
                     android:nestedScrollingEnabled="false"
                     android:orientation="horizontal"
-                    android:clipToPadding="false"
                     tools:listitem="@layout/item_dashboard_book" />
 
                 <TextView
@@ -174,13 +192,17 @@
         </com.google.android.material.card.MaterialCardView>
 
         <com.google.android.material.card.MaterialCardView
-            android:layout_width="match_parent"
+            android:id="@+id/cardDashboardAiRecommendations"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/grid_3"
             app:cardBackgroundColor="@color/card_background"
             app:cardCornerRadius="@dimen/corner_medium"
             app:cardElevation="@dimen/elevation_card"
-            app:strokeColor="@color/secondary_alpha_40"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/cardDashboardToReadBooks"
+            app:strokeColor="@color/outline_variant"
             app:strokeWidth="1dp">
 
             <LinearLayout
@@ -197,22 +219,21 @@
                     android:clickable="true"
                     android:focusable="true"
                     android:gravity="center_vertical"
-                    android:minHeight="48dp"
+                    android:minHeight="@dimen/touch_target_min"
                     android:orientation="horizontal"
-                    android:paddingVertical="4dp">
+                    android:paddingVertical="@dimen/grid_1">
 
                     <TextView
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
                         android:text="@string/ai_section_title"
-                        android:textAppearance="@style/TextAppearance.DijitalRaf.Subtitle"
-                        android:textStyle="bold" />
+                        android:textAppearance="@style/TextAppearance.DijitalRaf.SectionLabel" />
 
                     <ImageView
                         android:id="@+id/ivAiAccordionChevron"
-                        android:layout_width="24dp"
-                        android:layout_height="24dp"
+                        android:layout_width="@dimen/grid_3"
+                        android:layout_height="@dimen/grid_3"
                         android:contentDescription="@null"
                         android:importantForAccessibility="no"
                         app:srcCompat="@drawable/ic_expand_more_24"
@@ -269,7 +290,7 @@
                             app:cardBackgroundColor="@color/background"
                             app:cardCornerRadius="@dimen/corner_small"
                             app:cardElevation="0dp"
-                            app:strokeColor="@color/secondary_alpha_40"
+                            app:strokeColor="@color/outline_variant"
                             app:strokeWidth="1dp">
 
                             <FrameLayout
@@ -316,14 +337,19 @@
         </com.google.android.material.card.MaterialCardView>
 
         <com.google.android.material.card.MaterialCardView
-            android:layout_width="match_parent"
+            android:id="@+id/cardDashboardAiChat"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/grid_3"
             android:layout_marginBottom="@dimen/grid_2"
             app:cardBackgroundColor="@color/card_background"
             app:cardCornerRadius="@dimen/corner_medium"
             app:cardElevation="@dimen/elevation_card"
-            app:strokeColor="@color/secondary_alpha_40"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/cardDashboardAiRecommendations"
+            app:strokeColor="@color/outline_variant"
             app:strokeWidth="1dp">
 
             <LinearLayout
@@ -343,8 +369,7 @@
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
                         android:text="@string/ai_chat_section_title"
-                        android:textAppearance="@style/TextAppearance.DijitalRaf.Subtitle"
-                        android:textStyle="bold" />
+                        android:textAppearance="@style/TextAppearance.DijitalRaf.SectionLabel" />
 
                     <TextView
                         android:id="@+id/tvChatHistoryLabel"
@@ -382,7 +407,7 @@
                         app:cardBackgroundColor="@color/background"
                         app:cardCornerRadius="@dimen/corner_small"
                         app:cardElevation="0dp"
-                        app:strokeColor="@color/secondary_alpha_40"
+                        app:strokeColor="@color/outline_variant"
                         app:strokeWidth="1dp">
 
                         <TextView
@@ -398,5 +423,5 @@
                 </LinearLayout>
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
-    </LinearLayout>
+    </androidx.constraintlayout.widget.ConstraintLayout>
 </ScrollView>
