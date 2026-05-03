@@ -2,13 +2,13 @@
 <com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    style="@style/Widget.DijitalRaf.Card"
+    style="@style/Widget.DijitalRaf.Card.Flat"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_marginBottom="@dimen/grid_2"
     app:cardCornerRadius="@dimen/corner_small"
     app:contentPadding="@dimen/grid_2"
-    app:strokeColor="@color/secondary_alpha_40"
+    app:strokeColor="@color/outline_variant"
     app:strokeWidth="1dp">
 
     <LinearLayout

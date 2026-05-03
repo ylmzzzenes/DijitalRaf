@@ -1,30 +1,34 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:paddingStart="@dimen/grid_1"
+    android:paddingStart="@dimen/grid_2"
     android:paddingTop="@dimen/grid_1"
-    android:paddingEnd="@dimen/grid_3"
+    android:paddingEnd="@dimen/grid_2"
     android:paddingBottom="@dimen/grid_1">
 
     <com.google.android.material.card.MaterialCardView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_gravity="start"
-        app:cardBackgroundColor="@color/card_background"
+        app:cardBackgroundColor="@color/message_assistant_surface"
         app:cardCornerRadius="@dimen/corner_medium"
         app:cardElevation="@dimen/elevation_card"
-        app:strokeColor="@color/secondary_alpha_40"
+        app:layout_constrainedWidth="true"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintWidth_max="@dimen/chat_bubble_max_width"
+        app:strokeColor="@color/outline_variant"
         app:strokeWidth="1dp">
 
         <TextView
             android:id="@+id/tvMessage"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:maxWidth="280dp"
             android:padding="@dimen/grid_2"
             android:textAppearance="@style/TextAppearance.DijitalRaf.Body"
             android:textColor="@color/text_primary" />
     </com.google.android.material.card.MaterialCardView>
-</FrameLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>

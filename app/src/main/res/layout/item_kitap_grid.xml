@@ -9,7 +9,7 @@
     app:cardCornerRadius="@dimen/corner_medium"
     app:cardElevation="@dimen/elevation_card"
     app:rippleColor="@color/primary_alpha_24"
-    app:strokeColor="@color/secondary_alpha_40"
+    app:strokeColor="@color/outline_variant"
     app:strokeWidth="1dp">
 
     <LinearLayout
@@ -39,7 +39,6 @@
             android:gravity="center"
             android:maxLines="2"
             android:textAppearance="@style/TextAppearance.DijitalRaf.Title"
-            android:textSize="16sp"
             tools:text="Başlık" />
 
         <TextView
@@ -51,7 +50,6 @@
             android:gravity="center"
             android:maxLines="1"
             android:textAppearance="@style/TextAppearance.DijitalRaf.Caption"
-            android:textSize="13sp"
             tools:text="Yazar" />
 
         <com.google.android.material.chip.Chip

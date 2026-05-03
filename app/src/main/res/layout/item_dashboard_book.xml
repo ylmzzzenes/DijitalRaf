@@ -6,7 +6,7 @@
     android:layout_height="@dimen/dashboard_cover_height"
     android:layout_marginEnd="@dimen/grid_2"
     app:cardBackgroundColor="@color/card_background"
-    app:cardCornerRadius="@dimen/corner_small"
+    app:cardCornerRadius="@dimen/corner_medium"
     app:cardElevation="@dimen/elevation_card"
     app:strokeColor="@color/secondary_alpha_40"
     app:strokeWidth="1dp">
