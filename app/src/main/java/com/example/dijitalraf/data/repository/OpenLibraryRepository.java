@@ -5,9 +5,9 @@ import androidx.annotation.NonNull;
 import com.example.dijitalraf.data.model.BookMetadata;
 
 /**
- * Book metadata search repository boundary.
+ * Open Library metadata search repository boundary.
  */
-public interface GoogleBooksRepository {
+public interface OpenLibraryRepository {
 
     interface Callback {
         void onSuccess(@NonNull BookMetadata metadata);

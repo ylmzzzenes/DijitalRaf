@@ -20,27 +20,27 @@ import okhttp3.Request;
 import okhttp3.Response;
 
 /**
- * Book metadata repository. Current implementation preserves the existing Open Library lookup.
+ * Book metadata repository backed by Open Library lookup endpoints.
  */
-public final class DefaultGoogleBooksRepository implements GoogleBooksRepository {
+public final class DefaultOpenLibraryRepository implements OpenLibraryRepository {
 
-    private static final String TAG = "GoogleBooksRepository";
+    private static final String TAG = "OpenLibraryRepository";
     private static final String OPEN_LIBRARY_SEARCH = "https://openlibrary.org/search.json";
     private static final String OPEN_LIBRARY_ROOT = "https://openlibrary.org";
     private static final String USER_AGENT = "DijitalRaf/1.0 (Android)";
 
     private final OkHttpClient client;
 
-    public DefaultGoogleBooksRepository() {
+    public DefaultOpenLibraryRepository() {
         this(new OkHttpClient());
     }
 
-    public DefaultGoogleBooksRepository(@NonNull OkHttpClient client) {
+    public DefaultOpenLibraryRepository(@NonNull OkHttpClient client) {
         this.client = client;
     }
 
     @Override
-    public void searchBooks(@NonNull String query, @NonNull GoogleBooksRepository.Callback callback) {
+    public void searchBooks(@NonNull String query, @NonNull OpenLibraryRepository.Callback callback) {
         Request request = buildOpenLibrarySearchRequest(query);
         client.newCall(request).enqueue(new okhttp3.Callback() {
             @Override

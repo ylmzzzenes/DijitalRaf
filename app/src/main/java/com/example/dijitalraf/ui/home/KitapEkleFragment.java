@@ -18,8 +18,8 @@ import com.example.dijitalraf.R;
 import com.example.dijitalraf.auth.EmailVerificationHelper;
 import com.example.dijitalraf.core.constants.DatabasePaths;
 import com.example.dijitalraf.data.model.BookMetadata;
-import com.example.dijitalraf.data.repository.DefaultGoogleBooksRepository;
-import com.example.dijitalraf.data.repository.GoogleBooksRepository;
+import com.example.dijitalraf.data.repository.DefaultOpenLibraryRepository;
+import com.example.dijitalraf.data.repository.OpenLibraryRepository;
 import com.example.dijitalraf.ui.util.UiMessages;
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.button.MaterialButton;
@@ -43,7 +43,7 @@ public class KitapEkleFragment extends Fragment {
     private Chip chipPreviewGenre;
     private LinearProgressIndicator progressApi;
     private BooksViewModel booksViewModel;
-    private GoogleBooksRepository googleBooksRepository;
+    private OpenLibraryRepository openLibraryRepository;
 
     private String selectedImageUrl = "";
     private String apiAciklama = "";
@@ -79,7 +79,7 @@ public class KitapEkleFragment extends Fragment {
         setupToolbar();
 
         booksViewModel = new ViewModelProvider(requireActivity()).get(BooksViewModel.class);
-        googleBooksRepository = new DefaultGoogleBooksRepository();
+        openLibraryRepository = new DefaultOpenLibraryRepository();
 
         TextWatcher previewWatcher = new TextWatcher() {
             @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
@@ -171,7 +171,7 @@ public class KitapEkleFragment extends Fragment {
     }
 
     private void searchBookFromOpenLibrary(final String queryTrimmed) {
-        googleBooksRepository.searchBooks(queryTrimmed, new GoogleBooksRepository.Callback() {
+        openLibraryRepository.searchBooks(queryTrimmed, new OpenLibraryRepository.Callback() {
             @Override
             public void onSuccess(@NonNull BookMetadata metadata) {
                 requireActivity().runOnUiThread(() -> {
