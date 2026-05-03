@@ -38,10 +38,21 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"
             android:layout_marginTop="@dimen/grid_1"
-            android:layout_marginBottom="@dimen/grid_3"
+            android:layout_marginBottom="@dimen/grid_2"
             android:text="@string/login_title"
             android:textAppearance="@style/TextAppearance.DijitalRaf.Title"
             android:textColor="@color/primary" />
+
+        <com.google.android.material.card.MaterialCardView
+            style="@style/Widget.DijitalRaf.Card.Outlined"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:contentPadding="@dimen/grid_2">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
 
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/tilEmail"
@@ -114,6 +125,9 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/grid_2"
             android:text="@string/login_with_google" />
+
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
 
         <TextView
             android:id="@+id/tvGoToRegister"

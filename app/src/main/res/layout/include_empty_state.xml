@@ -1,49 +1,55 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/emptyState"
+    style="@style/Widget.DijitalRaf.Card.Outlined"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:gravity="center_horizontal"
-    android:orientation="vertical"
-    android:padding="@dimen/grid_3"
-    android:visibility="gone"
-    tools:visibility="visible">
+    android:layout_marginHorizontal="@dimen/grid_2"
+    app:contentPadding="@dimen/grid_3">
 
-    <ImageView
-        android:layout_width="@dimen/grid_5"
-        android:layout_height="@dimen/grid_5"
-        android:contentDescription="@null"
-        android:src="@drawable/ic_menu_book_24"
-        app:tint="@color/text_secondary_alpha_50" />
-
-    <TextView
-        android:id="@+id/tvEmptyTitle"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/grid_2"
-        android:gravity="center"
-        android:textAppearance="@style/TextAppearance.DijitalRaf.Title"
-        tools:text="@string/empty_to_read_title" />
-
-    <TextView
-        android:id="@+id/tvEmptyMessage"
+    <LinearLayout
+        android:id="@+id/emptyState"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/grid_1"
-        android:gravity="center"
-        android:textAppearance="@style/TextAppearance.DijitalRaf.Body"
-        android:textColor="@color/text_secondary"
-        tools:text="@string/empty_to_read_message" />
+        android:gravity="center_horizontal"
+        android:orientation="vertical"
+        tools:visibility="visible">
 
-    <com.google.android.material.button.MaterialButton
-        android:id="@+id/btnEmptyAction"
-        style="@style/Widget.DijitalRaf.Button.Tonal"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/grid_2"
-        android:text="@string/action_add_book"
-        android:visibility="gone"
-        tools:visibility="visible" />
-</LinearLayout>
+        <ImageView
+            android:layout_width="@dimen/grid_5"
+            android:layout_height="@dimen/grid_5"
+            android:contentDescription="@null"
+            android:src="@drawable/ic_menu_book_24"
+            app:tint="@color/text_secondary_alpha_50" />
+
+        <TextView
+            android:id="@+id/tvEmptyTitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/grid_2"
+            android:gravity="center"
+            android:textAppearance="@style/TextAppearance.DijitalRaf.Title"
+            tools:text="@string/empty_to_read_title" />
+
+        <TextView
+            android:id="@+id/tvEmptyMessage"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/grid_1"
+            android:gravity="center"
+            android:textAppearance="@style/TextAppearance.DijitalRaf.Body"
+            android:textColor="@color/text_secondary"
+            tools:text="@string/empty_to_read_message" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnEmptyAction"
+            style="@style/Widget.DijitalRaf.Button.Tonal"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/grid_2"
+            android:text="@string/action_add_book"
+            android:visibility="gone"
+            tools:visibility="visible" />
+    </LinearLayout>
+</com.google.android.material.card.MaterialCardView>
