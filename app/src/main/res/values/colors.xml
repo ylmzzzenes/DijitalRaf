@@ -1,22 +1,43 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="background">#F3F0E8</color>
-    <color name="primary">#556B2F</color>
-    <color name="primary_dark">#3E4E22</color>
-    <color name="primary_variant">#3E4E22</color>
-    <color name="secondary">#A3B18A</color>
+    <!-- Surfaces -->
+    <color name="background">#F4F1EA</color>
+    <color name="surface">#FFFCF6</color>
+    <color name="surface_variant">#EDE8DD</color>
+    <color name="card_background">#FFFCF6</color>
 
-    <color name="text_primary">#1F2933</color>
-    <color name="text_secondary">#6B7280</color>
-    <color name="card_background">#FFFDF8</color>
+    <!-- Brand -->
+    <color name="primary">#4A5D2E</color>
+    <color name="primary_dark">#344221</color>
+    <color name="primary_variant">#3A4A24</color>
+    <color name="secondary">#9AAA7E</color>
+    <color name="on_primary">#FFFFFFFF</color>
+
+    <!-- Text -->
+    <color name="text_primary">#1A1F16</color>
+    <color name="text_secondary">#5C6258</color>
 
     <color name="white">#FFFFFFFF</color>
     <color name="black">#FF000000</color>
 
-    <!-- Alpha refinements of existing palette (M3 surface / emphasis) -->
-    <color name="primary_alpha_12">#1F556B2F</color>
-    <color name="primary_alpha_24">#3D556B2F</color>
-    <color name="secondary_alpha_40">#66A3B18A</color>
-    <color name="text_secondary_alpha_50">#806B7280</color>
-    <color name="surface_overlay">#0D3E4E22</color>
+    <!-- Semantic -->
+    <color name="outline">#8A9178</color>
+    <color name="outline_variant">#C4C9B8</color>
+    <color name="error">#B3261E</color>
+    <color name="error_container">#F9DEDC</color>
+    <color name="on_error_container">#410E0B</color>
+    <color name="success">#2E6B3E</color>
+
+    <!-- Alpha / overlays -->
+    <color name="primary_alpha_12">#1F4A5D2E</color>
+    <color name="primary_alpha_24">#3D4A5D2E</color>
+    <color name="secondary_alpha_40">#669AAA7E</color>
+    <color name="text_secondary_alpha_50">#805C6258</color>
+    <color name="surface_overlay">#14000000</color>
+
+    <!-- Chat / banners -->
+    <color name="chat_error_background">#33B3261E</color>
+    <color name="chat_error_stroke">#99B3261E</color>
+    <color name="message_assistant_surface">#F0EBE2</color>
+
 </resources>

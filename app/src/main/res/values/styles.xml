@@ -55,6 +55,25 @@
         <item name="cardCornerRadius">@dimen/corner_medium</item>
         <item name="cardElevation">@dimen/elevation_card</item>
         <item name="cardBackgroundColor">@color/card_background</item>
+        <item name="strokeWidth">0dp</item>
+    </style>
+
+    <style name="Widget.DijitalRaf.Card.Outlined" parent="Widget.DijitalRaf.Card">
+        <item name="strokeColor">@color/outline_variant</item>
+        <item name="strokeWidth">1dp</item>
+    </style>
+
+    <style name="Widget.DijitalRaf.Card.Flat" parent="Widget.Material3.CardView.Filled">
+        <item name="cardCornerRadius">@dimen/corner_medium</item>
+        <item name="cardElevation">0dp</item>
+        <item name="cardBackgroundColor">@color/surface_variant</item>
+        <item name="strokeWidth">0dp</item>
+    </style>
+
+    <style name="TextAppearance.DijitalRaf.SectionLabel" parent="TextAppearance.Material3.LabelLarge">
+        <item name="android:textColor">@color/text_secondary</item>
+        <item name="android:textAllCaps">false</item>
+        <item name="android:textStyle">bold</item>
     </style>
 
     <style name="Widget.DijitalRaf.Toolbar" parent="Widget.Material3.Toolbar">
@@ -82,5 +101,13 @@
         <item name="cornerSizeTopRight">@dimen/corner_medium</item>
         <item name="cornerSizeBottomLeft">0dp</item>
         <item name="cornerSizeBottomRight">0dp</item>
+    </style>
+
+    <style name="ShapeAppearanceOverlay.DijitalRaf.HeroCover" parent="">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSizeTopLeft">0dp</item>
+        <item name="cornerSizeTopRight">0dp</item>
+        <item name="cornerSizeBottomLeft">@dimen/corner_large</item>
+        <item name="cornerSizeBottomRight">@dimen/corner_large</item>
     </style>
 </resources>

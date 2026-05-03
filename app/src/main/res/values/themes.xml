@@ -3,18 +3,22 @@
 
     <style name="Base.Theme.DijitalRaf" parent="Theme.Material3.DayNight.NoActionBar">
         <item name="colorPrimary">@color/primary</item>
-        <item name="colorOnPrimary">@color/white</item>
+        <item name="colorOnPrimary">@color/on_primary</item>
 
         <item name="colorSecondary">@color/secondary</item>
         <item name="colorOnSecondary">@color/black</item>
 
         <item name="android:colorBackground">@color/background</item>
-        <item name="colorSurface">@color/card_background</item>
+        <item name="colorSurface">@color/surface</item>
         <item name="colorOnSurface">@color/text_primary</item>
         <item name="colorOnSurfaceVariant">@color/text_secondary</item>
-        <item name="colorSurfaceContainerLow">@color/card_background</item>
-        <item name="colorOutline">@color/secondary</item>
-        <item name="colorOutlineVariant">@color/secondary_alpha_40</item>
+        <item name="colorSurfaceContainerLow">@color/surface_variant</item>
+        <item name="colorError">@color/error</item>
+        <item name="colorOnError">@color/white</item>
+        <item name="colorErrorContainer">@color/error_container</item>
+        <item name="colorOnErrorContainer">@color/on_error_container</item>
+        <item name="colorOutline">@color/outline</item>
+        <item name="colorOutlineVariant">@color/outline_variant</item>
 
         <item name="android:statusBarColor">@color/background</item>
         <item name="android:navigationBarColor">@color/background</item>

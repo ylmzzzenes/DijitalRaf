@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="background">#121410</color>
+    <color name="surface">#1B1E17</color>
+    <color name="surface_variant">#262A22</color>
+    <color name="card_background">#1F231B</color>
+
+    <color name="primary">#A3B18A</color>
+    <color name="primary_dark">#C5D4A8</color>
+    <color name="primary_variant">#8A9874</color>
+    <color name="secondary">#6B7558</color>
+    <color name="on_primary">#1A1F16</color>
+
+    <color name="text_primary">#E8EBE3</color>
+    <color name="text_secondary">#A8AEA0</color>
+
+    <color name="outline">#8E9586</color>
+    <color name="outline_variant">#454B3F</color>
+    <color name="error">#FFB4AB</color>
+    <color name="error_container">#93000A</color>
+    <color name="on_error_container">#FFDAD6</color>
+    <color name="success">#81C784</color>
+
+    <color name="primary_alpha_12">#33A3B18A</color>
+    <color name="primary_alpha_24">#55A3B18A</color>
+    <color name="secondary_alpha_40">#666B7558</color>
+    <color name="text_secondary_alpha_50">#80A8AEA0</color>
+    <color name="surface_overlay">#33FFFFFF</color>
+
+    <color name="chat_error_background">#408C1D18</color>
+    <color name="chat_error_stroke">#99F2B8B5</color>
+    <color name="message_assistant_surface">#2A2F26</color>
+
+</resources>

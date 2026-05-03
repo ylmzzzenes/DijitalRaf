@@ -24,5 +24,13 @@
     <dimen name="dashboard_cover_width">76dp</dimen>
     <dimen name="dashboard_cover_height">104dp</dimen>
 
-    <dimen name="book_detail_hero_height">272dp</dimen>
+    <dimen name="book_detail_hero_height">300dp</dimen>
+    <dimen name="book_list_cover_width">84dp</dimen>
+    <dimen name="book_list_cover_height">118dp</dimen>
+    <dimen name="book_list_text_inset">16dp</dimen>
+    <dimen name="book_list_item_padding">16dp</dimen>
+    <dimen name="touch_target_min">48dp</dimen>
+    <dimen name="fab_margin_above_bottom_nav">88dp</dimen>
+    <dimen name="chat_bubble_max_width">300dp</dimen>
+    <dimen name="divider_height">1dp</dimen>
 </resources>
