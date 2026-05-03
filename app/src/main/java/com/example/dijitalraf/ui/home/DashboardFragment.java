@@ -27,9 +27,11 @@ import com.example.dijitalraf.BuildConfig;
 import com.example.dijitalraf.R;
 import com.example.dijitalraf.auth.EmailVerificationHelper;
 import com.example.dijitalraf.data.AiService;
+import com.example.dijitalraf.core.constants.DatabasePaths;
+import com.example.dijitalraf.data.repository.DefaultUserRepository;
 import com.example.dijitalraf.data.repository.AiRepository;
 import com.example.dijitalraf.data.repository.OpenRouterAiRepository;
-import com.example.dijitalraf.data.FirebaseRtdb;
+import com.example.dijitalraf.data.repository.UserRepository;
 import com.example.dijitalraf.ui.util.UiMessages;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
@@ -40,8 +42,6 @@ import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -58,6 +58,7 @@ public class DashboardFragment extends Fragment {
 
     private BooksViewModel viewModel;
     private AiRepository aiRepository;
+    private UserRepository userRepository;
     private MaterialButton btnAiRecommend;
     private MaterialButton btnAiAssistant;
     private TextView tvAiPreview;
@@ -102,6 +103,7 @@ public class DashboardFragment extends Fragment {
         dashboardPrefs = requireContext().getSharedPreferences(PREFS_DASHBOARD, Context.MODE_PRIVATE);
 
         aiRepository = new OpenRouterAiRepository(requireContext());
+        userRepository = new DefaultUserRepository();
         btnAiRecommend = view.findViewById(R.id.btnAiRecommend);
         btnAiAssistant = view.findViewById(R.id.btnAiAssistant);
         tvAiPreview = view.findViewById(R.id.tvAiPreview);
@@ -216,17 +218,13 @@ public class DashboardFragment extends Fragment {
             return;
         }
         String uid = user.getUid();
-        FirebaseDatabase.getInstance(FirebaseRtdb.URL)
-                .getReference("users")
-                .child(uid)
-                .child("fullName")
-                .get()
+        userRepository.getUser(uid)
                 .addOnSuccessListener(snapshot -> {
                     if (!isAdded()) {
                         return;
                     }
                     if (snapshot.exists()) {
-                        String fullName = snapshot.getValue(String.class);
+                        String fullName = snapshot.child(DatabasePaths.FIELD_FULL_NAME).getValue(String.class);
                         if (fullName != null && !fullName.trim().isEmpty()) {
                             tvWelcome.setText(getString(R.string.welcome_with_name, fullName.trim()));
                         } else {

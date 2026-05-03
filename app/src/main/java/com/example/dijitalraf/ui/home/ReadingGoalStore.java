@@ -1,12 +1,12 @@
 package com.example.dijitalraf.ui.home;
 
 import android.content.Context;
-import android.content.SharedPreferences;
 
 import androidx.annotation.NonNull;
 
-import java.time.Year;
-import java.time.YearMonth;
+import com.example.dijitalraf.data.repository.DefaultReadingGoalRepository;
+import com.example.dijitalraf.data.repository.ReadingGoalRepository;
+
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
@@ -17,56 +17,37 @@ import java.util.List;
  */
 public final class ReadingGoalStore {
 
-    private static final String PREFS = "reading_goal_prefs";
-    private static final String KEY_MODE = "mode";
-    private static final String KEY_TARGET = "target";
-    private static final String KEY_CONGRATS_PERIOD = "congrats_period_shown";
-
-    private static final String MODE_MONTHLY = "monthly";
-    private static final String MODE_YEARLY = "yearly";
-
     private ReadingGoalStore() {
     }
 
-    private static SharedPreferences prefs(@NonNull Context context) {
-        return context.getApplicationContext().getSharedPreferences(PREFS, Context.MODE_PRIVATE);
+    private static ReadingGoalRepository repository(@NonNull Context context) {
+        return new DefaultReadingGoalRepository(context);
     }
 
     public static boolean isMonthly(@NonNull Context context) {
-        return MODE_MONTHLY.equals(prefs(context).getString(KEY_MODE, MODE_MONTHLY));
+        return repository(context).isMonthly();
     }
 
     public static int getTargetBooks(@NonNull Context context) {
-        return prefs(context).getInt(KEY_TARGET, 0);
+        return repository(context).getTargetBooks();
     }
 
     public static void saveGoal(@NonNull Context context, boolean monthly, int targetBooks) {
-        prefs(context).edit()
-                .putString(KEY_MODE, monthly ? MODE_MONTHLY : MODE_YEARLY)
-                .putInt(KEY_TARGET, targetBooks)
-                .remove(KEY_CONGRATS_PERIOD)
-                .apply();
+        repository(context).saveGoal(monthly, targetBooks);
     }
 
     @NonNull
     public static String currentPeriodKey(@NonNull Context context) {
-        ZoneId z = ZoneId.systemDefault();
-        if (isMonthly(context)) {
-            return YearMonth.now(z).toString();
-        }
-        return String.valueOf(Year.now(z).getValue());
+        return repository(context).currentPeriodKey();
     }
 
     @NonNull
     public static String getCongratsPeriodShown(@NonNull Context context) {
-        String s = prefs(context).getString(KEY_CONGRATS_PERIOD, "");
-        return s != null ? s : "";
+        return repository(context).getCongratsPeriodShown();
     }
 
     public static void markCongratsShownForCurrentPeriod(@NonNull Context context) {
-        prefs(context).edit()
-                .putString(KEY_CONGRATS_PERIOD, currentPeriodKey(context))
-                .apply();
+        repository(context).markCongratsShownForCurrentPeriod();
     }
 
     /**

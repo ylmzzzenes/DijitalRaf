@@ -16,7 +16,13 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.bumptech.glide.Glide;
 import com.example.dijitalraf.R;
-import com.example.dijitalraf.data.FirebaseRtdb;
+import com.example.dijitalraf.core.constants.DatabasePaths;
+import com.example.dijitalraf.data.repository.DefaultAuthRepository;
+import com.example.dijitalraf.data.repository.DefaultStorageRepository;
+import com.example.dijitalraf.data.repository.DefaultUserRepository;
+import com.example.dijitalraf.data.repository.AuthRepository;
+import com.example.dijitalraf.data.repository.StorageRepository;
+import com.example.dijitalraf.data.repository.UserRepository;
 import com.example.dijitalraf.ui.util.UiMessages;
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.button.MaterialButton;
@@ -24,12 +30,8 @@ import com.google.android.material.imageview.ShapeableImageView;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.textfield.TextInputLayout;
-import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.UserProfileChangeRequest;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 
 import java.util.HashMap;
@@ -59,6 +61,9 @@ public class EditProfileActivity extends AppCompatActivity {
     private Uri pendingImageUri;
     @Nullable
     private String currentPhotoUrl;
+    private AuthRepository authRepository;
+    private UserRepository userRepository;
+    private StorageRepository storageRepository;
 
     private final ActivityResultLauncher<String> pickImageLauncher =
             registerForActivityResult(new ActivityResultContracts.GetContent(), uri -> {
@@ -88,10 +93,13 @@ public class EditProfileActivity extends AppCompatActivity {
         tvEmailReadOnly = findViewById(R.id.tvEmailReadOnly);
         btnSaveProfile = findViewById(R.id.btnSaveProfile);
         progressOverlay = findViewById(R.id.progressOverlay);
+        authRepository = new DefaultAuthRepository();
+        userRepository = new DefaultUserRepository();
+        storageRepository = new DefaultStorageRepository();
 
         toolbar.setNavigationOnClickListener(v -> getOnBackPressedDispatcher().onBackPressed());
 
-        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+        FirebaseUser user = authRepository.getCurrentUser();
         if (user == null) {
             UiMessages.snackbarShortThenFinish(this, R.string.chat_error_not_signed_in);
             return;
@@ -110,11 +118,7 @@ public class EditProfileActivity extends AppCompatActivity {
     }
 
     private void loadProfile(@NonNull FirebaseUser authUser) {
-        DatabaseReference ref = FirebaseDatabase.getInstance(FirebaseRtdb.URL)
-                .getReference("users")
-                .child(authUser.getUid());
-
-        ref.get().addOnCompleteListener(task -> {
+        userRepository.getUser(authUser.getUid()).addOnCompleteListener(task -> {
             setLoading(false);
             if (!task.isSuccessful() || task.getResult() == null) {
                 UiMessages.snackbar(this, R.string.profile_load_failed, Snackbar.LENGTH_LONG);
@@ -122,12 +126,12 @@ public class EditProfileActivity extends AppCompatActivity {
                 return;
             }
 
-            String first = task.getResult().child("firstName").getValue(String.class);
-            String last = task.getResult().child("lastName").getValue(String.class);
-            String full = task.getResult().child("fullName").getValue(String.class);
-            String username = task.getResult().child("username").getValue(String.class);
-            String bio = task.getResult().child("bio").getValue(String.class);
-            currentPhotoUrl = task.getResult().child("photoUrl").getValue(String.class);
+            String first = task.getResult().child(DatabasePaths.FIELD_FIRST_NAME).getValue(String.class);
+            String last = task.getResult().child(DatabasePaths.FIELD_LAST_NAME).getValue(String.class);
+            String full = task.getResult().child(DatabasePaths.FIELD_FULL_NAME).getValue(String.class);
+            String username = task.getResult().child(DatabasePaths.FIELD_USERNAME).getValue(String.class);
+            String bio = task.getResult().child(DatabasePaths.FIELD_BIO).getValue(String.class);
+            currentPhotoUrl = task.getResult().child(DatabasePaths.FIELD_PHOTO_URL).getValue(String.class);
 
             if (TextUtils.isEmpty(first) && TextUtils.isEmpty(last) && !TextUtils.isEmpty(full)) {
                 String[] parts = splitFullName(full);
@@ -216,19 +220,15 @@ public class EditProfileActivity extends AppCompatActivity {
 
         setLoading(true);
         if (pendingImageUri != null) {
-            StorageReference storageRef = FirebaseStorage.getInstance()
-                    .getReference()
-                    .child("profiles")
-                    .child(authUser.getUid())
-                    .child("avatar.jpg");
-            storageRef.putFile(pendingImageUri)
+            StorageReference storageRef = storageRepository.profileAvatarRef(authUser.getUid());
+            storageRepository.uploadProfileAvatar(authUser.getUid(), pendingImageUri)
                     .continueWithTask(task -> {
                         if (!task.isSuccessful()) {
                             throw task.getException() != null
                                     ? task.getException()
                                     : new IllegalStateException("upload");
                         }
-                        return storageRef.getDownloadUrl();
+                        return storageRepository.getDownloadUrl(storageRef);
                     })
                     .addOnCompleteListener(task -> {
                         if (!task.isSuccessful() || task.getResult() == null) {
@@ -254,20 +254,16 @@ public class EditProfileActivity extends AppCompatActivity {
             @NonNull String bio,
             @Nullable String photoUrl) {
 
-        DatabaseReference ref = FirebaseDatabase.getInstance(FirebaseRtdb.URL)
-                .getReference("users")
-                .child(authUser.getUid());
-
         Map<String, Object> updates = new HashMap<>();
-        updates.put("firstName", first);
-        updates.put("lastName", last);
-        updates.put("fullName", fullName);
-        updates.put("username", username);
-        updates.put("bio", bio);
-        updates.put("photoUrl", photoUrl != null ? photoUrl : "");
-        updates.put("updatedAt", System.currentTimeMillis());
+        updates.put(DatabasePaths.FIELD_FIRST_NAME, first);
+        updates.put(DatabasePaths.FIELD_LAST_NAME, last);
+        updates.put(DatabasePaths.FIELD_FULL_NAME, fullName);
+        updates.put(DatabasePaths.FIELD_USERNAME, username);
+        updates.put(DatabasePaths.FIELD_BIO, bio);
+        updates.put(DatabasePaths.FIELD_PHOTO_URL, photoUrl != null ? photoUrl : "");
+        updates.put(DatabasePaths.FIELD_UPDATED_AT, System.currentTimeMillis());
 
-        ref.updateChildren(updates).addOnCompleteListener(task -> {
+        userRepository.updateUser(authUser.getUid(), updates).addOnCompleteListener(task -> {
             if (!task.isSuccessful()) {
                 setLoading(false);
                 UiMessages.snackbar(

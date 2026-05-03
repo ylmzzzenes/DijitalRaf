@@ -13,8 +13,12 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.dijitalraf.R;
+import com.example.dijitalraf.core.constants.DatabasePaths;
 import com.example.dijitalraf.data.EmailValidation;
-import com.example.dijitalraf.data.FirebaseRtdb;
+import com.example.dijitalraf.data.repository.AuthRepository;
+import com.example.dijitalraf.data.repository.DefaultAuthRepository;
+import com.example.dijitalraf.data.repository.DefaultUserRepository;
+import com.example.dijitalraf.data.repository.UserRepository;
 import com.example.dijitalraf.ui.home.HomeActivity;
 import com.example.dijitalraf.ui.util.UiMessages;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
@@ -28,11 +32,8 @@ import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 import com.google.firebase.auth.AuthCredential;
-import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GoogleAuthProvider;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -45,7 +46,8 @@ public class LoginActivity extends AppCompatActivity {
     private MaterialButton btnGoogleSignIn;
     private TextView tvForgotPassword;
     private TextView tvGoToRegister;
-    private FirebaseAuth mAuth;
+    private AuthRepository authRepository;
+    private UserRepository userRepository;
     @Nullable
     private GoogleSignInClient googleSignInClient;
 
@@ -91,7 +93,7 @@ public class LoginActivity extends AppCompatActivity {
     protected void onStart() {
         super.onStart();
 
-        if (mAuth.getCurrentUser() != null) {
+        if (authRepository.getCurrentUser() != null) {
             Intent intent = new Intent(LoginActivity.this, HomeActivity.class);
             startActivity(intent);
             finish();
@@ -99,7 +101,8 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     private void initComponents() {
-        mAuth = FirebaseAuth.getInstance();
+        authRepository = new DefaultAuthRepository();
+        userRepository = new DefaultUserRepository();
         tilEmail = findViewById(R.id.tilEmail);
         tilPassword = findViewById(R.id.tilPassword);
         etEmail = findViewById(R.id.etEmail);
@@ -145,7 +148,7 @@ public class LoginActivity extends AppCompatActivity {
 
     private void firebaseAuthWithGoogle(String idToken) {
         AuthCredential credential = GoogleAuthProvider.getCredential(idToken, null);
-        mAuth.signInWithCredential(credential).addOnCompleteListener(this, task -> {
+        authRepository.signInWithCredential(credential).addOnCompleteListener(this, task -> {
             if (task.isSuccessful()) {
                 FirebaseUser user = task.getResult() != null ? task.getResult().getUser() : null;
                 syncGoogleUserToRtdb(user, () -> UiMessages.snackbarShortThenRun(
@@ -170,10 +173,7 @@ public class LoginActivity extends AppCompatActivity {
             onDone.run();
             return;
         }
-        DatabaseReference ref = FirebaseDatabase.getInstance(FirebaseRtdb.URL)
-                .getReference("users")
-                .child(user.getUid());
-        ref.get().addOnCompleteListener(task -> {
+        userRepository.getUser(user.getUid()).addOnCompleteListener(task -> {
             if (task.isSuccessful() && task.getResult() != null && task.getResult().exists()) {
                 onDone.run();
                 return;
@@ -182,15 +182,15 @@ public class LoginActivity extends AppCompatActivity {
             String[] nameParts = splitFullNameForGoogleProfile(display);
             Map<String, Object> userMap = new HashMap<>();
             userMap.put("uid", user.getUid());
-            userMap.put("email", user.getEmail() != null ? user.getEmail() : "");
-            userMap.put("fullName", display);
-            userMap.put("firstName", nameParts[0]);
-            userMap.put("lastName", nameParts[1]);
-            userMap.put("createdAt", System.currentTimeMillis());
+            userMap.put(DatabasePaths.FIELD_EMAIL, user.getEmail() != null ? user.getEmail() : "");
+            userMap.put(DatabasePaths.FIELD_FULL_NAME, display);
+            userMap.put(DatabasePaths.FIELD_FIRST_NAME, nameParts[0]);
+            userMap.put(DatabasePaths.FIELD_LAST_NAME, nameParts[1]);
+            userMap.put(DatabasePaths.FIELD_CREATED_AT, System.currentTimeMillis());
             if (user.getPhotoUrl() != null) {
-                userMap.put("photoUrl", user.getPhotoUrl().toString());
+                userMap.put(DatabasePaths.FIELD_PHOTO_URL, user.getPhotoUrl().toString());
             }
-            ref.setValue(userMap).addOnCompleteListener(t -> onDone.run());
+            userRepository.setUser(user.getUid(), userMap).addOnCompleteListener(t -> onDone.run());
         });
     }
 
@@ -231,7 +231,7 @@ public class LoginActivity extends AppCompatActivity {
             return;
         }
 
-        mAuth.signInWithEmailAndPassword(email, password)
+        authRepository.signInWithEmail(email, password)
                 .addOnCompleteListener(this, task -> {
                     if (task.isSuccessful()) {
                         UiMessages.snackbarShortThenRun(
@@ -264,7 +264,7 @@ public class LoginActivity extends AppCompatActivity {
 
         tvForgotPassword.setEnabled(false);
         btnLogin.setEnabled(false);
-        mAuth.sendPasswordResetEmail(email)
+        authRepository.sendPasswordResetEmail(email)
                 .addOnCompleteListener(this, task -> {
                     tvForgotPassword.setEnabled(true);
                     btnLogin.setEnabled(true);

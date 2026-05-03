@@ -6,13 +6,17 @@ import android.os.Looper;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import com.example.dijitalraf.core.constants.DatabasePaths;
+import com.example.dijitalraf.core.utils.ListenerRegistration;
+import com.example.dijitalraf.data.model.BookQuote;
+import com.example.dijitalraf.data.remote.firebase.FirebaseBooksDataSource;
 import com.example.dijitalraf.ui.home.Kitap;
-import com.google.firebase.auth.FirebaseAuth;
+import com.example.dijitalraf.ui.home.KitapAlinti;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
@@ -28,7 +32,7 @@ import java.util.concurrent.Executors;
  */
 public final class DefaultBooksRepository implements BooksRepository {
 
-    private final String databaseUrl;
+    private final FirebaseBooksDataSource booksDataSource;
     private final ExecutorService parseExecutor = Executors.newSingleThreadExecutor();
     private final Handler mainHandler = new Handler(Looper.getMainLooper());
 
@@ -37,7 +41,11 @@ public final class DefaultBooksRepository implements BooksRepository {
     private Listener listener;
 
     public DefaultBooksRepository(@NonNull String databaseUrl) {
-        this.databaseUrl = databaseUrl;
+        this(new FirebaseBooksDataSource());
+    }
+
+    public DefaultBooksRepository(@NonNull FirebaseBooksDataSource booksDataSource) {
+        this.booksDataSource = booksDataSource;
     }
 
     @Override
@@ -47,14 +55,18 @@ public final class DefaultBooksRepository implements BooksRepository {
             return;
         }
         listener.onLoading(true);
-        FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
+        FirebaseUser currentUser = booksDataSource.getCurrentUser();
         if (currentUser == null) {
             listener.onBooks(new ArrayList<>());
             listener.onLoading(false);
             return;
         }
-        String uid = currentUser.getUid();
-        kitaplarRef = FirebaseDatabase.getInstance(databaseUrl).getReference("books").child(uid);
+        kitaplarRef = booksDataSource.currentUserBooksRef();
+        if (kitaplarRef == null) {
+            listener.onBooks(new ArrayList<>());
+            listener.onLoading(false);
+            return;
+        }
         kitaplarListener = new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
@@ -115,14 +127,77 @@ public final class DefaultBooksRepository implements BooksRepository {
 
     @Nullable
     private DatabaseReference bookRefForCurrentUser(@NonNull String bookId) {
-        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
-        if (user == null) {
-            return null;
+        return booksDataSource.currentUserBookRef(bookId);
+    }
+
+    @NonNull
+    @Override
+    public ListenerRegistration observeBook(@NonNull String bookId, @NonNull BookListener listener) {
+        DatabaseReference ref = bookRefForCurrentUser(bookId);
+        if (ref == null) {
+            listener.onError("Book reference not available");
+            return () -> { };
         }
-        return FirebaseDatabase.getInstance(databaseUrl)
-                .getReference("books")
-                .child(user.getUid())
-                .child(bookId);
+        ValueEventListener valueListener = new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                if (!snapshot.exists()) {
+                    listener.onNotFound();
+                    return;
+                }
+                Kitap kitap = snapshot.getValue(Kitap.class);
+                if (kitap == null) {
+                    listener.onError("Book detail could not be loaded");
+                    return;
+                }
+                kitap.setId(bookId);
+                listener.onBook(kitap);
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                listener.onError(error.getMessage());
+            }
+        };
+        ref.addValueEventListener(valueListener);
+        return () -> ref.removeEventListener(valueListener);
+    }
+
+    @NonNull
+    @Override
+    public ListenerRegistration observeBookQuotes(@NonNull String bookId, @NonNull QuotesListener listener) {
+        DatabaseReference bookRef = bookRefForCurrentUser(bookId);
+        if (bookRef == null) {
+            listener.onError("Book reference not available");
+            return () -> { };
+        }
+        DatabaseReference quotesRef = bookRef.child(DatabasePaths.QUOTES);
+        ValueEventListener valueListener = new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                List<BookQuote> rows = new ArrayList<>();
+                for (DataSnapshot child : snapshot.getChildren()) {
+                    KitapAlinti quote = child.getValue(KitapAlinti.class);
+                    String key = child.getKey();
+                    if (quote == null || key == null || quote.getText() == null) {
+                        continue;
+                    }
+                    String text = quote.getText().trim();
+                    if (!text.isEmpty()) {
+                        rows.add(new BookQuote(key, text, quote.getCreatedAt()));
+                    }
+                }
+                rows.sort((a, b) -> Long.compare(b.createdAt, a.createdAt));
+                listener.onQuotes(rows);
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                listener.onError(error.getMessage());
+            }
+        };
+        quotesRef.addValueEventListener(valueListener);
+        return () -> quotesRef.removeEventListener(valueListener);
     }
 
     @Override
@@ -134,6 +209,24 @@ public final class DefaultBooksRepository implements BooksRepository {
         kitaplarRef.child(kitap.getId()).setValue(kitap);
     }
 
+    @NonNull
+    @Override
+    public Task<Void> addBook(@NonNull Map<String, Object> values) {
+        return booksDataSource.addBook(values);
+    }
+
+    @NonNull
+    @Override
+    public Task<Void> deleteBook(@NonNull String bookId) {
+        return booksDataSource.removeBook(bookId);
+    }
+
+    @NonNull
+    @Override
+    public Task<Void> restoreBook(@NonNull String bookId, @NonNull Kitap kitap) {
+        return booksDataSource.setBook(bookId, kitap);
+    }
+
     @Override
     public void updateBookNote(@NonNull String bookId, @NonNull String note) {
         DatabaseReference ref = bookRefForCurrentUser(bookId);
@@ -141,8 +234,8 @@ public final class DefaultBooksRepository implements BooksRepository {
             return;
         }
         Map<String, Object> updates = new HashMap<>();
-        updates.put("note", note);
-        updates.put("updatedAt", System.currentTimeMillis());
+        updates.put(DatabasePaths.FIELD_BOOK_NOTE, note);
+        updates.put(DatabasePaths.FIELD_UPDATED_AT, System.currentTimeMillis());
         ref.updateChildren(updates);
     }
 
@@ -154,8 +247,8 @@ public final class DefaultBooksRepository implements BooksRepository {
         }
         int v = Math.max(0, Math.min(5, yildiz));
         Map<String, Object> updates = new HashMap<>();
-        updates.put("yildiz", v);
-        updates.put("updatedAt", System.currentTimeMillis());
+        updates.put(DatabasePaths.FIELD_BOOK_STARS, v);
+        updates.put(DatabasePaths.FIELD_UPDATED_AT, System.currentTimeMillis());
         ref.updateChildren(updates);
     }
 
@@ -166,8 +259,8 @@ public final class DefaultBooksRepository implements BooksRepository {
             return;
         }
         Map<String, Object> updates = new HashMap<>();
-        updates.put("favorite", favorite);
-        updates.put("updatedAt", System.currentTimeMillis());
+        updates.put(DatabasePaths.FIELD_BOOK_FAVORITE, favorite);
+        updates.put(DatabasePaths.FIELD_UPDATED_AT, System.currentTimeMillis());
         ref.updateChildren(updates);
     }
 
@@ -178,8 +271,8 @@ public final class DefaultBooksRepository implements BooksRepository {
             return;
         }
         Map<String, Object> updates = new HashMap<>();
-        updates.put("okundu", okundu);
-        updates.put("updatedAt", System.currentTimeMillis());
+        updates.put(DatabasePaths.FIELD_BOOK_READ, okundu);
+        updates.put(DatabasePaths.FIELD_UPDATED_AT, System.currentTimeMillis());
         ref.updateChildren(updates);
     }
 
@@ -199,10 +292,10 @@ public final class DefaultBooksRepository implements BooksRepository {
         }
         long now = System.currentTimeMillis();
         Map<String, Object> updates = new HashMap<>();
-        updates.put("quotes/" + key + "/text", trimmed);
-        updates.put("quotes/" + key + "/createdAt", now);
-        updates.put("quotes/" + key + "/updatedAt", now);
-        updates.put("updatedAt", now);
+        updates.put(DatabasePaths.QUOTES + "/" + key + "/" + DatabasePaths.FIELD_QUOTE_TEXT, trimmed);
+        updates.put(DatabasePaths.QUOTES + "/" + key + "/" + DatabasePaths.FIELD_CREATED_AT, now);
+        updates.put(DatabasePaths.QUOTES + "/" + key + "/" + DatabasePaths.FIELD_UPDATED_AT, now);
+        updates.put(DatabasePaths.FIELD_UPDATED_AT, now);
         ref.updateChildren(updates);
     }
 
@@ -218,9 +311,9 @@ public final class DefaultBooksRepository implements BooksRepository {
         }
         long now = System.currentTimeMillis();
         Map<String, Object> updates = new HashMap<>();
-        updates.put("quotes/" + quoteId + "/text", trimmed);
-        updates.put("quotes/" + quoteId + "/updatedAt", now);
-        updates.put("updatedAt", now);
+        updates.put(DatabasePaths.QUOTES + "/" + quoteId + "/" + DatabasePaths.FIELD_QUOTE_TEXT, trimmed);
+        updates.put(DatabasePaths.QUOTES + "/" + quoteId + "/" + DatabasePaths.FIELD_UPDATED_AT, now);
+        updates.put(DatabasePaths.FIELD_UPDATED_AT, now);
         ref.updateChildren(updates);
     }
 
@@ -232,8 +325,8 @@ public final class DefaultBooksRepository implements BooksRepository {
         }
         long now = System.currentTimeMillis();
         Map<String, Object> updates = new HashMap<>();
-        updates.put("quotes/" + quoteId, null);
-        updates.put("updatedAt", now);
+        updates.put(DatabasePaths.QUOTES + "/" + quoteId, null);
+        updates.put(DatabasePaths.FIELD_UPDATED_AT, now);
         ref.updateChildren(updates);
     }
 }

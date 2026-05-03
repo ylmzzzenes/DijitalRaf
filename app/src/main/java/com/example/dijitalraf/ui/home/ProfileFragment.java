@@ -16,7 +16,11 @@ import androidx.fragment.app.Fragment;
 import com.bumptech.glide.Glide;
 import com.example.dijitalraf.R;
 import com.example.dijitalraf.auth.EmailVerificationHelper;
-import com.example.dijitalraf.data.FirebaseRtdb;
+import com.example.dijitalraf.core.constants.DatabasePaths;
+import com.example.dijitalraf.data.repository.AuthRepository;
+import com.example.dijitalraf.data.repository.DefaultAuthRepository;
+import com.example.dijitalraf.data.repository.DefaultUserRepository;
+import com.example.dijitalraf.data.repository.UserRepository;
 import com.example.dijitalraf.ui.auth.GoogleSignInHelper;
 import com.example.dijitalraf.locale.LanguagePreference;
 import com.example.dijitalraf.theme.NightModePreference;
@@ -27,9 +31,7 @@ import com.google.android.material.button.MaterialButton;
 import com.google.android.material.button.MaterialButtonToggleGroup;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.imageview.ShapeableImageView;
-import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.database.FirebaseDatabase;
 
 public class ProfileFragment extends Fragment {
 
@@ -41,6 +43,8 @@ public class ProfileFragment extends Fragment {
     private MaterialButton btnEditProfile;
     private MaterialButton btnBookStatistics;
     private MaterialButton btnLogout;
+    private AuthRepository authRepository;
+    private UserRepository userRepository;
 
     @Nullable
     @Override
@@ -60,12 +64,14 @@ public class ProfileFragment extends Fragment {
         btnEditProfile = view.findViewById(R.id.btnEditProfile);
         btnBookStatistics = view.findViewById(R.id.btnBookStatistics);
         btnLogout = view.findViewById(R.id.btnLogout);
+        authRepository = new DefaultAuthRepository();
+        userRepository = new DefaultUserRepository();
 
         setupThemeToggle(view);
         setupLanguageToggle(view);
 
         btnResendVerificationEmail.setOnClickListener(v -> {
-            FirebaseUser u = FirebaseAuth.getInstance().getCurrentUser();
+            FirebaseUser u = authRepository.getCurrentUser();
             if (u == null || !EmailVerificationHelper.mustVerifyEmail(u)) {
                 return;
             }
@@ -99,7 +105,7 @@ public class ProfileFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
-        FirebaseUser u = FirebaseAuth.getInstance().getCurrentUser();
+        FirebaseUser u = authRepository.getCurrentUser();
         if (u != null) {
             u.reload().addOnCompleteListener(t -> bindProfileUi());
         } else {
@@ -108,7 +114,7 @@ public class ProfileFragment extends Fragment {
     }
 
     private void bindProfileUi() {
-        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+        FirebaseUser user = authRepository.getCurrentUser();
         if (user == null) {
             tvProfileDisplayName.setText(R.string.profile_subtitle);
             tvEmail.setText("");
@@ -125,18 +131,15 @@ public class ProfileFragment extends Fragment {
         String email = user.getEmail();
         tvEmail.setText(!TextUtils.isEmpty(email) ? email : getString(R.string.profile_email_unknown));
 
-        FirebaseDatabase.getInstance(FirebaseRtdb.URL)
-                .getReference("users")
-                .child(user.getUid())
-                .get()
+        userRepository.getUser(user.getUid())
                 .addOnSuccessListener(snapshot -> {
                     if (!isAdded()) {
                         return;
                     }
-                    String first = snapshot.child("firstName").getValue(String.class);
-                    String last = snapshot.child("lastName").getValue(String.class);
-                    String full = snapshot.child("fullName").getValue(String.class);
-                    String photoUrl = snapshot.child("photoUrl").getValue(String.class);
+                    String first = snapshot.child(DatabasePaths.FIELD_FIRST_NAME).getValue(String.class);
+                    String last = snapshot.child(DatabasePaths.FIELD_LAST_NAME).getValue(String.class);
+                    String full = snapshot.child(DatabasePaths.FIELD_FULL_NAME).getValue(String.class);
+                    String photoUrl = snapshot.child(DatabasePaths.FIELD_PHOTO_URL).getValue(String.class);
 
                     String display = joinName(first, last);
                     if (display.isEmpty() && !TextUtils.isEmpty(full)) {
@@ -256,7 +259,7 @@ public class ProfileFragment extends Fragment {
     private void signOutEverywhere() {
         Context ctx = requireContext();
         Runnable goLogin = () -> {
-            FirebaseAuth.getInstance().signOut();
+            authRepository.signOut();
             Intent intent = new Intent(ctx, LoginActivity.class);
             intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
             startActivity(intent);

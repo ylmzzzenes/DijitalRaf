@@ -24,6 +24,9 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 import com.example.dijitalraf.R;
+import com.example.dijitalraf.core.utils.ListenerRegistration;
+import com.example.dijitalraf.data.model.BookQuote;
+import com.example.dijitalraf.data.repository.BooksRepository;
 import com.example.dijitalraf.ui.util.UiMessages;
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.button.MaterialButton;
@@ -33,15 +36,8 @@ import com.google.android.material.materialswitch.MaterialSwitch;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 public class BookDetailActivity extends AppCompatActivity {
@@ -49,9 +45,6 @@ public class BookDetailActivity extends AppCompatActivity {
     private static final String EXTRA_BOOK_ID = "extra_book_id";
 
     private static final int DESCRIPTION_COLLAPSED_LINES = 6;
-
-    private static final String DATABASE_URL =
-            "https://dijitalraf-ec149-default-rtdb.europe-west1.firebasedatabase.app";
 
     public static Intent newIntent(@NonNull Context context, @NonNull String bookId) {
         Intent intent = new Intent(context, BookDetailActivity.class);
@@ -82,18 +75,14 @@ public class BookDetailActivity extends AppCompatActivity {
     private String bookIdArg;
     private BooksViewModel booksViewModel;
     @Nullable
-    private DatabaseReference bookRef;
+    private ListenerRegistration bookRegistration;
     @Nullable
-    private ValueEventListener bookListener;
+    private ListenerRegistration quotesRegistration;
 
     private RecyclerView recyclerQuotes;
     private TextView tvQuotesEmpty;
     private FloatingActionButton fabAddQuote;
     private BookQuoteAdapter quoteAdapter;
-    @Nullable
-    private DatabaseReference quotesRef;
-    @Nullable
-    private ValueEventListener quotesListener;
 
     private String lastDescriptionRaw = "";
     private boolean descriptionExpanded;
@@ -151,21 +140,18 @@ public class BookDetailActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        if (bookRef != null && bookListener != null) {
-            bookRef.removeEventListener(bookListener);
+        if (bookRegistration != null) {
+            bookRegistration.remove();
         }
-        bookRef = null;
-        bookListener = null;
-        if (quotesRef != null && quotesListener != null) {
-            quotesRef.removeEventListener(quotesListener);
+        bookRegistration = null;
+        if (quotesRegistration != null) {
+            quotesRegistration.remove();
         }
-        quotesRef = null;
-        quotesListener = null;
+        quotesRegistration = null;
     }
 
     private void attachBookRealtimeListener(@NonNull String bookId) {
-        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
-        if (user == null) {
+        if (FirebaseAuth.getInstance().getCurrentUser() == null) {
             UiMessages.snackbarShortThenFinish(this, R.string.book_detail_load_error);
             return;
         }
@@ -173,44 +159,32 @@ public class BookDetailActivity extends AppCompatActivity {
         progress.setVisibility(View.VISIBLE);
         scrollContent.setVisibility(View.INVISIBLE);
 
-        bookRef = FirebaseDatabase.getInstance(DATABASE_URL)
-                .getReference("books")
-                .child(user.getUid())
-                .child(bookId);
-
         attachQuotesListener();
 
-        bookListener = new ValueEventListener() {
+        bookRegistration = booksViewModel.observeBook(bookId, new BooksRepository.BookListener() {
             @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
+            public void onBook(@NonNull Kitap kitap) {
                 progress.setVisibility(View.GONE);
                 scrollContent.setVisibility(View.VISIBLE);
-
-                if (!snapshot.exists()) {
-                    UiMessages.snackbarShortThenFinish(BookDetailActivity.this, R.string.book_not_found);
-                    return;
-                }
-
-                Kitap kitap = snapshot.getValue(Kitap.class);
-                if (kitap == null) {
-                    UiMessages.snackbarShortThenFinish(BookDetailActivity.this, R.string.book_detail_load_error);
-                    return;
-                }
                 fabAddQuote.setVisibility(View.VISIBLE);
-                kitap.setId(bookId);
                 bind(kitap);
                 applyUserActionsMerged(kitap);
             }
 
             @Override
-            public void onCancelled(@NonNull DatabaseError error) {
+            public void onNotFound() {
+                progress.setVisibility(View.GONE);
+                UiMessages.snackbarShortThenFinish(BookDetailActivity.this, R.string.book_not_found);
+            }
+
+            @Override
+            public void onError(@NonNull String message) {
                 progress.setVisibility(View.GONE);
                 UiMessages.snackbarLongThenFinish(
                         BookDetailActivity.this,
-                        getString(R.string.error_generic, error.getMessage()));
+                        getString(R.string.error_generic, message));
             }
-        };
-        bookRef.addValueEventListener(bookListener);
+        });
     }
 
     private void bind(@NonNull Kitap kitap) {
@@ -511,45 +485,30 @@ public class BookDetailActivity extends AppCompatActivity {
     }
 
     private void attachQuotesListener() {
-        if (bookRef == null) {
+        if (bookIdArg == null) {
             return;
         }
-        if (quotesRef != null && quotesListener != null) {
-            quotesRef.removeEventListener(quotesListener);
+        if (quotesRegistration != null) {
+            quotesRegistration.remove();
         }
-        quotesRef = bookRef.child("quotes");
-        quotesListener = new ValueEventListener() {
+        quotesRegistration = booksViewModel.observeBookQuotes(bookIdArg, new BooksRepository.QuotesListener() {
             @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                applyQuotesSnapshot(snapshot);
+            public void onQuotes(@NonNull List<BookQuote> quotes) {
+                applyQuotes(quotes);
             }
 
             @Override
-            public void onCancelled(@NonNull DatabaseError error) {
+            public void onError(@NonNull String message) {
                 // Aynı kitap dinleyicisi hata verdiyse zaten toast/finish olabilir; burada sessiz kal.
             }
-        };
-        quotesRef.addValueEventListener(quotesListener);
+        });
     }
 
-    private void applyQuotesSnapshot(@NonNull DataSnapshot snapshot) {
+    private void applyQuotes(@NonNull List<BookQuote> quotes) {
         List<BookQuoteAdapter.Item> rows = new ArrayList<>();
-        for (DataSnapshot child : snapshot.getChildren()) {
-            KitapAlinti a = child.getValue(KitapAlinti.class);
-            if (a == null || a.getText() == null) {
-                continue;
-            }
-            String t = a.getText().trim();
-            if (t.isEmpty()) {
-                continue;
-            }
-            String key = child.getKey();
-            if (key == null) {
-                continue;
-            }
-            rows.add(new BookQuoteAdapter.Item(key, t, a.getCreatedAt()));
+        for (BookQuote quote : quotes) {
+            rows.add(new BookQuoteAdapter.Item(quote.id, quote.text, quote.createdAt));
         }
-        Collections.sort(rows, (a, b) -> Long.compare(b.createdAt, a.createdAt));
         quoteAdapter.setItems(rows);
         boolean empty = rows.isEmpty();
         tvQuotesEmpty.setVisibility(empty ? View.VISIBLE : View.GONE);

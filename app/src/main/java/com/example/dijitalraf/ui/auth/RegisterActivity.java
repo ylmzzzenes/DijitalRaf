@@ -12,7 +12,11 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.dijitalraf.R;
 import com.example.dijitalraf.data.EmailValidation;
-import com.example.dijitalraf.data.FirebaseRtdb;
+import com.example.dijitalraf.core.constants.DatabasePaths;
+import com.example.dijitalraf.data.repository.AuthRepository;
+import com.example.dijitalraf.data.repository.DefaultAuthRepository;
+import com.example.dijitalraf.data.repository.DefaultUserRepository;
+import com.example.dijitalraf.data.repository.UserRepository;
 import com.example.dijitalraf.ui.home.HomeActivity;
 import com.example.dijitalraf.ui.util.UiMessages;
 import com.google.android.material.button.MaterialButton;
@@ -22,8 +26,6 @@ import com.google.android.material.textfield.TextInputLayout;
 import com.google.firebase.auth.FirebaseAuth;
 
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -34,9 +36,8 @@ public class RegisterActivity extends AppCompatActivity {
     private TextInputLayout tilFullName, tilEmail, tilPassword, tilConfirmPassword;
     private MaterialButton btnRegister;
     private TextView tvGoToLogin;
-    private FirebaseAuth mAuth;
-
-    private DatabaseReference usersRef;
+    private AuthRepository authRepository;
+    private UserRepository userRepository;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -49,8 +50,8 @@ public class RegisterActivity extends AppCompatActivity {
     }
 
     private void initComponents() {
-        mAuth = FirebaseAuth.getInstance();
-        usersRef = FirebaseDatabase.getInstance(FirebaseRtdb.URL).getReference("users");
+        authRepository = new DefaultAuthRepository();
+        userRepository = new DefaultUserRepository();
 
         tilFullName = findViewById(R.id.tilFullName);
         tilEmail = findViewById(R.id.tilEmail);
@@ -123,10 +124,10 @@ public class RegisterActivity extends AppCompatActivity {
             return;
         }
 
-        mAuth.createUserWithEmailAndPassword(email, password)
+        authRepository.registerWithEmail(email, password)
                 .addOnCompleteListener(this, task -> {
                     if (task.isSuccessful()) {
-                        FirebaseUser firebaseUser = mAuth.getCurrentUser();
+                        FirebaseUser firebaseUser = authRepository.getCurrentUser();
 
                         if (firebaseUser == null) {
                             UiMessages.snackbar(
@@ -140,12 +141,12 @@ public class RegisterActivity extends AppCompatActivity {
 
                         Map<String, Object> userMap = new HashMap<>();
                         userMap.put("uid", uid);
-                        userMap.put("fullName", fullName);
+                        userMap.put(DatabasePaths.FIELD_FULL_NAME, fullName);
                         String[] nameParts = splitFullNameForProfile(fullName);
-                        userMap.put("firstName", nameParts[0]);
-                        userMap.put("lastName", nameParts[1]);
-                        userMap.put("email", email);
-                        userMap.put("createdAt", System.currentTimeMillis());
+                        userMap.put(DatabasePaths.FIELD_FIRST_NAME, nameParts[0]);
+                        userMap.put(DatabasePaths.FIELD_LAST_NAME, nameParts[1]);
+                        userMap.put(DatabasePaths.FIELD_EMAIL, email);
+                        userMap.put(DatabasePaths.FIELD_CREATED_AT, System.currentTimeMillis());
 
                         firebaseUser.sendEmailVerification()
                                 .addOnCompleteListener(sendTask -> {
@@ -164,7 +165,7 @@ public class RegisterActivity extends AppCompatActivity {
                                                 Snackbar.LENGTH_LONG);
                                     }
 
-                                    usersRef.child(uid).setValue(userMap)
+                                    userRepository.setUser(uid, userMap)
                                             .addOnSuccessListener(unused -> {
                                                 Intent intent = new Intent(RegisterActivity.this, HomeActivity.class);
                                                 startActivity(intent);

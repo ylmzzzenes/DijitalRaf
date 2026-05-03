@@ -15,6 +15,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.example.dijitalraf.R;
+import com.example.dijitalraf.domain.usecase.BookStatisticsUseCase;
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.progressindicator.LinearProgressIndicator;
 import com.google.android.material.snackbar.Snackbar;
@@ -83,7 +84,7 @@ public class BookStatisticsActivity extends AppCompatActivity {
 
     private void render(@Nullable List<Kitap> books) {
         List<Kitap> list = books != null ? books : new ArrayList<>();
-        BookStatisticsCalculator.Snapshot s = BookStatisticsCalculator.compute(list);
+        BookStatisticsUseCase.Snapshot s = BookStatisticsUseCase.compute(list);
 
         tvStatTotal.setText(String.valueOf(s.totalBooks));
 
@@ -96,7 +97,7 @@ public class BookStatisticsActivity extends AppCompatActivity {
         progressFavoriteShare.setProgressCompat(favPct, true);
 
         if (s.ratedCount > 0) {
-            String avgStr = BookStatisticsCalculator.formatAverage(s.averageStars, s.ratedCount);
+            String avgStr = BookStatisticsUseCase.formatAverage(s.averageStars, s.ratedCount);
             tvStatAvgRating.setText(getString(R.string.stats_avg_rating_value, avgStr));
             int ratingPct = (int) Math.min(100L, Math.round((100.0 * s.averageStars) / 5.0));
             progressAvgRating.setProgressCompat(ratingPct, true);
@@ -116,7 +117,7 @@ public class BookStatisticsActivity extends AppCompatActivity {
             layoutGenreBars.setVisibility(View.VISIBLE);
             int maxCount = s.topReadGenres.get(0).countRead;
             LayoutInflater inflater = LayoutInflater.from(this);
-            for (BookStatisticsCalculator.GenreStat gs : s.topReadGenres) {
+            for (BookStatisticsUseCase.GenreStat gs : s.topReadGenres) {
                 View row = inflater.inflate(R.layout.item_stat_genre_bar, layoutGenreBars, false);
                 TextView tvLabel = row.findViewById(R.id.tvGenreLabel);
                 TextView tvCount = row.findViewById(R.id.tvGenreCount);

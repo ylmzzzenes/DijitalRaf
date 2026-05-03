@@ -7,16 +7,19 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.text.TextUtils;
 import android.text.TextWatcher;
-import android.util.Log;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.ViewModelProvider;
 
 import com.example.dijitalraf.R;
 import com.example.dijitalraf.auth.EmailVerificationHelper;
-import com.example.dijitalraf.data.FirebaseRtdb;
+import com.example.dijitalraf.core.constants.DatabasePaths;
+import com.example.dijitalraf.data.model.BookMetadata;
+import com.example.dijitalraf.data.repository.DefaultGoogleBooksRepository;
+import com.example.dijitalraf.data.repository.GoogleBooksRepository;
 import com.example.dijitalraf.ui.util.UiMessages;
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.button.MaterialButton;
@@ -26,31 +29,11 @@ import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
 
-import org.json.JSONArray;
-import org.json.JSONObject;
-
-import java.io.IOException;
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 
-import okhttp3.Call;
-import okhttp3.Callback;
-import okhttp3.OkHttpClient;
-import okhttp3.Request;
-import okhttp3.Response;
-
 public class KitapEkleFragment extends Fragment {
-
-    private static final String TAG = "KitapEkleFragment";
-
-    private static final String OPEN_LIBRARY_SEARCH =
-            "https://openlibrary.org/search.json";
-    private static final String USER_AGENT = "DijitalRaf/1.0 (Android)";
 
     private MaterialToolbar toolbar;
     private TextInputEditText etKitapAdi, etYazar, etTur;
@@ -59,8 +42,8 @@ public class KitapEkleFragment extends Fragment {
     private TextView tvPreviewTitle, tvPreviewAuthor;
     private Chip chipPreviewGenre;
     private LinearProgressIndicator progressApi;
-    private DatabaseReference kitaplarRef;
-    private OkHttpClient client;
+    private BooksViewModel booksViewModel;
+    private GoogleBooksRepository googleBooksRepository;
 
     private String selectedImageUrl = "";
     private String apiAciklama = "";
@@ -95,11 +78,8 @@ public class KitapEkleFragment extends Fragment {
         initViews(view);
         setupToolbar();
 
-        String uid = FirebaseAuth.getInstance().getCurrentUser().getUid();
-
-        kitaplarRef = FirebaseDatabase.getInstance(FirebaseRtdb.URL).getReference("books").child(uid);
-
-        client = new OkHttpClient();
+        booksViewModel = new ViewModelProvider(requireActivity()).get(BooksViewModel.class);
+        googleBooksRepository = new DefaultGoogleBooksRepository();
 
         TextWatcher previewWatcher = new TextWatcher() {
             @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
@@ -190,15 +170,33 @@ public class KitapEkleFragment extends Fragment {
         searchBookFromOpenLibrary(query);
     }
 
-    /**
-     * Open Library araması; OkHttp callback arka planda çalışır, UI güncellemeleri runOnUiThread ile yapılır.
-     */
     private void searchBookFromOpenLibrary(final String queryTrimmed) {
-        Request request = buildOpenLibrarySearchRequest(queryTrimmed);
-
-        client.newCall(request).enqueue(new Callback() {
+        googleBooksRepository.searchBooks(queryTrimmed, new GoogleBooksRepository.Callback() {
             @Override
-            public void onFailure(@NonNull Call call, @NonNull IOException e) {
+            public void onSuccess(@NonNull BookMetadata metadata) {
+                requireActivity().runOnUiThread(() -> {
+                    setApiLoading(false);
+                    if (!isAdded()) {
+                        return;
+                    }
+                    etKitapAdi.setText(metadata.title);
+                    etYazar.setText(metadata.author);
+                    etTur.setText(metadata.genre);
+                    selectedImageUrl = metadata.coverUrl;
+                    apiAciklama = metadata.description;
+                    apiSayfaSayisi = metadata.pageCount;
+                    apiYayinTarihi = metadata.publishedDate;
+                    updatePreview();
+                    UiMessages.snackbar(
+                            KitapEkleFragment.this,
+                            R.string.book_info_loaded,
+                            Snackbar.LENGTH_SHORT,
+                            snackbarAnchorFab());
+                });
+            }
+
+            @Override
+            public void onNotFound() {
                 requireActivity().runOnUiThread(() -> {
                     setApiLoading(false);
                     if (!isAdded()) {
@@ -206,337 +204,33 @@ public class KitapEkleFragment extends Fragment {
                     }
                     UiMessages.snackbar(
                             KitapEkleFragment.this,
-                            getString(R.string.api_error, e.getMessage()),
+                            R.string.open_library_no_results,
                             Snackbar.LENGTH_LONG,
                             snackbarAnchorFab());
                 });
             }
 
             @Override
-            public void onResponse(@NonNull Call call, @NonNull Response response) {
-                JSONObject doc = null;
-                try (Response r = response) {
-                    if (!r.isSuccessful() || r.body() == null) {
-                        requireActivity().runOnUiThread(() -> {
-                            setApiLoading(false);
-                            if (!isAdded()) {
-                                return;
-                            }
-                            UiMessages.snackbar(
-                                    KitapEkleFragment.this,
-                                    R.string.result_not_found,
-                                    Snackbar.LENGTH_LONG,
-                                    snackbarAnchorFab());
-                        });
+            public void onError(@NonNull String message) {
+                requireActivity().runOnUiThread(() -> {
+                    setApiLoading(false);
+                    if (!isAdded()) {
                         return;
                     }
-
-                    String jsonData = r.body().string();
-                    JSONObject root = new JSONObject(jsonData);
-                    JSONArray docs = root.optJSONArray("docs");
-                    doc = pickBestOpenLibraryDoc(docs);
-
-                    if (doc == null) {
-                        String normalized = normalizeTurkishCharacters(queryTrimmed);
-                        if (!normalized.equals(queryTrimmed)) {
-                            try (Response r2 = client.newCall(buildOpenLibrarySearchRequest(normalized)).execute()) {
-                                if (r2.isSuccessful() && r2.body() != null) {
-                                    JSONObject root2 = new JSONObject(r2.body().string());
-                                    doc = pickBestOpenLibraryDoc(root2.optJSONArray("docs"));
-                                }
-                            } catch (IOException e) {
-                                Log.w(TAG, "İkinci arama isteği başarısız", e);
-                            }
-                        }
-                    }
-
-                    if (doc == null) {
-                        requireActivity().runOnUiThread(() -> {
-                            setApiLoading(false);
-                            if (!isAdded()) {
-                                return;
-                            }
-                            UiMessages.snackbar(
-                                    KitapEkleFragment.this,
-                                    R.string.open_library_no_results,
-                                    Snackbar.LENGTH_LONG,
-                                    snackbarAnchorFab());
-                        });
-                        return;
-                    }
-
-                    final String title = buildOpenLibraryTitle(doc);
-                    final String author = firstOpenLibraryAuthor(doc);
-                    String category = primarySubjectFromOpenLibraryDoc(doc);
-                    final String coverUrl = coverUrlFromOpenLibraryDoc(doc);
-                    int pages = doc.optInt("number_of_pages_median", 0);
-                    final String pagesStr = pages > 0 ? String.valueOf(pages) : "";
-                    final String published = publishYearFromOpenLibraryDoc(doc);
-
-                    String workKey = doc.optString("key", "");
-                    OpenLibraryWorkExtras workExtras = OpenLibraryWorkExtras.empty();
-                    if (!workKey.isEmpty()) {
-                        workExtras = fetchOpenLibraryWorkExtrasSync(workKey);
-                    }
-                    if (category.isEmpty() && !workExtras.subject.isEmpty()) {
-                        category = workExtras.subject;
-                    }
-
-                    final String finalDescription = workExtras.description;
-                    final String finalTitle = title;
-                    final String finalAuthor = author;
-                    final String finalCategory = category;
-                    final String finalCoverUrl = coverUrl;
-                    final String finalPagesStr = pagesStr;
-                    final String finalPublished = published;
-
-                    requireActivity().runOnUiThread(() -> {
-                        setApiLoading(false);
-
-                        etKitapAdi.setText(finalTitle);
-                        etYazar.setText(finalAuthor);
-                        etTur.setText(finalCategory);
-
-                        selectedImageUrl = finalCoverUrl;
-                        apiAciklama = finalDescription;
-                        apiSayfaSayisi = finalPagesStr;
-                        apiYayinTarihi = finalPublished;
-
-                        updatePreview();
-                        if (!isAdded()) {
-                            return;
-                        }
-                        UiMessages.snackbar(
-                                KitapEkleFragment.this,
-                                R.string.book_info_loaded,
-                                Snackbar.LENGTH_SHORT,
-                                snackbarAnchorFab());
-
-                        Log.d(TAG, "Open Library seçimi: " + finalTitle + " | kapak: " + selectedImageUrl);
-                    });
-                } catch (Exception e) {
-                    Log.e(TAG, "Open Library parse/akış hatası", e);
-                    requireActivity().runOnUiThread(() -> {
-                        setApiLoading(false);
-                        if (!isAdded()) {
-                            return;
-                        }
-                        UiMessages.snackbar(
-                                KitapEkleFragment.this,
-                                R.string.data_parse_error,
-                                Snackbar.LENGTH_LONG,
-                                snackbarAnchorFab());
-                    });
-                }
+                    UiMessages.snackbar(
+                            KitapEkleFragment.this,
+                            getString(R.string.api_error, message),
+                            Snackbar.LENGTH_LONG,
+                            snackbarAnchorFab());
+                });
             }
         });
-    }
-
-    @NonNull
-    private Request buildOpenLibrarySearchRequest(@NonNull String query) {
-        String encoded = URLEncoder.encode(query, StandardCharsets.UTF_8);
-        String url = OPEN_LIBRARY_SEARCH + "?q=" + encoded + "&limit=15";
-        return new Request.Builder()
-                .url(url)
-                .header("User-Agent", USER_AGENT)
-                .build();
-    }
-
-    @Nullable
-    private JSONObject pickBestOpenLibraryDoc(@Nullable JSONArray docs) {
-        if (docs == null || docs.length() == 0) {
-            return null;
-        }
-        JSONObject best = null;
-        int bestScore = -1;
-        for (int i = 0; i < docs.length(); i++) {
-            JSONObject d = docs.optJSONObject(i);
-            if (d == null) {
-                continue;
-            }
-            int score = 0;
-            JSONArray authors = d.optJSONArray("author_name");
-            if (authors != null && authors.length() > 0) {
-                score += 2;
-            }
-            if (d.optInt("cover_i", 0) > 0 || hasOpenLibraryIsbn(d)) {
-                score += 2;
-            }
-            if (!d.optString("title", "").trim().isEmpty()) {
-                score += 1;
-            }
-            if (docHasAnySubjectHint(d)) {
-                score += 1;
-            }
-            if (score > bestScore) {
-                bestScore = score;
-                best = d;
-            }
-        }
-        return best != null ? best : docs.optJSONObject(0);
-    }
-
-    @NonNull
-    private String buildOpenLibraryTitle(@NonNull JSONObject doc) {
-        String t = doc.optString("title", "").trim();
-        String sub = doc.optString("subtitle", "").trim();
-        if (!sub.isEmpty()) {
-            t = t.isEmpty() ? sub : t + ": " + sub;
-        }
-        return t;
-    }
-
-    @NonNull
-    private String firstOpenLibraryAuthor(@NonNull JSONObject doc) {
-        JSONArray a = doc.optJSONArray("author_name");
-        if (a != null && a.length() > 0) {
-            return a.optString(0, "").trim();
-        }
-        return "";
-    }
-
-    /** Arama dokümanından tür: subject, yoksa subject_facet. */
-    @NonNull
-    private String primarySubjectFromOpenLibraryDoc(@NonNull JSONObject doc) {
-        String s = firstStringFromJsonArray(doc, "subject");
-        if (!s.isEmpty()) {
-            return s;
-        }
-        return firstStringFromJsonArray(doc, "subject_facet");
-    }
-
-    private boolean docHasAnySubjectHint(@NonNull JSONObject doc) {
-        JSONArray a = doc.optJSONArray("subject");
-        if (a != null && a.length() > 0) {
-            return true;
-        }
-        JSONArray b = doc.optJSONArray("subject_facet");
-        return b != null && b.length() > 0;
-    }
-
-    @NonNull
-    private String firstStringFromJsonArray(@NonNull JSONObject doc, @NonNull String key) {
-        JSONArray arr = doc.optJSONArray(key);
-        if (arr != null && arr.length() > 0) {
-            return arr.optString(0, "").trim();
-        }
-        return "";
-    }
-
-    private boolean hasOpenLibraryIsbn(@NonNull JSONObject doc) {
-        JSONArray isbn = doc.optJSONArray("isbn");
-        return isbn != null && isbn.length() > 0 && !isbn.optString(0, "").trim().isEmpty();
-    }
-
-    @NonNull
-    private String coverUrlFromOpenLibraryDoc(@NonNull JSONObject doc) {
-        int coverI = doc.optInt("cover_i", 0);
-        if (coverI > 0) {
-            return "https://covers.openlibrary.org/b/id/" + coverI + "-L.jpg";
-        }
-        JSONArray isbn = doc.optJSONArray("isbn");
-        if (isbn != null && isbn.length() > 0) {
-            String isbnStr = isbn.optString(0, "").trim();
-            if (!isbnStr.isEmpty()) {
-                return "https://covers.openlibrary.org/b/isbn/" + isbnStr + "-L.jpg";
-            }
-        }
-        return "";
-    }
-
-    @NonNull
-    private String publishYearFromOpenLibraryDoc(@NonNull JSONObject doc) {
-        if (doc.has("first_publish_year") && !doc.isNull("first_publish_year")) {
-            try {
-                return String.valueOf(doc.getInt("first_publish_year"));
-            } catch (Exception ignored) {
-            }
-        }
-        JSONArray py = doc.optJSONArray("publish_year");
-        if (py != null && py.length() > 0) {
-            return py.optString(0, "").trim();
-        }
-        return "";
-    }
-
-    /**
-     * Work JSON: açıklama + subjects (tür) tek istekte; arka plan iş parçacığında çağrılır.
-     */
-    @NonNull
-    private OpenLibraryWorkExtras fetchOpenLibraryWorkExtrasSync(@NonNull String workKey) {
-        if (!workKey.startsWith("/works/")) {
-            return OpenLibraryWorkExtras.empty();
-        }
-        String url = "https://openlibrary.org" + workKey + ".json";
-        Request req = new Request.Builder()
-                .url(url)
-                .header("User-Agent", USER_AGENT)
-                .build();
-        try (Response wr = client.newCall(req).execute()) {
-            if (!wr.isSuccessful() || wr.body() == null) {
-                return OpenLibraryWorkExtras.empty();
-            }
-            JSONObject work = new JSONObject(wr.body().string());
-            String description = extractOpenLibraryDescription(work);
-            String subject = firstStringFromJsonArray(work, "subjects");
-            if (subject.isEmpty()) {
-                subject = firstStringFromJsonArray(work, "subject");
-            }
-            return new OpenLibraryWorkExtras(description, subject);
-        } catch (Exception e) {
-            Log.w(TAG, "Work detayı alınamadı: " + workKey, e);
-            return OpenLibraryWorkExtras.empty();
-        }
-    }
-
-    private static final class OpenLibraryWorkExtras {
-        @NonNull final String description;
-        @NonNull final String subject;
-
-        OpenLibraryWorkExtras(@NonNull String description, @NonNull String subject) {
-            this.description = description;
-            this.subject = subject;
-        }
-
-        static OpenLibraryWorkExtras empty() {
-            return new OpenLibraryWorkExtras("", "");
-        }
-    }
-
-    @NonNull
-    private String extractOpenLibraryDescription(@NonNull JSONObject work) {
-        Object raw = work.opt("description");
-        if (raw instanceof String) {
-            return ((String) raw).trim();
-        }
-        if (raw instanceof JSONObject) {
-            return ((JSONObject) raw).optString("value", "").trim();
-        }
-        return "";
-    }
-
-    private String normalizeTurkishCharacters(String text) {
-        return text
-                .replace("ç", "c")
-                .replace("Ç", "C")
-                .replace("ğ", "g")
-                .replace("Ğ", "G")
-                .replace("ı", "i")
-                .replace("İ", "I")
-                .replace("ö", "o")
-                .replace("Ö", "O")
-                .replace("ş", "s")
-                .replace("Ş", "S")
-                .replace("ü", "u")
-                .replace("Ü", "U");
     }
 
     private void kitapKaydet() {
         String kitapAdi = etKitapAdi.getText() != null ? etKitapAdi.getText().toString().trim() : "";
         String yazar = etYazar.getText() != null ? etYazar.getText().toString().trim() : "";
         String tur = etTur.getText() != null ? etTur.getText().toString().trim() : "";
-
-        Log.d(TAG, "Kaydet başladı");
 
         tilKitapAdi.setError(null);
         tilYazar.setError(null);
@@ -560,25 +254,30 @@ public class KitapEkleFragment extends Fragment {
             return;
         }
 
+        long now = System.currentTimeMillis();
         Map<String, Object> kitap = new HashMap<>();
-        kitap.put("uid", FirebaseAuth.getInstance().getCurrentUser().getUid());
-        kitap.put("kitapAdi", kitapAdi);
-        kitap.put("yazar", yazar);
-        kitap.put("tur", tur);
-        kitap.put("imageUrl", selectedImageUrl);
-        kitap.put("createdAt", System.currentTimeMillis());
+        kitap.put(DatabasePaths.FIELD_BOOK_TITLE, kitapAdi);
+        kitap.put(DatabasePaths.FIELD_BOOK_AUTHOR, yazar);
+        kitap.put(DatabasePaths.FIELD_BOOK_GENRE, tur);
+        kitap.put(DatabasePaths.FIELD_BOOK_IMAGE_URL, selectedImageUrl);
+        kitap.put(DatabasePaths.FIELD_BOOK_FAVORITE, false);
+        kitap.put(DatabasePaths.FIELD_BOOK_READ, false);
+        kitap.put(DatabasePaths.FIELD_BOOK_NOTE, "");
+        kitap.put(DatabasePaths.FIELD_BOOK_STARS, 0);
+        kitap.put(DatabasePaths.FIELD_CREATED_AT, now);
+        kitap.put(DatabasePaths.FIELD_UPDATED_AT, now);
 
         if (apiAciklama != null && !apiAciklama.trim().isEmpty()) {
-            kitap.put("aciklama", apiAciklama.trim());
+            kitap.put(DatabasePaths.FIELD_BOOK_DESCRIPTION, apiAciklama.trim());
         }
         if (apiSayfaSayisi != null && !apiSayfaSayisi.trim().isEmpty()) {
-            kitap.put("sayfaSayisi", apiSayfaSayisi.trim());
+            kitap.put(DatabasePaths.FIELD_BOOK_PAGE_COUNT, apiSayfaSayisi.trim());
         }
         if (apiYayinTarihi != null && !apiYayinTarihi.trim().isEmpty()) {
-            kitap.put("yayinTarihi", apiYayinTarihi.trim());
+            kitap.put(DatabasePaths.FIELD_BOOK_PUBLISHED_DATE, apiYayinTarihi.trim());
         }
 
-        kitaplarRef.push().setValue(kitap)
+        booksViewModel.addBook(kitap)
                 .addOnSuccessListener(unused -> {
                     UiMessages.snackbar(
                             requireActivity(),

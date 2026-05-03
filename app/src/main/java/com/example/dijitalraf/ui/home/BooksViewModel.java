@@ -8,12 +8,16 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
 import com.example.dijitalraf.data.FirebaseRtdb;
+import com.example.dijitalraf.core.utils.ListenerRegistration;
+import com.example.dijitalraf.data.model.BookQuote;
 import com.example.dijitalraf.data.repository.BooksRepository;
 import com.example.dijitalraf.data.repository.DefaultBooksRepository;
 import com.example.dijitalraf.ui.util.Event;
+import com.google.android.gms.tasks.Task;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Presentation logic for the signed-in user's book shelf. Delegates I/O to {@link BooksRepository}
@@ -45,8 +49,33 @@ public class BooksViewModel extends AndroidViewModel {
         return booksError;
     }
 
+    @NonNull
+    public ListenerRegistration observeBook(@NonNull String bookId, @NonNull BooksRepository.BookListener listener) {
+        return repository.observeBook(bookId, listener);
+    }
+
+    @NonNull
+    public ListenerRegistration observeBookQuotes(@NonNull String bookId, @NonNull BooksRepository.QuotesListener listener) {
+        return repository.observeBookQuotes(bookId, listener);
+    }
+
     public void persistKitap(@NonNull Kitap kitap) {
         repository.persistKitap(kitap);
+    }
+
+    @NonNull
+    public Task<Void> addBook(@NonNull Map<String, Object> values) {
+        return repository.addBook(values);
+    }
+
+    @NonNull
+    public Task<Void> deleteBook(@NonNull String bookId) {
+        return repository.deleteBook(bookId);
+    }
+
+    @NonNull
+    public Task<Void> restoreBook(@NonNull String bookId, @NonNull Kitap kitap) {
+        return repository.restoreBook(bookId, kitap);
     }
 
     public void updateBookNote(@NonNull String bookId, @NonNull String note) {

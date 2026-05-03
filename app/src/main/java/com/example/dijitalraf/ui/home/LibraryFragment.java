@@ -25,9 +25,6 @@ import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.snackbar.Snackbar;
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.database.FirebaseDatabase;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -44,8 +41,6 @@ public class LibraryFragment extends Fragment {
     private RecyclerView recyclerBooks;
     private View progress;
     private boolean listRead;
-
-    private final String databaseUrl = "https://dijitalraf-ec149-default-rtdb.europe-west1.firebasedatabase.app";
 
     public static LibraryFragment newInstance(boolean listReadBooks) {
         LibraryFragment fragment = new LibraryFragment();
@@ -404,26 +399,22 @@ public class LibraryFragment extends Fragment {
     }
 
     private void deleteBookWithUndo(Kitap deletedBook, int position) {
-        FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
-
-        if (currentUser == null) {
+        if (deletedBook.getId() == null) {
             adapter.notifyItemChanged(position);
             UiMessages.snackbar(this, R.string.error_user_session_missing, Snackbar.LENGTH_SHORT);
             return;
         }
 
-        String uid = currentUser.getUid();
-
         kitapListesi.remove(position);
         adapter.submitFrom(kitapListesi);
         updateEmptyDisplay(viewModel.getBooks().getValue(), filterViewModel.getSpec().getValue());
 
-        FirebaseDatabase
-                .getInstance(databaseUrl)
-                .getReference("books")
-                .child(uid)
-                .child(deletedBook.getId())
-                .removeValue();
+        viewModel.deleteBook(deletedBook.getId())
+                .addOnFailureListener(e ->
+                        UiMessages.snackbar(
+                                this,
+                                getString(R.string.error_generic, e.getMessage()),
+                                Snackbar.LENGTH_LONG));
 
         Snackbar.make(recyclerBooks, R.string.book_deleted, Snackbar.LENGTH_LONG)
                 .setAction(R.string.snackbar_undo, v -> {
@@ -432,12 +423,12 @@ public class LibraryFragment extends Fragment {
                     recyclerBooks.scrollToPosition(position);
                     updateEmptyDisplay(viewModel.getBooks().getValue(), filterViewModel.getSpec().getValue());
 
-                    FirebaseDatabase
-                            .getInstance(databaseUrl)
-                            .getReference("books")
-                            .child(uid)
-                            .child(deletedBook.getId())
-                            .setValue(deletedBook);
+                    viewModel.restoreBook(deletedBook.getId(), deletedBook)
+                            .addOnFailureListener(e ->
+                                    UiMessages.snackbar(
+                                            this,
+                                            getString(R.string.error_generic, e.getMessage()),
+                                            Snackbar.LENGTH_LONG));
                 })
                 .show();
     }
