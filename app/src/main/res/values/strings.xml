@@ -210,7 +210,7 @@
     <string name="book_quotes_section_hint">Bu kitaptan beğendiğiniz cümleleri burada saklayın; hesabınızla bulutta tutulur.</string>
     <string name="book_quotes_fab_hint">Yeni alıntı için sağ alttaki + düğmesine dokunun.</string>
     <string name="book_quotes_add">Alıntı ekle</string>
-    <string name="book_quotes_empty">Henüz alıntı yok. Yukarıdaki düğmeyle ekleyebilirsiniz.</string>
+    <string name="book_quotes_empty">Henüz alıntı yok. Sağ alttaki + ile ekleyebilirsiniz.</string>
     <string name="book_quotes_hint">Alıntı metni</string>
     <string name="book_quotes_dialog_add_title">Alıntı ekle</string>
     <string name="book_quotes_dialog_edit_title">Alıntıyı düzenle</string>
@@ -292,6 +292,52 @@
     <string name="profile_cloud_sync_failed">Profil buluta yazılamadı (kuralları kontrol edin): %1$s</string>
     <string name="register_profile_saved">Profil Realtime Database üzerine kaydedildi</string>
     <string name="register_profile_write_failed">Hesap oluştu ancak Realtime Database yazısı reddedildi (kuralları kontrol edin). %1$s — Giriş ekranından devam edebilirsiniz.</string>
+
+    <string name="language_section_title">Dil</string>
+    <string name="language_turkish">Türkçe</string>
+    <string name="language_english">English</string>
+    <string name="language_german">Deutsch</string>
+    <string name="language_changed">Dil güncellendi</string>
+
+    <string name="snackbar_undo">Geri al</string>
+    <string name="share_chooser_title">Kitabı paylaş</string>
+    <string name="share_book_title_fallback">Kitap</string>
+    <string name="share_book_unknown_author">Bilinmeyen yazar</string>
+    <string name="share_book_opening">📚 Sana bir kitap önerim var!\n\n</string>
+    <string name="share_book_line_book">📖 Kitap: %1$s</string>
+    <string name="share_book_line_author">✍️ Yazar: %1$s</string>
+    <string name="share_book_line_genre">\n🏷️ Tür: %1$s</string>
+    <string name="share_book_line_rating">\n⭐ Puan: %1$d/5</string>
+    <string name="share_book_line_cover">\n\n🖼️ Kapak görseli: %1$s</string>
+    <string name="share_book_footer">\n\n✨ DijitalRaf’tan paylaşıldı.</string>
+
+    <string name="book_list_read_date_unknown">Okundu: —</string>
+
+    <string name="chat_context_placeholder">—</string>
+    <string name="chat_context_status_read"> [okundu]</string>
+    <string name="chat_context_status_to_read"> [okunacak]</string>
+
+    <string name="ai_recommendation_system_prompt">Sen Türkçe konuşan bir kitap öneri asistanısın. Yalnızca istenen yapıda, kısa ve net yanıt ver. Giriş paragrafı veya özet cümlesi yazma; doğrudan listeye başla.</string>
+    <string name="ai_recommendation_shelf_header">Kullanıcının dijital rafı:\n\n</string>
+    <string name="ai_recommendation_shelf_empty_marker">(Raf boş.)\n\n</string>
+    <string name="ai_recommendation_suggest_five_general">Genel okuyucuya uygun tam 5 kitap öner.\n</string>
+    <string name="ai_recommendation_suggest_five_from_shelf">\nBuna göre tam 5 kitap öner.\n</string>
+    <string name="ai_recommendation_format_instructions">Her öneri için yalnızca şu üç satırı kullan (başlık ekleme):\nKitap: …\nYazar: …\nNeden: …\nÖneriler arasında boş satır bırak. Toplam uzunluğu makul tut.</string>
+    <string name="ai_recommendation_shelf_line">- %1$s | Yazar: %2$s | Tür: %3$s\n</string>
+    <string name="ai_unknown">Bilinmiyor</string>
+
+    <string name="ai_error_chat_messages_empty">Sohbet mesajları boş; istek gönderilemedi.</string>
+    <string name="ai_error_prepare_request">İstek hazırlanamadı: %1$s</string>
+    <string name="ai_error_service_busy">Servis şu an yoğun. Birkaç dakika sonra tekrar deneyin.</string>
+    <string name="ai_error_rate_limit">Çok fazla istek (429). Ücretsiz model kotası dolmuş olabilir; bir süre sonra tekrar deneyin.</string>
+    <string name="ai_error_unauthorized">API anahtarı geçersiz (401). openrouter.ai/keys üzerinden anahtarı kontrol edip BuildConfig ile yeniden derleyin.</string>
+    <string name="ai_error_http">API hatası %1$d — %2$s</string>
+    <string name="ai_error_parse">Cevap işlenemedi: %1$s</string>
+    <string name="ai_error_empty_reply">Model boş veya geçersiz bir cevap döndü. Tekrar deneyin.</string>
+    <string name="ai_error_timeout">Bağlantı zaman aşımına uğradı. Ağınızı kontrol edip tekrar deneyin.</string>
+    <string name="ai_error_no_network">İnternet bağlantısı yok veya sunucu adı çözülemedi. Bağlantınızı kontrol edin.</string>
+    <string name="ai_error_network">Ağ hatası: %1$s</string>
+
     <!-- Strings used for fragments for navigation -->
     <string name="first_fragment_label">First Fragment</string>
     <string name="second_fragment_label">Second Fragment</string>

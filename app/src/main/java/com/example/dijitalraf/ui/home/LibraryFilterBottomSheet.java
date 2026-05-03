@@ -73,7 +73,7 @@ public class LibraryFilterBottomSheet extends BottomSheetDialogFragment {
         List<Kitap> books = booksViewModel.getBooks().getValue();
         List<String> genreRows = new ArrayList<>();
         genreRows.add(getString(R.string.library_filter_genre_all));
-        TreeSet<String> sorted = new TreeSet<>(java.text.Collator.getInstance(new Locale("tr", "TR")));
+        TreeSet<String> sorted = new TreeSet<>(java.text.Collator.getInstance(Locale.getDefault()));
         if (books != null) {
             for (Kitap k : books) {
                 if (k == null || k.getId() == null) {

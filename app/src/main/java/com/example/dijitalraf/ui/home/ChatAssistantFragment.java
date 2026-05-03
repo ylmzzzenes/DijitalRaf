@@ -68,7 +68,7 @@ public class ChatAssistantFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         viewModel = new ViewModelProvider(requireActivity()).get(BooksViewModel.class);
-        aiService = new AiService();
+        aiService = new AiService(requireContext());
         prefs = requireContext().getSharedPreferences(PREFS_DASHBOARD, Context.MODE_PRIVATE);
 
         MaterialToolbar toolbar = view.findViewById(R.id.toolbar);
@@ -276,13 +276,17 @@ public class ChatAssistantFragment extends Fragment {
             sb.append(nullSafe(k.getYazar()));
             sb.append(" — ");
             sb.append(nullSafe(k.getTur()));
-            sb.append(k.isOkundu() ? " [okundu]\n" : " [okunacak]\n");
+            sb.append(k.isOkundu()
+                    ? getString(R.string.chat_context_status_read) + "\n"
+                    : getString(R.string.chat_context_status_to_read) + "\n");
         }
         return sb.toString();
     }
 
-    private static String nullSafe(String s) {
-        return s == null || s.trim().isEmpty() ? "—" : s.trim();
+    private String nullSafe(String s) {
+        return s == null || s.trim().isEmpty()
+                ? getString(R.string.chat_context_placeholder)
+                : s.trim();
     }
 
     @Nullable

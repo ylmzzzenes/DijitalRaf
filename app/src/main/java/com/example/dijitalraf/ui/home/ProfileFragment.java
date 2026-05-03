@@ -18,10 +18,12 @@ import com.example.dijitalraf.R;
 import com.example.dijitalraf.auth.EmailVerificationHelper;
 import com.example.dijitalraf.data.FirebaseRtdb;
 import com.example.dijitalraf.ui.auth.GoogleSignInHelper;
+import com.example.dijitalraf.locale.LanguagePreference;
 import com.example.dijitalraf.ui.auth.LoginActivity;
 import com.example.dijitalraf.ui.util.UiMessages;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.material.button.MaterialButton;
+import com.google.android.material.button.MaterialButtonToggleGroup;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.imageview.ShapeableImageView;
 import com.google.firebase.auth.FirebaseAuth;
@@ -57,6 +59,8 @@ public class ProfileFragment extends Fragment {
         btnEditProfile = view.findViewById(R.id.btnEditProfile);
         btnBookStatistics = view.findViewById(R.id.btnBookStatistics);
         btnLogout = view.findViewById(R.id.btnLogout);
+
+        setupLanguageToggle(view);
 
         btnResendVerificationEmail.setOnClickListener(v -> {
             FirebaseUser u = FirebaseAuth.getInstance().getCurrentUser();
@@ -189,6 +193,37 @@ public class ProfileFragment extends Fragment {
             return f;
         }
         return f + " " + l;
+    }
+
+    private void setupLanguageToggle(@NonNull View root) {
+        MaterialButtonToggleGroup toggle = root.findViewById(R.id.toggleLanguage);
+        if (toggle == null) {
+            return;
+        }
+        String saved = LanguagePreference.getSavedOrDefault(requireContext());
+        int checkId = R.id.btnLangTr;
+        if (LanguagePreference.TAG_ENGLISH.equals(saved)) {
+            checkId = R.id.btnLangEn;
+        } else if (LanguagePreference.TAG_GERMAN.equals(saved)) {
+            checkId = R.id.btnLangDe;
+        }
+        toggle.check(checkId);
+        toggle.addOnButtonCheckedListener((group, checkedId, isChecked) -> {
+            if (!isChecked) {
+                return;
+            }
+            String tag = LanguagePreference.TAG_TURKISH;
+            if (checkedId == R.id.btnLangEn) {
+                tag = LanguagePreference.TAG_ENGLISH;
+            } else if (checkedId == R.id.btnLangDe) {
+                tag = LanguagePreference.TAG_GERMAN;
+            }
+            if (tag.equals(LanguagePreference.getSavedOrDefault(requireContext()))) {
+                return;
+            }
+            LanguagePreference.setAndApply(requireContext(), tag);
+            UiMessages.snackbar(ProfileFragment.this, R.string.language_changed, Snackbar.LENGTH_SHORT);
+        });
     }
 
     private void signOutEverywhere() {

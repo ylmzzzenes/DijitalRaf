@@ -17,11 +17,19 @@ public final class BookFilterUtils {
     }
 
     @NonNull
+    private static Locale searchLocale() {
+        if ("tr".equalsIgnoreCase(Locale.getDefault().getLanguage())) {
+            return Locale.forLanguageTag("tr-TR");
+        }
+        return Locale.getDefault();
+    }
+
+    @NonNull
     private static String normTr(@Nullable String s) {
         if (s == null) {
             return "";
         }
-        return s.toLowerCase(Locale.forLanguageTag("tr-TR")).trim();
+        return s.toLowerCase(searchLocale()).trim();
     }
 
     public static boolean matchesQuickSearch(@NonNull Kitap k, @NonNull String queryRaw) {

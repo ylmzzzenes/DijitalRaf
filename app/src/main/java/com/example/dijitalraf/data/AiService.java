@@ -1,11 +1,13 @@
 package com.example.dijitalraf.data;
 
+import android.content.Context;
 import android.os.Handler;
 import android.os.Looper;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import com.example.dijitalraf.R;
 import com.example.dijitalraf.ui.home.Kitap;
 
 import org.json.JSONArray;
@@ -38,7 +40,6 @@ public final class AiService {
         void onError(@NonNull String userMessage);
     }
 
-    /** Endpoint sürümle birlikte kodda; anahtar {@code local.properties} + BuildConfig ile gelir. */
     private static final String OPENROUTER_CHAT_COMPLETIONS_URL =
             "https://openrouter.ai/api/v1/chat/completions";
 
@@ -67,17 +68,22 @@ public final class AiService {
             .writeTimeout(30, TimeUnit.SECONDS)
             .build();
 
+    private final Context appContext;
     private final Handler mainHandler = new Handler(Looper.getMainLooper());
 
+    public AiService(@NonNull Context context) {
+        this.appContext = context.getApplicationContext();
+    }
+
     /**
-     * Raf içeriğine göre kısa, yapılandırılmış Türkçe öneri üretir (tek tur).
+     * Raf içeriğine göre kısa, yapılandırılmış öneri üretir (tek tur).
      */
     public void generateBookRecommendations(
             @NonNull String apiKey,
             @Nullable List<Kitap> books,
             @NonNull LlmCallback callback) {
         if (!isApiKeyPresent(apiKey)) {
-            postError(callback, ERR_API_KEY_MISSING);
+            postError(callback, appContext.getString(R.string.error_openrouter_key_missing));
             return;
         }
         try {
@@ -91,7 +97,7 @@ public final class AiService {
                     0,
                     callback);
         } catch (JSONException e) {
-            postError(callback, ERR_PREPARE_REQUEST + e.getMessage());
+            postError(callback, appContext.getString(R.string.ai_error_prepare_request, e.getMessage()));
         }
     }
 
@@ -103,11 +109,11 @@ public final class AiService {
             @NonNull JSONArray messages,
             @NonNull LlmCallback callback) {
         if (!isApiKeyPresent(apiKey)) {
-            postError(callback, ERR_API_KEY_MISSING);
+            postError(callback, appContext.getString(R.string.error_openrouter_key_missing));
             return;
         }
         if (messages.length() == 0) {
-            postError(callback, ERR_EMPTY_MESSAGES);
+            postError(callback, appContext.getString(R.string.ai_error_chat_messages_empty));
             return;
         }
         enqueueCompletion(
@@ -138,7 +144,7 @@ public final class AiService {
             @NonNull LlmCallback callback) {
 
         if (modelIndex >= MODEL_CHAIN.length) {
-            postError(callback, ERR_ALL_MODELS_EXHAUSTED);
+            postError(callback, appContext.getString(R.string.ai_error_service_busy));
             return;
         }
 
@@ -146,7 +152,7 @@ public final class AiService {
         try {
             body = buildRequestBody(MODEL_CHAIN[modelIndex], messages, maxTokens, temperature);
         } catch (JSONException e) {
-            postError(callback, ERR_PREPARE_REQUEST + e.getMessage());
+            postError(callback, appContext.getString(R.string.ai_error_prepare_request, e.getMessage()));
             return;
         }
 
@@ -201,12 +207,12 @@ public final class AiService {
                                 Math.min(delayMs, 2000L));
                         return;
                     }
-                    postError(callback, ERR_RATE_LIMIT);
+                    postError(callback, appContext.getString(R.string.ai_error_rate_limit));
                     return;
                 }
 
                 if (code == 401) {
-                    postError(callback, ERR_UNAUTHORIZED);
+                    postError(callback, appContext.getString(R.string.ai_error_unauthorized));
                     return;
                 }
 
@@ -221,7 +227,7 @@ public final class AiService {
                     String snippet = responseBody.length() > 400
                             ? responseBody.substring(0, 400) + "…"
                             : responseBody;
-                    postError(callback, ERR_HTTP + code + " — " + snippet);
+                    postError(callback, appContext.getString(R.string.ai_error_http, code, snippet));
                     return;
                 }
 
@@ -229,12 +235,12 @@ public final class AiService {
                 try {
                     content = parseAssistantContent(responseBody);
                 } catch (Exception e) {
-                    postError(callback, ERR_PARSE + e.getMessage());
+                    postError(callback, appContext.getString(R.string.ai_error_parse, e.getMessage()));
                     return;
                 }
 
                 if (content.isEmpty()) {
-                    postError(callback, ERR_EMPTY_MODEL_REPLY);
+                    postError(callback, appContext.getString(R.string.ai_error_empty_reply));
                     return;
                 }
 
@@ -253,28 +259,27 @@ public final class AiService {
     }
 
     @NonNull
-    private static String mapNetworkError(@NonNull IOException e) {
+    private String mapNetworkError(@NonNull IOException e) {
         if (e instanceof SocketTimeoutException) {
-            return ERR_TIMEOUT;
+            return appContext.getString(R.string.ai_error_timeout);
         }
         if (e instanceof UnknownHostException) {
-            return ERR_NO_NETWORK;
+            return appContext.getString(R.string.ai_error_no_network);
         }
         String msg = e.getMessage();
         if (msg != null && (msg.toLowerCase().contains("timeout")
                 || msg.toLowerCase().contains("timed out"))) {
-            return ERR_TIMEOUT;
+            return appContext.getString(R.string.ai_error_timeout);
         }
-        return ERR_NETWORK_GENERIC + (msg != null ? msg : e.getClass().getSimpleName());
+        return appContext.getString(R.string.ai_error_network,
+                msg != null ? msg : e.getClass().getSimpleName());
     }
 
-    private static JSONArray buildRecommendationMessages(@Nullable List<Kitap> books) throws JSONException {
+    private JSONArray buildRecommendationMessages(@Nullable List<Kitap> books) throws JSONException {
         JSONArray messages = new JSONArray();
         JSONObject system = new JSONObject();
         system.put("role", "system");
-        system.put("content",
-                "Sen Türkçe konuşan bir kitap öneri asistanısın. Yalnızca istenen yapıda, kısa ve net yanıt ver. "
-                        + "Giriş paragrafı veya özet cümlesi yazma; doğrudan listeye başla.");
+        system.put("content", appContext.getString(R.string.ai_recommendation_system_prompt));
         messages.put(system);
 
         JSONObject user = new JSONObject();
@@ -285,33 +290,31 @@ public final class AiService {
     }
 
     @NonNull
-    private static String buildRecommendationUserPrompt(@Nullable List<Kitap> kitaplar) {
+    private String buildRecommendationUserPrompt(@Nullable List<Kitap> kitaplar) {
         StringBuilder sb = new StringBuilder();
-        sb.append("Kullanıcının dijital rafı:\n\n");
+        sb.append(appContext.getString(R.string.ai_recommendation_shelf_header));
         if (kitaplar == null || kitaplar.isEmpty()) {
-            sb.append("(Raf boş.)\n\n");
-            sb.append("Genel okuyucuya uygun tam 5 kitap öner.\n");
+            sb.append(appContext.getString(R.string.ai_recommendation_shelf_empty_marker));
+            sb.append(appContext.getString(R.string.ai_recommendation_suggest_five_general));
         } else {
             for (Kitap kitap : kitaplar) {
-                sb.append("- ");
-                sb.append(nullSafe(kitap.getKitapAdi()));
-                sb.append(" | Yazar: ");
-                sb.append(nullSafe(kitap.getYazar()));
-                sb.append(" | Tür: ");
-                sb.append(nullSafe(kitap.getTur()));
-                sb.append("\n");
+                sb.append(appContext.getString(
+                        R.string.ai_recommendation_shelf_line,
+                        nullSafe(kitap.getKitapAdi()),
+                        nullSafe(kitap.getYazar()),
+                        nullSafe(kitap.getTur())));
             }
-            sb.append("\nBuna göre tam 5 kitap öner.\n");
+            sb.append(appContext.getString(R.string.ai_recommendation_suggest_five_from_shelf));
         }
-        sb.append("Her öneri için yalnızca şu üç satırı kullan (başlık ekleme):\n");
-        sb.append("Kitap: …\nYazar: …\nNeden: …\n");
-        sb.append("Öneriler arasında boş satır bırak. Toplam uzunluğu makul tut.");
+        sb.append(appContext.getString(R.string.ai_recommendation_format_instructions));
         return sb.toString();
     }
 
     @NonNull
-    private static String nullSafe(@Nullable String value) {
-        return value == null || value.trim().isEmpty() ? "Bilinmiyor" : value.trim();
+    private String nullSafe(@Nullable String value) {
+        return value == null || value.trim().isEmpty()
+                ? appContext.getString(R.string.ai_unknown)
+                : value.trim();
     }
 
     private static long parseRetryAfterMs(Response response) {
@@ -346,35 +349,4 @@ public final class AiService {
         body.put("max_tokens", maxTokens);
         return body;
     }
-
-    private static final String ERR_API_KEY_MISSING =
-            "OpenRouter API anahtarı yapılandırılmamış. local.properties içinde OPENROUTER_API_KEY tanımlayıp projeyi yeniden derleyin.";
-
-    private static final String ERR_EMPTY_MESSAGES = "Sohbet mesajları boş; istek gönderilemedi.";
-
-    private static final String ERR_PREPARE_REQUEST = "İstek hazırlanamadı: ";
-
-    private static final String ERR_ALL_MODELS_EXHAUSTED =
-            "Servis şu an yoğun. Birkaç dakika sonra tekrar deneyin.";
-
-    private static final String ERR_RATE_LIMIT =
-            "Çok fazla istek (429). Ücretsiz model kotası dolmuş olabilir; bir süre sonra tekrar deneyin.";
-
-    private static final String ERR_UNAUTHORIZED =
-            "API anahtarı geçersiz (401). openrouter.ai/keys üzerinden anahtarı kontrol edip BuildConfig ile yeniden derleyin.";
-
-    private static final String ERR_HTTP = "API hatası ";
-
-    private static final String ERR_PARSE = "Cevap işlenemedi: ";
-
-    private static final String ERR_EMPTY_MODEL_REPLY =
-            "Model boş veya geçersiz bir cevap döndü. Tekrar deneyin.";
-
-    private static final String ERR_TIMEOUT =
-            "Bağlantı zaman aşımına uğradı. Ağınızı kontrol edip tekrar deneyin.";
-
-    private static final String ERR_NO_NETWORK =
-            "İnternet bağlantısı yok veya sunucu adı çözülemedi. Bağlantınızı kontrol edin.";
-
-    private static final String ERR_NETWORK_GENERIC = "Ağ hatası: ";
 }

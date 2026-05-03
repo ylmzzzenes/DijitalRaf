@@ -94,7 +94,7 @@ public class DashboardFragment extends Fragment {
         viewModel = new ViewModelProvider(requireActivity()).get(BooksViewModel.class);
         dashboardPrefs = requireContext().getSharedPreferences(PREFS_DASHBOARD, Context.MODE_PRIVATE);
 
-        aiService = new AiService();
+        aiService = new AiService(requireContext());
         btnAiRecommend = view.findViewById(R.id.btnAiRecommend);
         btnAiAssistant = view.findViewById(R.id.btnAiAssistant);
         tvAiPreview = view.findViewById(R.id.tvAiPreview);

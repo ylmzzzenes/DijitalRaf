@@ -391,7 +391,7 @@ public class LibraryFragment extends Fragment {
                 .removeValue();
 
         Snackbar.make(recyclerBooks, R.string.book_deleted, Snackbar.LENGTH_LONG)
-                .setAction("GERİ AL", v -> {
+                .setAction(R.string.snackbar_undo, v -> {
                     kitapListesi.add(position, deletedBook);
                     adapter.submitFrom(kitapListesi);
                     recyclerBooks.scrollToPosition(position);

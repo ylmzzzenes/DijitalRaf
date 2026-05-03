@@ -163,11 +163,11 @@ public class KitapAdapter extends ListAdapter<Kitap, KitapAdapter.KitapViewHolde
 
     private String formatReadDate(long updatedAt) {
         if (updatedAt <= 0L) {
-            return "Okundu: -";
+            return appContext.getString(R.string.book_list_read_date_unknown);
         }
         String date = new SimpleDateFormat("dd.MM.yyyy", Locale.getDefault())
                 .format(new Date(updatedAt));
-        return "Okundu: " + date;
+        return appContext.getString(R.string.book_detail_read_date, date);
     }
 
     /** 0–5 yıldız; 0 ise nötr gösterim. */
@@ -189,41 +189,42 @@ public class KitapAdapter extends ListAdapter<Kitap, KitapAdapter.KitapViewHolde
     private void shareBook(Context context, Kitap kitap) {
         String kitapAdi = kitap.getKitapAdi() != null && !kitap.getKitapAdi().trim().isEmpty()
                 ? kitap.getKitapAdi().trim()
-                : "Kitap";
+                : appContext.getString(R.string.share_book_title_fallback);
 
         String yazar = kitap.getYazar() != null && !kitap.getYazar().trim().isEmpty()
                 ? kitap.getYazar().trim()
-                : "Bilinmeyen yazar";
+                : appContext.getString(R.string.share_book_unknown_author);
 
         String tur = kitap.getTur() != null ? kitap.getTur().trim() : "";
         String imageUrl = kitap.getImageUrl() != null ? kitap.getImageUrl().trim() : "";
 
         StringBuilder shareText = new StringBuilder();
-
-        shareText.append("📚 Sana bir kitap önerim var!\n\n");
-        shareText.append("📖 Kitap: ").append(kitapAdi).append("\n");
-        shareText.append("✍️ Yazar: ").append(yazar);
+        shareText.append(appContext.getString(R.string.share_book_opening));
+        shareText.append(appContext.getString(R.string.share_book_line_book, kitapAdi)).append("\n");
+        shareText.append(appContext.getString(R.string.share_book_line_author, yazar));
 
         if (!tur.isEmpty()) {
-            shareText.append("\n🏷️ Tür: ").append(tur);
+            shareText.append(appContext.getString(R.string.share_book_line_genre, tur));
         }
 
         int y = kitap.getYildiz();
         if (y > 0) {
-            shareText.append("\n⭐ Puan: ").append(y).append("/5");
+            shareText.append(appContext.getString(R.string.share_book_line_rating, y));
         }
 
         if (!imageUrl.isEmpty()) {
-            shareText.append("\n\n🖼️ Kapak görseli: ").append(imageUrl);
+            shareText.append(appContext.getString(R.string.share_book_line_cover, imageUrl));
         }
 
-        shareText.append("\n\n✨ DijitalRaf'tan paylaşıldı.");
+        shareText.append(appContext.getString(R.string.share_book_footer));
 
         Intent shareIntent = new Intent(Intent.ACTION_SEND);
         shareIntent.setType("text/plain");
         shareIntent.putExtra(Intent.EXTRA_TEXT, shareText.toString());
 
-        context.startActivity(Intent.createChooser(shareIntent, "Kitap paylaş"));
+        context.startActivity(Intent.createChooser(
+                shareIntent,
+                appContext.getString(R.string.share_chooser_title)));
     }
 
     public static class KitapViewHolder extends RecyclerView.ViewHolder {
