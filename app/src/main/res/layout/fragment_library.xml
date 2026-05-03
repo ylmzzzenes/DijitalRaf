@@ -41,7 +41,9 @@
         android:id="@+id/tvLibraryHints"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:ellipsize="end"
         android:gravity="center"
+        android:maxLines="3"
         android:padding="@dimen/grid_2"
         android:text="@string/library_list_hints"
         android:textAppearance="@style/TextAppearance.DijitalRaf.Caption"
@@ -67,20 +69,22 @@
             android:padding="@dimen/grid_2"
             tools:listitem="@layout/item_kitap" />
 
-        <com.google.android.material.progressindicator.CircularProgressIndicator
-            android:id="@+id/progressLoading"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:indeterminate="true"
-            android:visibility="gone"
-            app:indicatorColor="@color/primary" />
-
         <include
             android:id="@+id/emptyInclude"
             layout="@layout/include_empty_state"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_gravity="center" />
+
+        <com.google.android.material.progressindicator.LinearProgressIndicator
+            android:id="@+id/progressLoading"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="top"
+            android:indeterminate="true"
+            android:visibility="gone"
+            app:indicatorColor="@color/primary"
+            app:trackColor="@color/surface_variant"
+            app:trackThickness="3dp" />
     </FrameLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>

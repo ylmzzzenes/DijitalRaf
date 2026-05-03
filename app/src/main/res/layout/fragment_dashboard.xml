@@ -304,13 +304,17 @@
                                 android:layout_height="wrap_content"
                                 android:minHeight="120dp">
 
-                                <ProgressBar
+                                <com.google.android.material.progressindicator.CircularProgressIndicator
                                     android:id="@+id/pbAiRecommendations"
-                                    style="?android:attr/progressBarStyle"
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
                                     android:layout_gravity="center"
-                                    android:visibility="gone" />
+                                    android:indeterminate="true"
+                                    android:visibility="gone"
+                                    app:indicatorColor="@color/primary"
+                                    app:indicatorSize="40dp"
+                                    app:trackColor="@color/surface_variant"
+                                    app:trackThickness="4dp" />
 
                                 <TextView
                                     android:id="@+id/tvAiPreview"

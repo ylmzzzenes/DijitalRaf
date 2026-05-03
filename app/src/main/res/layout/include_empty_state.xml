@@ -2,11 +2,14 @@
 <com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    style="@style/Widget.DijitalRaf.Card.Outlined"
+    style="@style/Widget.DijitalRaf.Card"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_marginHorizontal="@dimen/grid_2"
-    app:contentPadding="@dimen/grid_3">
+    app:contentPaddingBottom="@dimen/grid_4"
+    app:contentPaddingLeft="@dimen/grid_3"
+    app:contentPaddingRight="@dimen/grid_3"
+    app:contentPaddingTop="@dimen/grid_4">
 
     <LinearLayout
         android:id="@+id/emptyState"
@@ -16,38 +19,54 @@
         android:orientation="vertical"
         tools:visibility="visible">
 
-        <ImageView
-            android:layout_width="@dimen/grid_5"
-            android:layout_height="@dimen/grid_5"
-            android:contentDescription="@null"
-            android:src="@drawable/ic_menu_book_24"
-            app:tint="@color/text_secondary_alpha_50" />
+        <FrameLayout
+            android:layout_width="@dimen/empty_state_icon_wrap"
+            android:layout_height="@dimen/empty_state_icon_wrap"
+            android:background="@drawable/bg_empty_state_icon">
+
+            <ImageView
+                android:layout_width="@dimen/empty_state_icon_inner"
+                android:layout_height="@dimen/empty_state_icon_inner"
+                android:layout_gravity="center"
+                android:contentDescription="@null"
+                android:importantForAccessibility="no"
+                android:src="@drawable/ic_menu_book_24"
+                app:tint="@color/primary" />
+        </FrameLayout>
 
         <TextView
             android:id="@+id/tvEmptyTitle"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/grid_2"
+            android:layout_marginTop="@dimen/grid_3"
             android:gravity="center"
+            android:maxWidth="@dimen/empty_state_content_max_width"
+            android:textAlignment="center"
             android:textAppearance="@style/TextAppearance.DijitalRaf.Title"
+            android:textColor="@color/text_primary"
             tools:text="@string/empty_to_read_title" />
 
         <TextView
             android:id="@+id/tvEmptyMessage"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/grid_1"
+            android:layout_marginTop="@dimen/grid_2"
             android:gravity="center"
+            android:lineSpacingMultiplier="1.15"
+            android:maxWidth="@dimen/empty_state_content_max_width"
+            android:textAlignment="center"
             android:textAppearance="@style/TextAppearance.DijitalRaf.Body"
             android:textColor="@color/text_secondary"
             tools:text="@string/empty_to_read_message" />
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btnEmptyAction"
-            style="@style/Widget.DijitalRaf.Button.Tonal"
-            android:layout_width="wrap_content"
+            style="@style/Widget.DijitalRaf.Button.Filled"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/grid_2"
+            android:layout_marginTop="@dimen/grid_3"
+            android:maxWidth="@dimen/empty_state_content_max_width"
+            android:minHeight="@dimen/touch_target_min"
             android:text="@string/action_add_book"
             android:visibility="gone"
             tools:visibility="visible" />

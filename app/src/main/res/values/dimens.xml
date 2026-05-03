@@ -33,4 +33,8 @@
     <dimen name="fab_margin_above_bottom_nav">88dp</dimen>
     <dimen name="chat_bubble_max_width">300dp</dimen>
     <dimen name="divider_height">1dp</dimen>
+
+    <dimen name="empty_state_content_max_width">400dp</dimen>
+    <dimen name="empty_state_icon_wrap">72dp</dimen>
+    <dimen name="empty_state_icon_inner">36dp</dimen>
 </resources>

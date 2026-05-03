@@ -32,6 +32,7 @@ public class FavoritesFragment extends Fragment {
     private KitapAdapter adapter;
     private View emptyState;
     private RecyclerView recyclerBooks;
+    private View progressLoading;
 
     @Nullable
     @Override
@@ -46,6 +47,7 @@ public class FavoritesFragment extends Fragment {
         viewModel = new ViewModelProvider(requireActivity()).get(BooksViewModel.class);
         recyclerBooks = view.findViewById(R.id.recyclerBooks);
         emptyState = view.findViewById(R.id.emptyInclude);
+        progressLoading = view.findViewById(R.id.progressLoading);
 
         TextView tvEmptyTitle = view.findViewById(R.id.tvEmptyTitle);
         TextView tvEmptyMessage = view.findViewById(R.id.tvEmptyMessage);
@@ -115,6 +117,14 @@ public class FavoritesFragment extends Fragment {
         });
         touchHelper.attachToRecyclerView(recyclerBooks);
 
+        viewModel.getLoading().observe(getViewLifecycleOwner(), loading -> {
+            boolean busy = Boolean.TRUE.equals(loading);
+            if (progressLoading != null) {
+                progressLoading.setVisibility(busy ? View.VISIBLE : View.GONE);
+            }
+            applyFavoriteFilter();
+        });
+
         viewModel.getBooks().observe(getViewLifecycleOwner(), books -> {
             sourceBooks.clear();
             if (books != null) {
@@ -140,6 +150,12 @@ public class FavoritesFragment extends Fragment {
             }
         }
         adapter.submitFrom(favoriteBooks);
+        boolean busy = Boolean.TRUE.equals(viewModel.getLoading().getValue());
+        if (busy) {
+            emptyState.setVisibility(View.GONE);
+            recyclerBooks.setVisibility(View.VISIBLE);
+            return;
+        }
         boolean showEmpty = favoriteBooks.isEmpty();
         emptyState.setVisibility(showEmpty ? View.VISIBLE : View.GONE);
         recyclerBooks.setVisibility(showEmpty ? View.GONE : View.VISIBLE);

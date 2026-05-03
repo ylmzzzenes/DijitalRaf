@@ -58,6 +58,8 @@ public class HomeActivity extends AppCompatActivity {
         pagerAdapter = new MainPagerAdapter(this);
         mainViewPager.setAdapter(pagerAdapter);
         mainViewPager.setOffscreenPageLimit(4);
+        // Bottom nav is the primary tab control; disable horizontal swipe to avoid accidental tab changes.
+        mainViewPager.setUserInputEnabled(false);
 
         lastValidPagerPosition = 0;
 

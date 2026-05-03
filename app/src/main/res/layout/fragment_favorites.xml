@@ -40,5 +40,16 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_gravity="center" />
+
+        <com.google.android.material.progressindicator.LinearProgressIndicator
+            android:id="@+id/progressLoading"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="top"
+            android:indeterminate="true"
+            android:visibility="gone"
+            app:indicatorColor="@color/primary"
+            app:trackColor="@color/surface_variant"
+            app:trackThickness="3dp" />
     </FrameLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>

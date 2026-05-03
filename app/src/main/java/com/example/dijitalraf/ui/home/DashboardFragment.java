@@ -9,7 +9,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.text.TextUtils;
 import android.widget.ImageView;
-import android.widget.ProgressBar;
 import android.widget.RadioButton;
 import android.widget.TextView;
 
@@ -32,6 +31,7 @@ import com.example.dijitalraf.data.FirebaseRtdb;
 import com.example.dijitalraf.ui.util.UiMessages;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+import com.google.android.material.progressindicator.CircularProgressIndicator;
 import com.google.android.material.progressindicator.LinearProgressIndicator;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.textfield.TextInputEditText;
@@ -70,7 +70,7 @@ public class DashboardFragment extends Fragment {
     private View headerAiRecommendationsAccordion;
     private ViewGroup layoutAiRecommendationsExpanded;
     private ImageView ivAiAccordionChevron;
-    private ProgressBar pbAiRecommendations;
+    private CircularProgressIndicator pbAiRecommendations;
     private ViewGroup dashboardContent;
     private DashboardBookRowAdapter readAdapter;
     private DashboardBookRowAdapter toReadAdapter;
