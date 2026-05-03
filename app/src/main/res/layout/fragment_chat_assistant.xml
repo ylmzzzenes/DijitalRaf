@@ -17,24 +17,23 @@
 
     <com.google.android.material.card.MaterialCardView
         android:id="@+id/cardError"
+        style="@style/Widget.DijitalRaf.Card.Outlined"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginHorizontal="@dimen/grid_2"
         android:layout_marginTop="@dimen/grid_1"
         android:visibility="gone"
-        app:cardBackgroundColor="#33D32F2F"
-        app:cardCornerRadius="@dimen/corner_small"
-        app:strokeColor="#99D32F2F"
-        app:strokeWidth="1dp"
+        app:cardBackgroundColor="@color/error_container"
+        app:contentPadding="@dimen/grid_2"
+        app:strokeColor="@color/error"
         tools:visibility="visible">
 
         <TextView
             android:id="@+id/tvError"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:padding="@dimen/grid_2"
             android:textAppearance="@style/TextAppearance.DijitalRaf.Body"
-            android:textColor="@color/primary_dark"
+            android:textColor="@color/on_error_container"
             tools:text="Hata mesajı" />
     </com.google.android.material.card.MaterialCardView>
 
@@ -59,30 +58,45 @@
             android:orientation="vertical"
             android:padding="@dimen/grid_3">
 
-            <ImageView
-                android:layout_width="@dimen/grid_5"
-                android:layout_height="@dimen/grid_5"
-                android:contentDescription="@null"
-                android:src="@drawable/ic_chat_24"
-                app:tint="@color/primary" />
-
-            <TextView
+            <com.google.android.material.card.MaterialCardView
+                style="@style/Widget.DijitalRaf.Card.Flat"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/grid_2"
-                android:gravity="center"
-                android:text="@string/chat_empty_title"
-                android:textAppearance="@style/TextAppearance.DijitalRaf.Title"
-                android:textColor="@color/primary_dark" />
+                app:contentPadding="@dimen/grid_3">
 
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/grid_2"
-                android:gravity="center"
-                android:text="@string/chat_empty_message"
-                android:textAppearance="@style/TextAppearance.DijitalRaf.Body"
-                android:textColor="@color/text_secondary" />
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_horizontal"
+                    android:orientation="vertical">
+
+                    <ImageView
+                        android:layout_width="@dimen/grid_5"
+                        android:layout_height="@dimen/grid_5"
+                        android:contentDescription="@null"
+                        android:src="@drawable/ic_chat_24"
+                        app:tint="@color/primary" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/grid_2"
+                        android:gravity="center"
+                        android:text="@string/chat_empty_title"
+                        android:textAppearance="@style/TextAppearance.DijitalRaf.Title"
+                        android:textColor="@color/text_primary" />
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/grid_2"
+                        android:gravity="center"
+                        android:maxWidth="320dp"
+                        android:text="@string/chat_empty_message"
+                        android:textAppearance="@style/TextAppearance.DijitalRaf.Body"
+                        android:textColor="@color/text_secondary" />
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
         </LinearLayout>
     </FrameLayout>
 
@@ -93,6 +107,8 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:background="@color/surface"
+        android:elevation="@dimen/elevation_card"
         android:gravity="bottom"
         android:orientation="horizontal"
         android:padding="@dimen/grid_2">
@@ -113,7 +129,7 @@
                 android:imeOptions="actionSend"
                 android:inputType="textMultiLine|textCapSentences"
                 android:maxLines="5"
-                android:minHeight="48dp" />
+                android:minHeight="@dimen/touch_target_min" />
         </com.google.android.material.textfield.TextInputLayout>
 
         <com.google.android.material.button.MaterialButton
@@ -123,7 +139,7 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="@dimen/grid_1"
             android:contentDescription="@string/chat_send"
-            android:minWidth="56dp"
+            android:minWidth="@dimen/touch_target_min"
             android:text="@string/chat_send" />
     </LinearLayout>
 </LinearLayout>

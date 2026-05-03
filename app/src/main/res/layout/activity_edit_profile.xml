@@ -71,7 +71,7 @@
 
                         <com.google.android.material.textfield.TextInputLayout
                             android:id="@+id/tilFirstName"
-                            style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+                            style="@style/Widget.DijitalRaf.TextInputLayout"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="@dimen/grid_3"
@@ -87,7 +87,7 @@
 
                         <com.google.android.material.textfield.TextInputLayout
                             android:id="@+id/tilLastName"
-                            style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+                            style="@style/Widget.DijitalRaf.TextInputLayout"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="@dimen/grid_2"
@@ -103,7 +103,7 @@
 
                         <com.google.android.material.textfield.TextInputLayout
                             android:id="@+id/tilUsername"
-                            style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+                            style="@style/Widget.DijitalRaf.TextInputLayout"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="@dimen/grid_2"
@@ -131,7 +131,7 @@
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="4dp"
-                            android:background="@color/background"
+                            android:background="@color/surface_variant"
                             android:padding="@dimen/grid_2"
                             android:textAppearance="@style/TextAppearance.DijitalRaf.Body"
                             android:textColor="@color/text_secondary"
@@ -139,7 +139,7 @@
 
                         <com.google.android.material.textfield.TextInputLayout
                             android:id="@+id/tilBio"
-                            style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+                            style="@style/Widget.DijitalRaf.TextInputLayout"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="@dimen/grid_2"

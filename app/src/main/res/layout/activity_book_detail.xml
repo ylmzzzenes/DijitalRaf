@@ -10,7 +10,8 @@
     <com.google.android.material.appbar.AppBarLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@color/background">
+        android:background="@color/background"
+        android:elevation="0dp">
 
         <com.google.android.material.appbar.MaterialToolbar
             android:id="@+id/toolbar"
@@ -30,442 +31,427 @@
             android:layout_height="match_parent"
             android:orientation="vertical">
 
-        <androidx.core.widget.NestedScrollView
-            android:id="@+id/scrollContent"
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="1"
-            android:clipToPadding="false"
-            android:fillViewport="true"
-            android:paddingHorizontal="@dimen/grid_2"
-            android:paddingTop="@dimen/grid_2"
-            android:paddingBottom="@dimen/grid_1"
-            android:visibility="invisible"
-            tools:visibility="visible">
-
-            <LinearLayout
+            <androidx.core.widget.NestedScrollView
+                android:id="@+id/scrollContent"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:paddingBottom="@dimen/grid_2">
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:clipToPadding="false"
+                android:fillViewport="true"
+                android:paddingHorizontal="@dimen/grid_2"
+                android:paddingTop="@dimen/grid_2"
+                android:paddingBottom="@dimen/grid_3"
+                android:visibility="invisible"
+                tools:visibility="visible">
 
-                <com.google.android.material.card.MaterialCardView
-                    style="@style/Widget.DijitalRaf.Card"
+                <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    app:cardCornerRadius="@dimen/corner_medium"
-                    app:strokeWidth="0dp">
+                    android:orientation="vertical"
+                    android:paddingBottom="@dimen/grid_2">
 
-                    <ImageView
-                        android:id="@+id/ivCover"
-                        android:layout_width="match_parent"
-                        android:layout_height="@dimen/book_detail_hero_height"
-                        android:background="@color/surface_overlay"
-                        android:contentDescription="@string/book_detail_cd_cover"
-                        android:scaleType="centerCrop"
-                        tools:src="@drawable/ic_menu_book_24" />
-                </com.google.android.material.card.MaterialCardView>
-
-                <com.google.android.material.card.MaterialCardView
-                    style="@style/Widget.DijitalRaf.Card"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="@dimen/grid_2"
-                    app:contentPadding="@dimen/grid_2">
-
-                    <LinearLayout
+                    <com.google.android.material.card.MaterialCardView
+                        style="@style/Widget.DijitalRaf.Card"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:orientation="vertical">
+                        app:shapeAppearanceOverlay="@style/ShapeAppearanceOverlay.DijitalRaf.HeroCover"
+                        app:strokeWidth="0dp">
 
-                        <TextView
+                        <ImageView
+                            android:id="@+id/ivCover"
                             android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:text="@string/book_detail_section_title"
-                            android:textAppearance="@style/TextAppearance.DijitalRaf.Caption"
-                            android:textColor="@color/text_secondary"
-                            android:textStyle="bold" />
+                            android:layout_height="@dimen/book_detail_hero_height"
+                            android:background="@color/surface_variant"
+                            android:contentDescription="@string/book_detail_cd_cover"
+                            android:scaleType="centerCrop"
+                            tools:src="@drawable/ic_menu_book_24" />
+                    </com.google.android.material.card.MaterialCardView>
 
-                        <TextView
-                            android:id="@+id/tvTitle"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="@dimen/grid_1"
-                            android:textAppearance="@style/TextAppearance.DijitalRaf.Title"
-                            android:textStyle="bold"
-                            tools:text="Kitap adı" />
-
-                        <TextView
-                            android:id="@+id/tvAuthor"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="@dimen/grid_1"
-                            android:textAppearance="@style/TextAppearance.DijitalRaf.Body"
-                            android:textColor="@color/text_secondary"
-                            tools:text="Yazar" />
-
-                        <View
-                            android:layout_width="match_parent"
-                            android:layout_height="1dp"
-                            android:layout_marginVertical="@dimen/grid_2"
-                            android:background="@color/secondary_alpha_40" />
-
-                        <TextView
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:text="@string/book_detail_label_genre"
-                            android:textAppearance="@style/TextAppearance.DijitalRaf.Caption"
-                            android:textColor="@color/text_secondary"
-                            android:textStyle="bold" />
-
-                        <TextView
-                            android:id="@+id/tvGenre"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="@dimen/grid_1"
-                            android:textAppearance="@style/TextAppearance.DijitalRaf.Body"
-                            tools:text="Roman" />
-                    </LinearLayout>
-                </com.google.android.material.card.MaterialCardView>
-
-                <com.google.android.material.card.MaterialCardView
-                    style="@style/Widget.DijitalRaf.Card"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="@dimen/grid_2"
-                    app:contentPadding="@dimen/grid_2">
-
-                    <LinearLayout
+                    <com.google.android.material.card.MaterialCardView
+                        style="@style/Widget.DijitalRaf.Card.Outlined"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:orientation="vertical">
-
-                        <TextView
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:text="@string/book_detail_section_meta"
-                            android:textAppearance="@style/TextAppearance.DijitalRaf.Caption"
-                            android:textColor="@color/text_secondary"
-                            android:textStyle="bold" />
+                        android:layout_marginTop="@dimen/grid_2"
+                        app:contentPadding="@dimen/grid_2">
 
                         <LinearLayout
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:layout_marginTop="@dimen/grid_2"
-                            android:orientation="horizontal">
-
-                            <LinearLayout
-                                android:layout_width="0dp"
-                                android:layout_height="wrap_content"
-                                android:layout_weight="1"
-                                android:orientation="vertical"
-                                android:paddingEnd="@dimen/grid_1">
-
-                                <TextView
-                                    android:layout_width="match_parent"
-                                    android:layout_height="wrap_content"
-                                    android:text="@string/book_detail_meta_published_label"
-                                    android:textAppearance="@style/TextAppearance.DijitalRaf.Caption"
-                                    android:textColor="@color/text_secondary" />
-
-                                <TextView
-                                    android:id="@+id/tvPublishedDate"
-                                    android:layout_width="match_parent"
-                                    android:layout_height="wrap_content"
-                                    android:layout_marginTop="4dp"
-                                    android:textAppearance="@style/TextAppearance.DijitalRaf.Body"
-                                    tools:text="2021" />
-                            </LinearLayout>
-
-                            <LinearLayout
-                                android:layout_width="0dp"
-                                android:layout_height="wrap_content"
-                                android:layout_weight="1"
-                                android:orientation="vertical"
-                                android:paddingStart="@dimen/grid_1">
-
-                                <TextView
-                                    android:layout_width="match_parent"
-                                    android:layout_height="wrap_content"
-                                    android:text="@string/book_detail_meta_pages_label"
-                                    android:textAppearance="@style/TextAppearance.DijitalRaf.Caption"
-                                    android:textColor="@color/text_secondary" />
-
-                                <TextView
-                                    android:id="@+id/tvPageCount"
-                                    android:layout_width="match_parent"
-                                    android:layout_height="wrap_content"
-                                    android:layout_marginTop="4dp"
-                                    android:textAppearance="@style/TextAppearance.DijitalRaf.Body"
-                                    tools:text="320 sayfa" />
-                            </LinearLayout>
-                        </LinearLayout>
-                    </LinearLayout>
-                </com.google.android.material.card.MaterialCardView>
-
-                <com.google.android.material.card.MaterialCardView
-                    style="@style/Widget.DijitalRaf.Card"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="@dimen/grid_2"
-                    app:contentPadding="@dimen/grid_2">
-
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="vertical">
-
-                        <TextView
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:text="@string/book_detail_section_description"
-                            android:textAppearance="@style/TextAppearance.DijitalRaf.Caption"
-                            android:textColor="@color/text_secondary"
-                            android:textStyle="bold" />
-
-                        <TextView
-                            android:id="@+id/tvDescription"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="@dimen/grid_2"
-                            android:textAppearance="@style/TextAppearance.DijitalRaf.Body"
-                            android:textColor="@color/text_primary"
-                            tools:text="Özet metni" />
-
-                        <com.google.android.material.button.MaterialButton
-                            android:id="@+id/btnToggleDescription"
-                            style="@style/Widget.Material3.Button.TextButton"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_gravity="start"
-                            android:layout_marginTop="@dimen/grid_1"
-                            android:text="@string/book_detail_read_more"
-                            android:visibility="gone"
-                            app:icon="@drawable/ic_expand_more_24"
-                            app:iconGravity="textEnd"
-                            tools:visibility="visible" />
-                    </LinearLayout>
-                </com.google.android.material.card.MaterialCardView>
-
-                <com.google.android.material.card.MaterialCardView
-                    android:id="@+id/cardUserInteractions"
-                    style="@style/Widget.DijitalRaf.Card"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="@dimen/grid_2"
-                    app:contentPadding="@dimen/grid_2">
-
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="vertical">
-
-                        <TextView
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:text="@string/book_detail_section_user_actions"
-                            android:textAppearance="@style/TextAppearance.DijitalRaf.Caption"
-                            android:textColor="@color/text_secondary"
-                            android:textStyle="bold" />
-
-                        <TextView
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="@dimen/grid_1"
-                            android:text="@string/book_detail_hint_user_actions"
-                            android:textAppearance="@style/TextAppearance.DijitalRaf.Caption"
-                            android:textColor="@color/text_secondary" />
-
-                        <View
-                            android:layout_width="match_parent"
-                            android:layout_height="1dp"
-                            android:layout_marginVertical="@dimen/grid_2"
-                            android:background="@color/secondary_alpha_40" />
-
-                        <TextView
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:text="@string/book_detail_section_rating"
-                            android:textAppearance="@style/TextAppearance.DijitalRaf.Caption"
-                            android:textColor="@color/text_secondary"
-                            android:textStyle="bold" />
-
-                        <androidx.appcompat.widget.AppCompatRatingBar
-                            android:id="@+id/ratingBar"
-                            style="@style/Widget.AppCompat.RatingBar"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="@dimen/grid_2"
-                            android:numStars="5"
-                            android:progressTint="@color/primary"
-                            android:rating="0"
-                            android:secondaryProgressTint="@color/secondary_alpha_40"
-                            android:stepSize="1"
-                            tools:rating="4" />
-
-                        <TextView
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="@dimen/grid_1"
-                            android:text="@string/book_detail_rating_local_hint"
-                            android:textAppearance="@style/TextAppearance.DijitalRaf.Caption"
-                            android:textColor="@color/text_secondary" />
-
-                        <View
-                            android:layout_width="match_parent"
-                            android:layout_height="1dp"
-                            android:layout_marginVertical="@dimen/grid_2"
-                            android:background="@color/secondary_alpha_40" />
-
-                        <TextView
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:text="@string/book_detail_section_note"
-                            android:textAppearance="@style/TextAppearance.DijitalRaf.Caption"
-                            android:textColor="@color/text_secondary"
-                            android:textStyle="bold" />
-
-                        <com.google.android.material.textfield.TextInputLayout
-                            android:id="@+id/tilPersonalNote"
-                            style="@style/Widget.DijitalRaf.TextInputLayout"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="@dimen/grid_2"
-                            android:hint="@string/hint_personal_note">
-
-                            <com.google.android.material.textfield.TextInputEditText
-                                android:id="@+id/etPersonalNote"
-                                android:layout_width="match_parent"
-                                android:layout_height="wrap_content"
-                                android:gravity="top|start"
-                                android:inputType="textMultiLine|textCapSentences"
-                                android:minLines="3"
-                                android:maxLines="10" />
-                        </com.google.android.material.textfield.TextInputLayout>
-
-                        <View
-                            android:layout_width="match_parent"
-                            android:layout_height="1dp"
-                            android:layout_marginVertical="@dimen/grid_2"
-                            android:background="@color/secondary_alpha_40" />
-
-                        <com.google.android.material.button.MaterialButton
-                            android:id="@+id/btnFavorite"
-                            style="@style/Widget.DijitalRaf.Button.Outlined"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:ellipsize="end"
-                            android:maxLines="2"
-                            android:text="@string/book_detail_favorite_add"
-                            app:icon="@drawable/ic_favorite_border_24"
-                            app:iconGravity="textStart"
-                            app:iconPadding="@dimen/grid_1" />
-
-                        <LinearLayout
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="@dimen/grid_2"
-                            android:gravity="center_vertical"
-                            android:orientation="horizontal">
+                            android:orientation="vertical">
 
                             <TextView
-                                android:layout_width="0dp"
+                                android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
-                                android:layout_weight="1"
-                                android:text="@string/book_detail_read_switch"
+                                android:text="@string/book_detail_section_book_info"
+                                android:textAppearance="@style/TextAppearance.DijitalRaf.SectionLabel" />
+
+                            <TextView
+                                android:id="@+id/tvTitle"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="@dimen/grid_2"
+                                android:textAppearance="@style/TextAppearance.DijitalRaf.Title"
+                                android:textStyle="bold"
+                                tools:text="Kitap adı" />
+
+                            <TextView
+                                android:id="@+id/tvAuthor"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="@dimen/grid_1"
                                 android:textAppearance="@style/TextAppearance.DijitalRaf.Body"
-                                android:textColor="@color/text_primary" />
+                                android:textColor="@color/text_secondary"
+                                tools:text="Yazar" />
 
-                            <com.google.android.material.materialswitch.MaterialSwitch
-                                android:id="@+id/switchRead"
-                                android:layout_width="wrap_content"
+                            <com.google.android.material.divider.MaterialDivider
+                                android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
-                                android:contentDescription="@string/book_detail_read_switch" />
+                                android:layout_marginVertical="@dimen/grid_2" />
+
+                            <TextView
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:text="@string/book_detail_label_genre"
+                                android:textAppearance="@style/TextAppearance.DijitalRaf.Caption"
+                                android:textColor="@color/text_secondary"
+                                android:textStyle="bold" />
+
+                            <TextView
+                                android:id="@+id/tvGenre"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="@dimen/grid_1"
+                                android:textAppearance="@style/TextAppearance.DijitalRaf.Body"
+                                tools:text="Roman" />
+
+                            <com.google.android.material.divider.MaterialDivider
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:layout_marginVertical="@dimen/grid_2" />
+
+                            <LinearLayout
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:orientation="horizontal">
+
+                                <LinearLayout
+                                    android:layout_width="0dp"
+                                    android:layout_height="wrap_content"
+                                    android:layout_weight="1"
+                                    android:orientation="vertical"
+                                    android:paddingEnd="@dimen/grid_1">
+
+                                    <TextView
+                                        android:layout_width="match_parent"
+                                        android:layout_height="wrap_content"
+                                        android:text="@string/book_detail_meta_published_label"
+                                        android:textAppearance="@style/TextAppearance.DijitalRaf.Caption"
+                                        android:textColor="@color/text_secondary" />
+
+                                    <TextView
+                                        android:id="@+id/tvPublishedDate"
+                                        android:layout_width="match_parent"
+                                        android:layout_height="wrap_content"
+                                        android:layout_marginTop="@dimen/grid_1"
+                                        android:textAppearance="@style/TextAppearance.DijitalRaf.Body"
+                                        tools:text="2021" />
+                                </LinearLayout>
+
+                                <LinearLayout
+                                    android:layout_width="0dp"
+                                    android:layout_height="wrap_content"
+                                    android:layout_weight="1"
+                                    android:orientation="vertical"
+                                    android:paddingStart="@dimen/grid_1">
+
+                                    <TextView
+                                        android:layout_width="match_parent"
+                                        android:layout_height="wrap_content"
+                                        android:text="@string/book_detail_meta_pages_label"
+                                        android:textAppearance="@style/TextAppearance.DijitalRaf.Caption"
+                                        android:textColor="@color/text_secondary" />
+
+                                    <TextView
+                                        android:id="@+id/tvPageCount"
+                                        android:layout_width="match_parent"
+                                        android:layout_height="wrap_content"
+                                        android:layout_marginTop="@dimen/grid_1"
+                                        android:textAppearance="@style/TextAppearance.DijitalRaf.Body"
+                                        tools:text="320 sayfa" />
+                                </LinearLayout>
+                            </LinearLayout>
                         </LinearLayout>
+                    </com.google.android.material.card.MaterialCardView>
 
-                        <com.google.android.material.button.MaterialButton
-                            android:id="@+id/btnSavePersonalNote"
-                            style="@style/Widget.DijitalRaf.Button.Filled"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="@dimen/grid_3"
-                            android:text="@string/book_detail_save_actions" />
-
-                        <com.google.android.material.button.MaterialButton
-                            android:id="@+id/btnDeletePersonalNote"
-                            style="@style/Widget.Material3.Button.TextButton"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_gravity="start"
-                            android:layout_marginTop="@dimen/grid_1"
-                            android:text="@string/action_delete_note" />
-                    </LinearLayout>
-                </com.google.android.material.card.MaterialCardView>
-
-                <com.google.android.material.card.MaterialCardView
-                    android:id="@+id/cardQuotes"
-                    style="@style/Widget.DijitalRaf.Card"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="@dimen/grid_2"
-                    app:contentPadding="@dimen/grid_2">
-
-                    <LinearLayout
+                    <com.google.android.material.card.MaterialCardView
+                        style="@style/Widget.DijitalRaf.Card.Outlined"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:orientation="vertical">
+                        android:layout_marginTop="@dimen/grid_2"
+                        app:contentPadding="@dimen/grid_2">
 
-                        <TextView
+                        <LinearLayout
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:text="@string/book_quotes_section_title"
-                            android:textAppearance="@style/TextAppearance.DijitalRaf.Caption"
-                            android:textColor="@color/text_secondary"
-                            android:textStyle="bold" />
+                            android:orientation="vertical">
 
-                        <TextView
+                            <TextView
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:text="@string/book_detail_section_description"
+                                android:textAppearance="@style/TextAppearance.DijitalRaf.SectionLabel" />
+
+                            <TextView
+                                android:id="@+id/tvDescription"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="@dimen/grid_2"
+                                android:textAppearance="@style/TextAppearance.DijitalRaf.Body"
+                                android:textColor="@color/text_primary"
+                                tools:text="Özet metni" />
+
+                            <com.google.android.material.button.MaterialButton
+                                android:id="@+id/btnToggleDescription"
+                                style="@style/Widget.Material3.Button.TextButton"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_gravity="start"
+                                android:layout_marginTop="@dimen/grid_1"
+                                android:text="@string/book_detail_read_more"
+                                android:visibility="gone"
+                                app:icon="@drawable/ic_expand_more_24"
+                                app:iconGravity="textEnd"
+                                tools:visibility="visible" />
+                        </LinearLayout>
+                    </com.google.android.material.card.MaterialCardView>
+
+                    <com.google.android.material.card.MaterialCardView
+                        style="@style/Widget.DijitalRaf.Card.Outlined"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/grid_2"
+                        app:contentPadding="@dimen/grid_2">
+
+                        <LinearLayout
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:layout_marginTop="@dimen/grid_1"
-                            android:text="@string/book_quotes_section_hint"
-                            android:textAppearance="@style/TextAppearance.DijitalRaf.Caption"
-                            android:textColor="@color/text_secondary" />
+                            android:orientation="vertical">
 
-                        <com.google.android.material.button.MaterialButton
-                            android:id="@+id/btnAddQuote"
-                            style="@style/Widget.DijitalRaf.Button.Outlined"
+                            <TextView
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:text="@string/book_detail_section_reading"
+                                android:textAppearance="@style/TextAppearance.DijitalRaf.SectionLabel" />
+
+                            <TextView
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="@dimen/grid_1"
+                                android:text="@string/book_detail_hint_user_actions"
+                                android:textAppearance="@style/TextAppearance.DijitalRaf.Caption"
+                                android:textColor="@color/text_secondary" />
+
+                            <com.google.android.material.divider.MaterialDivider
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:layout_marginVertical="@dimen/grid_2" />
+
+                            <TextView
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:text="@string/book_detail_section_rating"
+                                android:textAppearance="@style/TextAppearance.DijitalRaf.Caption"
+                                android:textColor="@color/text_secondary"
+                                android:textStyle="bold" />
+
+                            <androidx.appcompat.widget.AppCompatRatingBar
+                                android:id="@+id/ratingBar"
+                                style="@style/Widget.AppCompat.RatingBar"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="@dimen/grid_2"
+                                android:numStars="5"
+                                android:progressTint="@color/primary"
+                                android:rating="0"
+                                android:secondaryProgressTint="@color/secondary_alpha_40"
+                                android:stepSize="1"
+                                tools:rating="4" />
+
+                            <TextView
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="@dimen/grid_1"
+                                android:text="@string/book_detail_rating_local_hint"
+                                android:textAppearance="@style/TextAppearance.DijitalRaf.Caption"
+                                android:textColor="@color/text_secondary" />
+
+                            <com.google.android.material.divider.MaterialDivider
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:layout_marginVertical="@dimen/grid_2" />
+
+                            <TextView
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:text="@string/book_detail_section_note"
+                                android:textAppearance="@style/TextAppearance.DijitalRaf.Caption"
+                                android:textColor="@color/text_secondary"
+                                android:textStyle="bold" />
+
+                            <com.google.android.material.textfield.TextInputLayout
+                                android:id="@+id/tilPersonalNote"
+                                style="@style/Widget.DijitalRaf.TextInputLayout"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="@dimen/grid_2"
+                                android:hint="@string/hint_personal_note">
+
+                                <com.google.android.material.textfield.TextInputEditText
+                                    android:id="@+id/etPersonalNote"
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    android:gravity="top|start"
+                                    android:inputType="textMultiLine|textCapSentences"
+                                    android:maxLines="10"
+                                    android:minLines="3" />
+                            </com.google.android.material.textfield.TextInputLayout>
+
+                            <com.google.android.material.button.MaterialButton
+                                android:id="@+id/btnSavePersonalNote"
+                                style="@style/Widget.DijitalRaf.Button.Filled"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="@dimen/grid_3"
+                                android:text="@string/book_detail_save_actions" />
+
+                            <com.google.android.material.button.MaterialButton
+                                android:id="@+id/btnDeletePersonalNote"
+                                style="@style/Widget.Material3.Button.TextButton"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_gravity="start"
+                                android:layout_marginTop="@dimen/grid_1"
+                                android:text="@string/action_delete_note" />
+                        </LinearLayout>
+                    </com.google.android.material.card.MaterialCardView>
+
+                    <com.google.android.material.card.MaterialCardView
+                        style="@style/Widget.DijitalRaf.Card.Outlined"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/grid_2"
+                        app:contentPadding="@dimen/grid_2">
+
+                        <LinearLayout
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:layout_marginTop="@dimen/grid_2"
-                            android:text="@string/book_quotes_add"
-                            app:icon="@drawable/ic_add_24"
-                            app:iconGravity="textStart"
-                            app:iconPadding="@dimen/grid_1" />
+                            android:orientation="vertical">
 
-                        <TextView
-                            android:id="@+id/tvQuotesEmpty"
+                            <TextView
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:text="@string/book_detail_section_shelf"
+                                android:textAppearance="@style/TextAppearance.DijitalRaf.SectionLabel" />
+
+                            <com.google.android.material.button.MaterialButton
+                                android:id="@+id/btnFavorite"
+                                style="@style/Widget.DijitalRaf.Button.Outlined"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="@dimen/grid_2"
+                                android:ellipsize="end"
+                                android:maxLines="2"
+                                android:text="@string/book_detail_favorite_add"
+                                app:icon="@drawable/ic_favorite_border_24"
+                                app:iconGravity="textStart"
+                                app:iconPadding="@dimen/grid_1" />
+
+                            <LinearLayout
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="@dimen/grid_2"
+                                android:gravity="center_vertical"
+                                android:orientation="horizontal">
+
+                                <TextView
+                                    android:layout_width="0dp"
+                                    android:layout_height="wrap_content"
+                                    android:layout_weight="1"
+                                    android:text="@string/book_detail_read_switch"
+                                    android:textAppearance="@style/TextAppearance.DijitalRaf.Body"
+                                    android:textColor="@color/text_primary" />
+
+                                <com.google.android.material.materialswitch.MaterialSwitch
+                                    android:id="@+id/switchRead"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:contentDescription="@string/book_detail_read_switch" />
+                            </LinearLayout>
+                        </LinearLayout>
+                    </com.google.android.material.card.MaterialCardView>
+
+                    <com.google.android.material.card.MaterialCardView
+                        android:id="@+id/cardQuotes"
+                        style="@style/Widget.DijitalRaf.Card.Outlined"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/grid_2"
+                        app:contentPadding="@dimen/grid_2">
+
+                        <LinearLayout
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:layout_marginTop="@dimen/grid_2"
-                            android:text="@string/book_quotes_empty"
-                            android:textAppearance="@style/TextAppearance.DijitalRaf.Body"
-                            android:textColor="@color/text_secondary"
-                            android:visibility="gone"
-                            tools:visibility="visible" />
+                            android:orientation="vertical">
 
-                        <androidx.recyclerview.widget.RecyclerView
-                            android:id="@+id/recyclerQuotes"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="@dimen/grid_2"
-                            android:nestedScrollingEnabled="false"
-                            android:overScrollMode="never"
-                            tools:itemCount="2"
-                            tools:listitem="@layout/item_kitap_alinti" />
-                    </LinearLayout>
-                </com.google.android.material.card.MaterialCardView>
-            </LinearLayout>
-        </androidx.core.widget.NestedScrollView>
+                            <TextView
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:text="@string/book_quotes_section_title"
+                                android:textAppearance="@style/TextAppearance.DijitalRaf.SectionLabel" />
+
+                            <TextView
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="@dimen/grid_1"
+                                android:text="@string/book_quotes_section_hint"
+                                android:textAppearance="@style/TextAppearance.DijitalRaf.Caption"
+                                android:textColor="@color/text_secondary" />
+
+                            <com.google.android.material.button.MaterialButton
+                                android:id="@+id/btnAddQuote"
+                                style="@style/Widget.DijitalRaf.Button.Tonal"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="@dimen/grid_2"
+                                android:text="@string/book_quotes_add"
+                                app:icon="@drawable/ic_add_24"
+                                app:iconGravity="textStart"
+                                app:iconPadding="@dimen/grid_1" />
+
+                            <TextView
+                                android:id="@+id/tvQuotesEmpty"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="@dimen/grid_2"
+                                android:text="@string/book_quotes_empty"
+                                android:textAppearance="@style/TextAppearance.DijitalRaf.Body"
+                                android:textColor="@color/text_secondary"
+                                android:visibility="gone"
+                                tools:visibility="visible" />
+
+                            <androidx.recyclerview.widget.RecyclerView
+                                android:id="@+id/recyclerQuotes"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="@dimen/grid_2"
+                                android:nestedScrollingEnabled="false"
+                                android:overScrollMode="never"
+                                tools:itemCount="2"
+                                tools:listitem="@layout/item_kitap_alinti" />
+                        </LinearLayout>
+                    </com.google.android.material.card.MaterialCardView>
+                </LinearLayout>
+            </androidx.core.widget.NestedScrollView>
         </LinearLayout>
 
         <com.google.android.material.progressindicator.CircularProgressIndicator
@@ -473,7 +459,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
-            android:elevation="8dp"
+            android:elevation="@dimen/elevation_card_raised"
             android:indeterminate="true"
             android:visibility="gone"
             app:indicatorColor="@color/primary"

@@ -9,6 +9,7 @@
     <string name="library_tab_to_read">Okunacak</string>
     <string name="nav_favorites">Favoriler</string>
     <string name="nav_add_book">Kitap Ekle</string>
+    <string name="cd_share_book">Kitabı paylaş</string>
     <string name="nav_profile">Profil</string>
 
     <string name="search_hint">Kitap veya yazar ara</string>
@@ -170,6 +171,9 @@
     <string name="book_detail_load_error">Kitap yüklenemedi.</string>
     <string name="book_detail_cd_cover">Kitap kapağı</string>
     <string name="book_detail_section_title">Kitap</string>
+    <string name="book_detail_section_book_info">Kitap bilgisi</string>
+    <string name="book_detail_section_reading">Puanlama ve not</string>
+    <string name="book_detail_section_shelf">Rafta</string>
     <string name="book_detail_section_meta">Bilgiler</string>
     <string name="book_detail_section_description">Özet ve açıklama</string>
     <string name="book_detail_section_rating">Puanınız</string>
