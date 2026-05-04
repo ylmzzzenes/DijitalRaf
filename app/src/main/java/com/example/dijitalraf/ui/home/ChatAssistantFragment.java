@@ -24,7 +24,7 @@ import com.example.dijitalraf.R;
 import com.example.dijitalraf.auth.EmailVerificationHelper;
 import com.example.dijitalraf.data.AiService;
 import com.example.dijitalraf.data.repository.AiRepository;
-import com.example.dijitalraf.data.repository.OpenRouterAiRepository;
+import com.example.dijitalraf.di.AppContainer;
 import com.example.dijitalraf.ui.util.UiMessages;
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.button.MaterialButton;
@@ -70,7 +70,7 @@ public class ChatAssistantFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         viewModel = new ViewModelProvider(requireActivity()).get(BooksViewModel.class);
-        aiRepository = new OpenRouterAiRepository(requireContext());
+        aiRepository = AppContainer.from(requireContext()).getAiRepository();
         prefs = requireContext().getSharedPreferences(PREFS_DASHBOARD, Context.MODE_PRIVATE);
 
         MaterialToolbar toolbar = view.findViewById(R.id.toolbar);

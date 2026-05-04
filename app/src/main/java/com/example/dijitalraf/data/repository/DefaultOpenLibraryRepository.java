@@ -31,10 +31,6 @@ public final class DefaultOpenLibraryRepository implements OpenLibraryRepository
 
     private final OkHttpClient client;
 
-    public DefaultOpenLibraryRepository() {
-        this(new OkHttpClient());
-    }
-
     public DefaultOpenLibraryRepository(@NonNull OkHttpClient client) {
         this.client = client;
     }

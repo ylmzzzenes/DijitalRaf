@@ -17,10 +17,6 @@ public final class FirebaseStorageDataSource {
 
     private final FirebaseStorage storage;
 
-    public FirebaseStorageDataSource() {
-        this(FirebaseStorage.getInstance());
-    }
-
     public FirebaseStorageDataSource(@NonNull FirebaseStorage storage) {
         this.storage = storage;
     }

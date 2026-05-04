@@ -112,6 +112,11 @@ public class LibraryFragment extends Fragment {
             }
             startActivity(BookDetailActivity.newIntent(requireContext(), kitap.getId()));
         });
+        adapter.setOnFavoriteChangedListener((kitap, position) -> {
+            if (kitap.getId() != null) {
+                viewModel.updateBookFavorite(kitap.getId(), kitap.isFavorite());
+            }
+        });
         adapter.setOnBookLongClickListener((kitap, position) -> {
             if (kitap.getId() == null) {
                 return;

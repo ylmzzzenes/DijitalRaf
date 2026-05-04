@@ -28,10 +28,9 @@ import com.example.dijitalraf.R;
 import com.example.dijitalraf.auth.EmailVerificationHelper;
 import com.example.dijitalraf.data.AiService;
 import com.example.dijitalraf.core.constants.DatabasePaths;
-import com.example.dijitalraf.data.repository.DefaultUserRepository;
 import com.example.dijitalraf.data.repository.AiRepository;
-import com.example.dijitalraf.data.repository.OpenRouterAiRepository;
 import com.example.dijitalraf.data.repository.UserRepository;
+import com.example.dijitalraf.di.AppContainer;
 import com.example.dijitalraf.ui.util.UiMessages;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
@@ -102,8 +101,9 @@ public class DashboardFragment extends Fragment {
         viewModel = new ViewModelProvider(requireActivity()).get(BooksViewModel.class);
         dashboardPrefs = requireContext().getSharedPreferences(PREFS_DASHBOARD, Context.MODE_PRIVATE);
 
-        aiRepository = new OpenRouterAiRepository(requireContext());
-        userRepository = new DefaultUserRepository();
+        AppContainer appContainer = AppContainer.from(requireContext());
+        aiRepository = appContainer.getAiRepository();
+        userRepository = appContainer.getUserRepository();
         btnAiRecommend = view.findViewById(R.id.btnAiRecommend);
         btnAiAssistant = view.findViewById(R.id.btnAiAssistant);
         tvAiPreview = view.findViewById(R.id.tvAiPreview);

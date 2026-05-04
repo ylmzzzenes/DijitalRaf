@@ -1,7 +1,5 @@
 package com.example.dijitalraf.data.repository;
 
-import android.content.Context;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
@@ -16,8 +14,8 @@ public final class OpenRouterAiRepository implements AiRepository {
 
     private final AiService delegate;
 
-    public OpenRouterAiRepository(@NonNull Context context) {
-        this.delegate = new AiService(context);
+    public OpenRouterAiRepository(@NonNull AiService delegate) {
+        this.delegate = delegate;
     }
 
     @Override

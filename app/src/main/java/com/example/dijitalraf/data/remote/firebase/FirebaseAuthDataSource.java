@@ -16,10 +16,6 @@ public final class FirebaseAuthDataSource {
 
     private final FirebaseAuth auth;
 
-    public FirebaseAuthDataSource() {
-        this(FirebaseAuth.getInstance());
-    }
-
     public FirebaseAuthDataSource(@NonNull FirebaseAuth auth) {
         this.auth = auth;
     }

@@ -16,10 +16,6 @@ public final class DefaultStorageRepository implements StorageRepository {
 
     private final FirebaseStorageDataSource dataSource;
 
-    public DefaultStorageRepository() {
-        this(new FirebaseStorageDataSource());
-    }
-
     public DefaultStorageRepository(@NonNull FirebaseStorageDataSource dataSource) {
         this.dataSource = dataSource;
     }

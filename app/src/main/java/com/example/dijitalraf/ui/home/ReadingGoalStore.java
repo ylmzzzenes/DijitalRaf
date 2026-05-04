@@ -4,8 +4,8 @@ import android.content.Context;
 
 import androidx.annotation.NonNull;
 
-import com.example.dijitalraf.data.repository.DefaultReadingGoalRepository;
 import com.example.dijitalraf.data.repository.ReadingGoalRepository;
+import com.example.dijitalraf.di.AppContainer;
 
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
@@ -21,7 +21,7 @@ public final class ReadingGoalStore {
     }
 
     private static ReadingGoalRepository repository(@NonNull Context context) {
-        return new DefaultReadingGoalRepository(context);
+        return AppContainer.from(context).getReadingGoalRepository();
     }
 
     public static boolean isMonthly(@NonNull Context context) {

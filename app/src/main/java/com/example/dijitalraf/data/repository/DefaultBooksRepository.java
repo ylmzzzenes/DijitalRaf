@@ -40,10 +40,6 @@ public final class DefaultBooksRepository implements BooksRepository {
     private ValueEventListener kitaplarListener;
     private Listener listener;
 
-    public DefaultBooksRepository(@NonNull String databaseUrl) {
-        this(new FirebaseBooksDataSource());
-    }
-
     public DefaultBooksRepository(@NonNull FirebaseBooksDataSource booksDataSource) {
         this.booksDataSource = booksDataSource;
     }

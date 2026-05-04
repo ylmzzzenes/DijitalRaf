@@ -17,7 +17,6 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.dijitalraf.R;
-import com.example.dijitalraf.data.FavoritesHelper;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.snackbar.Snackbar;
 
@@ -71,6 +70,11 @@ public class FavoritesFragment extends Fragment {
             }
             startActivity(BookDetailActivity.newIntent(requireContext(), kitap.getId()));
         });
+        adapter.setOnFavoriteChangedListener((kitap, position) -> {
+            if (kitap.getId() != null) {
+                viewModel.updateBookFavorite(kitap.getId(), kitap.isFavorite());
+            }
+        });
         adapter.setOnBookLongClickListener((kitap, position) -> {
             if (kitap.getId() == null) {
                 return;
@@ -106,9 +110,9 @@ public class FavoritesFragment extends Fragment {
                 }
                 Kitap k = favoriteBooks.get(pos);
                 if (k.getId() != null) {
-                    FavoritesHelper.setFavorite(k.getId(), false);
-                   k.setFavorite(false);
-                   applyFavoriteFilter();
+                    viewModel.updateBookFavorite(k.getId(), false);
+                    k.setFavorite(false);
+                    applyFavoriteFilter();
                     Snackbar.make(recyclerBooks, R.string.favorite_removed, Snackbar.LENGTH_SHORT).show();
                 } else {
                     adapter.notifyItemChanged(pos);

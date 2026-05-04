@@ -16,10 +16,6 @@ public final class DefaultAuthRepository implements AuthRepository {
 
     private final FirebaseAuthDataSource dataSource;
 
-    public DefaultAuthRepository() {
-        this(new FirebaseAuthDataSource());
-    }
-
     public DefaultAuthRepository(@NonNull FirebaseAuthDataSource dataSource) {
         this.dataSource = dataSource;
     }

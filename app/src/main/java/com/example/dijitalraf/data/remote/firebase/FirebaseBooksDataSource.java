@@ -3,7 +3,6 @@ package com.example.dijitalraf.data.remote.firebase;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-import com.example.dijitalraf.core.constants.FirebaseConstants;
 import com.example.dijitalraf.core.constants.DatabasePaths;
 import com.example.dijitalraf.ui.home.Kitap;
 import com.google.android.gms.tasks.Task;
@@ -22,10 +21,6 @@ public final class FirebaseBooksDataSource {
 
     private final FirebaseAuth auth;
     private final FirebaseDatabase database;
-
-    public FirebaseBooksDataSource() {
-        this(FirebaseAuth.getInstance(), FirebaseDatabase.getInstance(FirebaseConstants.RTDB_URL));
-    }
 
     public FirebaseBooksDataSource(@NonNull FirebaseAuth auth, @NonNull FirebaseDatabase database) {
         this.auth = auth;

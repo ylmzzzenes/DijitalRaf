@@ -16,9 +16,8 @@ import com.example.dijitalraf.R;
 import com.example.dijitalraf.core.constants.DatabasePaths;
 import com.example.dijitalraf.data.EmailValidation;
 import com.example.dijitalraf.data.repository.AuthRepository;
-import com.example.dijitalraf.data.repository.DefaultAuthRepository;
-import com.example.dijitalraf.data.repository.DefaultUserRepository;
 import com.example.dijitalraf.data.repository.UserRepository;
+import com.example.dijitalraf.di.AppContainer;
 import com.example.dijitalraf.ui.home.HomeActivity;
 import com.example.dijitalraf.ui.util.UiMessages;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
@@ -101,8 +100,9 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     private void initComponents() {
-        authRepository = new DefaultAuthRepository();
-        userRepository = new DefaultUserRepository();
+        AppContainer appContainer = AppContainer.from(this);
+        authRepository = appContainer.getAuthRepository();
+        userRepository = appContainer.getUserRepository();
         tilEmail = findViewById(R.id.tilEmail);
         tilPassword = findViewById(R.id.tilPassword);
         etEmail = findViewById(R.id.etEmail);

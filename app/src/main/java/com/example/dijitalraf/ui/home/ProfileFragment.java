@@ -18,9 +18,8 @@ import com.example.dijitalraf.R;
 import com.example.dijitalraf.auth.EmailVerificationHelper;
 import com.example.dijitalraf.core.constants.DatabasePaths;
 import com.example.dijitalraf.data.repository.AuthRepository;
-import com.example.dijitalraf.data.repository.DefaultAuthRepository;
-import com.example.dijitalraf.data.repository.DefaultUserRepository;
 import com.example.dijitalraf.data.repository.UserRepository;
+import com.example.dijitalraf.di.AppContainer;
 import com.example.dijitalraf.ui.auth.GoogleSignInHelper;
 import com.example.dijitalraf.locale.LanguagePreference;
 import com.example.dijitalraf.theme.NightModePreference;
@@ -64,8 +63,9 @@ public class ProfileFragment extends Fragment {
         btnEditProfile = view.findViewById(R.id.btnEditProfile);
         btnBookStatistics = view.findViewById(R.id.btnBookStatistics);
         btnLogout = view.findViewById(R.id.btnLogout);
-        authRepository = new DefaultAuthRepository();
-        userRepository = new DefaultUserRepository();
+        AppContainer appContainer = AppContainer.from(requireContext());
+        authRepository = appContainer.getAuthRepository();
+        userRepository = appContainer.getUserRepository();
 
         setupThemeToggle(view);
         setupLanguageToggle(view);

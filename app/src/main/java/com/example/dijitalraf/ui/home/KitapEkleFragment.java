@@ -18,8 +18,8 @@ import com.example.dijitalraf.R;
 import com.example.dijitalraf.auth.EmailVerificationHelper;
 import com.example.dijitalraf.core.constants.DatabasePaths;
 import com.example.dijitalraf.data.model.BookMetadata;
-import com.example.dijitalraf.data.repository.DefaultOpenLibraryRepository;
 import com.example.dijitalraf.data.repository.OpenLibraryRepository;
+import com.example.dijitalraf.di.AppContainer;
 import com.example.dijitalraf.ui.util.UiMessages;
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.button.MaterialButton;
@@ -79,7 +79,7 @@ public class KitapEkleFragment extends Fragment {
         setupToolbar();
 
         booksViewModel = new ViewModelProvider(requireActivity()).get(BooksViewModel.class);
-        openLibraryRepository = new DefaultOpenLibraryRepository();
+        openLibraryRepository = AppContainer.from(requireContext()).getOpenLibraryRepository();
 
         TextWatcher previewWatcher = new TextWatcher() {
             @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}

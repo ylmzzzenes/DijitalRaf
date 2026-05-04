@@ -17,12 +17,10 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.bumptech.glide.Glide;
 import com.example.dijitalraf.R;
 import com.example.dijitalraf.core.constants.DatabasePaths;
-import com.example.dijitalraf.data.repository.DefaultAuthRepository;
-import com.example.dijitalraf.data.repository.DefaultStorageRepository;
-import com.example.dijitalraf.data.repository.DefaultUserRepository;
 import com.example.dijitalraf.data.repository.AuthRepository;
 import com.example.dijitalraf.data.repository.StorageRepository;
 import com.example.dijitalraf.data.repository.UserRepository;
+import com.example.dijitalraf.di.AppContainer;
 import com.example.dijitalraf.ui.util.UiMessages;
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.button.MaterialButton;
@@ -93,9 +91,10 @@ public class EditProfileActivity extends AppCompatActivity {
         tvEmailReadOnly = findViewById(R.id.tvEmailReadOnly);
         btnSaveProfile = findViewById(R.id.btnSaveProfile);
         progressOverlay = findViewById(R.id.progressOverlay);
-        authRepository = new DefaultAuthRepository();
-        userRepository = new DefaultUserRepository();
-        storageRepository = new DefaultStorageRepository();
+        AppContainer appContainer = AppContainer.from(this);
+        authRepository = appContainer.getAuthRepository();
+        userRepository = appContainer.getUserRepository();
+        storageRepository = appContainer.getStorageRepository();
 
         toolbar.setNavigationOnClickListener(v -> getOnBackPressedDispatcher().onBackPressed());
 

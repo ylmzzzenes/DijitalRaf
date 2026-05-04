@@ -62,17 +62,21 @@ public final class AiService {
     private static final int CHAT_MAX_TOKENS = 1200;
     private static final double CHAT_TEMPERATURE = 0.7;
 
-    private static final OkHttpClient CLIENT = new OkHttpClient.Builder()
-            .connectTimeout(30, TimeUnit.SECONDS)
-            .readTimeout(120, TimeUnit.SECONDS)
-            .writeTimeout(30, TimeUnit.SECONDS)
-            .build();
-
     private final Context appContext;
+    private final OkHttpClient httpClient;
     private final Handler mainHandler = new Handler(Looper.getMainLooper());
 
     public AiService(@NonNull Context context) {
+        this(context, new OkHttpClient.Builder()
+                .connectTimeout(30, TimeUnit.SECONDS)
+                .readTimeout(120, TimeUnit.SECONDS)
+                .writeTimeout(30, TimeUnit.SECONDS)
+                .build());
+    }
+
+    public AiService(@NonNull Context context, @NonNull OkHttpClient httpClient) {
         this.appContext = context.getApplicationContext();
+        this.httpClient = httpClient;
     }
 
     /**
@@ -169,7 +173,7 @@ public final class AiService {
                 .post(requestBody)
                 .build();
 
-        CLIENT.newCall(request).enqueue(new Callback() {
+        httpClient.newCall(request).enqueue(new Callback() {
             @Override
             public void onFailure(@NonNull Call call, @NonNull IOException e) {
                 mainHandler.post(() -> callback.onError(mapNetworkError(e)));

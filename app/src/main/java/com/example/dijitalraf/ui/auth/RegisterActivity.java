@@ -14,9 +14,8 @@ import com.example.dijitalraf.R;
 import com.example.dijitalraf.data.EmailValidation;
 import com.example.dijitalraf.core.constants.DatabasePaths;
 import com.example.dijitalraf.data.repository.AuthRepository;
-import com.example.dijitalraf.data.repository.DefaultAuthRepository;
-import com.example.dijitalraf.data.repository.DefaultUserRepository;
 import com.example.dijitalraf.data.repository.UserRepository;
+import com.example.dijitalraf.di.AppContainer;
 import com.example.dijitalraf.ui.home.HomeActivity;
 import com.example.dijitalraf.ui.util.UiMessages;
 import com.google.android.material.button.MaterialButton;
@@ -50,8 +49,9 @@ public class RegisterActivity extends AppCompatActivity {
     }
 
     private void initComponents() {
-        authRepository = new DefaultAuthRepository();
-        userRepository = new DefaultUserRepository();
+        AppContainer appContainer = AppContainer.from(this);
+        authRepository = appContainer.getAuthRepository();
+        userRepository = appContainer.getUserRepository();
 
         tilFullName = findViewById(R.id.tilFullName);
         tilEmail = findViewById(R.id.tilEmail);

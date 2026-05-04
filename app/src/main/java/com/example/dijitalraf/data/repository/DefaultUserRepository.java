@@ -15,10 +15,6 @@ public final class DefaultUserRepository implements UserRepository {
 
     private final FirebaseUserDataSource dataSource;
 
-    public DefaultUserRepository() {
-        this(new FirebaseUserDataSource());
-    }
-
     public DefaultUserRepository(@NonNull FirebaseUserDataSource dataSource) {
         this.dataSource = dataSource;
     }

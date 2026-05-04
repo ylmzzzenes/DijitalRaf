@@ -7,11 +7,10 @@ import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
-import com.example.dijitalraf.data.FirebaseRtdb;
 import com.example.dijitalraf.core.utils.ListenerRegistration;
 import com.example.dijitalraf.data.model.BookQuote;
 import com.example.dijitalraf.data.repository.BooksRepository;
-import com.example.dijitalraf.data.repository.DefaultBooksRepository;
+import com.example.dijitalraf.di.AppContainer;
 import com.example.dijitalraf.ui.util.Event;
 import com.google.android.gms.tasks.Task;
 
@@ -32,8 +31,12 @@ public class BooksViewModel extends AndroidViewModel {
     private final MutableLiveData<Event<String>> booksError = new MutableLiveData<>();
 
     public BooksViewModel(@NonNull Application application) {
+        this(application, AppContainer.from(application).createBooksRepository());
+    }
+
+    public BooksViewModel(@NonNull Application application, @NonNull BooksRepository repository) {
         super(application);
-        this.repository = new DefaultBooksRepository(FirebaseRtdb.URL);
+        this.repository = repository;
     }
 
     public LiveData<List<Kitap>> getBooks() {
