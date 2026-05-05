@@ -295,6 +295,9 @@
     <string name="profile_cloud_sync_failed">Profil buluta yazılamadı (kuralları kontrol edin): %1$s</string>
     <string name="register_profile_saved">Profil Realtime Database üzerine kaydedildi</string>
     <string name="register_profile_write_failed">Hesap oluştu ancak Realtime Database yazısı reddedildi (kuralları kontrol edin). %1$s — Giriş ekranından devam edebilirsiniz.</string>
+    <string name="register_profile_failed_rolled_back">Profil kaydedilemedi: %1$s. Kayıt geri alındı; aynı e-posta ile tekrar deneyebilirsiniz.</string>
+    <string name="register_profile_failed_account_cleanup_failed">Profil kaydedilemedi: %1$s. Hesap kapatılırken hata: %2$s. Oturum kapatıldı; giriş yapıp profili tamamlayabilir veya destek alabilirsiniz.</string>
+    <string name="register_verification_failed_then_login">Doğrulama e-postası gönderilemedi: %1$s. Oturum kapatıldı; giriş yapıp profil ekranından yeniden gönderebilirsiniz.</string>
 
     <string name="language_section_title">Dil</string>
     <string name="language_turkish">Türkçe</string>

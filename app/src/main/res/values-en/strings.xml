@@ -289,6 +289,9 @@
     <string name="profile_cloud_sync_failed">Failed to write profile to cloud (check rules): %1$s</string>
     <string name="register_profile_saved">Profile saved to Realtime Database</string>
     <string name="register_profile_write_failed">Account created but Realtime Database post rejected (check rules). %1$s — You can continue from the login screen.</string>
+    <string name="register_profile_failed_rolled_back">Could not save profile: %1$s. Registration was rolled back; you can try again with the same email.</string>
+    <string name="register_profile_failed_account_cleanup_failed">Could not save profile: %1$s. Error while closing the account: %2$s. Session cleared; sign in to complete your profile or contact support.</string>
+    <string name="register_verification_failed_then_login">Verification email could not be sent: %1$s. Session cleared; sign in and resend from your profile.</string>
     <string name="language_section_title">Language</string>
     <string name="language_turkish">Turkish</string>
     <string name="language_english">English</string>

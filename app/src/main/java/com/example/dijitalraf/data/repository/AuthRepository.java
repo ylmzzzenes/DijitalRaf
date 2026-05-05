@@ -29,4 +29,10 @@ public interface AuthRepository {
     Task<Void> sendPasswordResetEmail(@NonNull String email);
 
     void signOut();
+
+    /**
+     * Deletes the Firebase Authentication account for the current session.
+     */
+    @NonNull
+    Task<Void> deleteCurrentUser();
 }

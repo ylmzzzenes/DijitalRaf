@@ -4,6 +4,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.google.android.gms.tasks.Task;
+import com.google.android.gms.tasks.Tasks;
 import com.google.firebase.auth.AuthCredential;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
@@ -47,5 +48,17 @@ public final class FirebaseAuthDataSource {
 
     public void signOut() {
         auth.signOut();
+    }
+
+    /**
+     * Deletes the currently signed-in user. Call shortly after registration if profile persistence fails.
+     */
+    @NonNull
+    public Task<Void> deleteCurrentUser() {
+        FirebaseUser u = auth.getCurrentUser();
+        if (u == null) {
+            return Tasks.forException(new IllegalStateException("No signed-in user"));
+        }
+        return u.delete();
     }
 }

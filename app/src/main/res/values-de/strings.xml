@@ -289,6 +289,9 @@
     <string name="profile_cloud_sync_failed">Profil konnte nicht in die Cloud geschrieben werden (Regeln prüfen): %1$s</string>
     <string name="register_profile_saved">Profil in der Echtzeitdatenbank gespeichert</string>
     <string name="register_profile_write_failed">Konto erstellt, aber Beitrag in der Echtzeitdatenbank abgelehnt (Regeln prüfen). %1$s – Sie können vom Anmeldebildschirm aus fortfahren.</string>
+    <string name="register_profile_failed_rolled_back">Profil konnte nicht gespeichert werden: %1$s. Registrierung wurde zurückgenommen; Sie können es mit derselben E-Mail erneut versuchen.</string>
+    <string name="register_profile_failed_account_cleanup_failed">Profil konnte nicht gespeichert werden: %1$s. Fehler beim Schließen des Kontos: %2$s. Sitzung beendet; melden Sie sich an, um das Profil zu vervollständigen, oder wenden Sie sich an den Support.</string>
+    <string name="register_verification_failed_then_login">Bestätigungs-E-Mail konnte nicht gesendet werden: %1$s. Sitzung beendet; melden Sie sich an und senden Sie sie erneut über Ihr Profil.</string>
     <string name="language_section_title">Sprache</string>
     <string name="language_turkish">Türkisch</string>
     <string name="language_english">Englisch</string>

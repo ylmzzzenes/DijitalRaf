@@ -54,4 +54,10 @@ public final class DefaultAuthRepository implements AuthRepository {
     public void signOut() {
         dataSource.signOut();
     }
+
+    @NonNull
+    @Override
+    public Task<Void> deleteCurrentUser() {
+        return dataSource.deleteCurrentUser();
+    }
 }

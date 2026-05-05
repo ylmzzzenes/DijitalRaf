@@ -8,13 +8,13 @@ import android.widget.TextView;
 import androidx.activity.EdgeToEdge;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
-import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.dijitalraf.R;
 import com.example.dijitalraf.core.constants.DatabasePaths;
 import com.example.dijitalraf.data.EmailValidation;
+import com.example.dijitalraf.data.ProfileNameSplitter;
 import com.example.dijitalraf.data.repository.AuthRepository;
 import com.example.dijitalraf.data.repository.UserRepository;
 import com.example.dijitalraf.di.AppContainer;
@@ -38,6 +38,9 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class LoginActivity extends AppCompatActivity {
+
+    public static final String EXTRA_SNACKBAR_MESSAGE =
+            "com.example.dijitalraf.ui.auth.LoginActivity.EXTRA_SNACKBAR_MESSAGE";
 
     private TextInputEditText etEmail, etPassword;
     private TextInputLayout tilEmail, tilPassword;
@@ -85,7 +88,22 @@ public class LoginActivity extends AppCompatActivity {
         setContentView(R.layout.activity_login);
 
         initComponents();
+        maybeShowSnackMessageFromIntent();
         registerEventHandlers();
+    }
+
+    private void maybeShowSnackMessageFromIntent() {
+        Intent intent = getIntent();
+        if (intent == null) {
+            return;
+        }
+        String message = intent.getStringExtra(EXTRA_SNACKBAR_MESSAGE);
+        if (message == null || message.isEmpty()) {
+            return;
+        }
+        intent.removeExtra(EXTRA_SNACKBAR_MESSAGE);
+        getWindow().getDecorView().post(() ->
+                UiMessages.snackbar(LoginActivity.this, message, Snackbar.LENGTH_LONG));
     }
 
     @Override
@@ -179,7 +197,7 @@ public class LoginActivity extends AppCompatActivity {
                 return;
             }
             String display = user.getDisplayName() != null ? user.getDisplayName() : "";
-            String[] nameParts = splitFullNameForGoogleProfile(display);
+            String[] nameParts = ProfileNameSplitter.splitForStorage(display);
             Map<String, Object> userMap = new HashMap<>();
             userMap.put("uid", user.getUid());
             userMap.put(DatabasePaths.FIELD_EMAIL, user.getEmail() != null ? user.getEmail() : "");
@@ -192,23 +210,6 @@ public class LoginActivity extends AppCompatActivity {
             }
             userRepository.setUser(user.getUid(), userMap).addOnCompleteListener(t -> onDone.run());
         });
-    }
-
-    @NonNull
-    private static String[] splitFullNameForGoogleProfile(@Nullable String fullName) {
-        String[] out = new String[] {"", ""};
-        if (fullName == null || fullName.trim().isEmpty()) {
-            return out;
-        }
-        String t = fullName.trim();
-        int sp = t.indexOf(' ');
-        if (sp < 0) {
-            out[0] = t;
-            return out;
-        }
-        out[0] = t.substring(0, sp).trim();
-        out[1] = t.substring(sp + 1).trim();
-        return out;
     }
 
     private void loginUser() {

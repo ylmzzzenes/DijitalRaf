@@ -6,12 +6,11 @@ import android.text.TextUtils;
 import android.widget.TextView;
 
 import androidx.activity.EdgeToEdge;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.dijitalraf.R;
 import com.example.dijitalraf.data.EmailValidation;
+import com.example.dijitalraf.data.ProfileNameSplitter;
 import com.example.dijitalraf.core.constants.DatabasePaths;
 import com.example.dijitalraf.data.repository.AuthRepository;
 import com.example.dijitalraf.data.repository.UserRepository;
@@ -22,8 +21,6 @@ import com.google.android.material.button.MaterialButton;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
-import com.google.firebase.auth.FirebaseAuth;
-
 import com.google.firebase.auth.FirebaseUser;
 
 import java.util.HashMap;
@@ -142,39 +139,70 @@ public class RegisterActivity extends AppCompatActivity {
                         Map<String, Object> userMap = new HashMap<>();
                         userMap.put("uid", uid);
                         userMap.put(DatabasePaths.FIELD_FULL_NAME, fullName);
-                        String[] nameParts = splitFullNameForProfile(fullName);
+                        String[] nameParts = ProfileNameSplitter.splitForStorage(fullName);
                         userMap.put(DatabasePaths.FIELD_FIRST_NAME, nameParts[0]);
                         userMap.put(DatabasePaths.FIELD_LAST_NAME, nameParts[1]);
                         userMap.put(DatabasePaths.FIELD_EMAIL, email);
                         userMap.put(DatabasePaths.FIELD_CREATED_AT, System.currentTimeMillis());
 
-                        firebaseUser.sendEmailVerification()
-                                .addOnCompleteListener(sendTask -> {
-                                    if (sendTask.isSuccessful()) {
-                                        UiMessages.snackbar(
-                                                RegisterActivity.this,
-                                                R.string.email_verification_sent,
-                                                Snackbar.LENGTH_LONG);
-                                    } else {
-                                        String msg = sendTask.getException() != null
-                                                ? sendTask.getException().getMessage()
-                                                : "";
-                                        UiMessages.snackbar(
-                                                RegisterActivity.this,
-                                                getString(R.string.email_verification_send_failed, msg),
-                                                Snackbar.LENGTH_LONG);
-                                    }
-
-                                    userRepository.setUser(uid, userMap)
-                                            .addOnSuccessListener(unused -> {
-                                                Intent intent = new Intent(RegisterActivity.this, HomeActivity.class);
+                        userRepository.setUser(uid, userMap)
+                                .addOnSuccessListener(unused -> firebaseUser.sendEmailVerification()
+                                        .addOnCompleteListener(sendTask -> {
+                                            if (sendTask.isSuccessful()) {
+                                                UiMessages.snackbar(
+                                                        RegisterActivity.this,
+                                                        R.string.email_verification_sent,
+                                                        Snackbar.LENGTH_LONG);
+                                                Intent intent = new Intent(
+                                                        RegisterActivity.this,
+                                                        HomeActivity.class);
                                                 startActivity(intent);
                                                 finish();
-                                            })
-                                            .addOnFailureListener(e -> UiMessages.snackbar(
+                                            } else {
+                                                String msg = sendTask.getException() != null
+                                                        && sendTask.getException().getMessage() != null
+                                                        ? sendTask.getException().getMessage()
+                                                        : "";
+                                                authRepository.signOut();
+                                                Intent loginIntent = new Intent(
+                                                        RegisterActivity.this,
+                                                        LoginActivity.class);
+                                                loginIntent.putExtra(
+                                                        LoginActivity.EXTRA_SNACKBAR_MESSAGE,
+                                                        getString(
+                                                                R.string.register_verification_failed_then_login,
+                                                                msg));
+                                                loginIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK
+                                                        | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                                                startActivity(loginIntent);
+                                                finish();
+                                            }
+                                        }))
+                                .addOnFailureListener(e -> {
+                                    String err = e.getMessage() != null ? e.getMessage() : "";
+                                    authRepository.deleteCurrentUser().addOnCompleteListener(delTask -> {
+                                        authRepository.signOut();
+                                        if (delTask.isSuccessful()) {
+                                            UiMessages.snackbar(
                                                     RegisterActivity.this,
-                                                    getString(R.string.profile_save_failed, e.getMessage()),
-                                                    Snackbar.LENGTH_LONG));
+                                                    getString(
+                                                            R.string.register_profile_failed_rolled_back,
+                                                            err),
+                                                    Snackbar.LENGTH_LONG);
+                                        } else {
+                                            String delMsg = delTask.getException() != null
+                                                    && delTask.getException().getMessage() != null
+                                                    ? delTask.getException().getMessage()
+                                                    : "";
+                                            UiMessages.snackbar(
+                                                    RegisterActivity.this,
+                                                    getString(
+                                                            R.string.register_profile_failed_account_cleanup_failed,
+                                                            err,
+                                                            delMsg),
+                                                    Snackbar.LENGTH_LONG);
+                                        }
+                                    });
                                 });
 
                     } else {
@@ -186,22 +214,5 @@ public class RegisterActivity extends AppCompatActivity {
                                 Snackbar.LENGTH_LONG);
                     }
                 });
-    }
-
-    @NonNull
-    private static String[] splitFullNameForProfile(@Nullable String fullName) {
-        String[] out = new String[] {"", ""};
-        if (fullName == null || fullName.trim().isEmpty()) {
-            return out;
-        }
-        String t = fullName.trim();
-        int sp = t.indexOf(' ');
-        if (sp < 0) {
-            out[0] = t;
-            return out;
-        }
-        out[0] = t.substring(0, sp).trim();
-        out[1] = t.substring(sp + 1).trim();
-        return out;
     }
 }
