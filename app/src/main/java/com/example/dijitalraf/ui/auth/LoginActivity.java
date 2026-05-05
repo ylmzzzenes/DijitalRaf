@@ -2,14 +2,20 @@ package com.example.dijitalraf.ui.auth;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.text.Editable;
 import android.text.TextUtils;
+import android.text.TextWatcher;
 import android.widget.TextView;
 
 import androidx.activity.EdgeToEdge;
-import androidx.activity.result.ActivityResultLauncher;
-import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.credentials.CredentialManager;
+import androidx.credentials.CredentialManagerCallback;
+import androidx.credentials.GetCredentialRequest;
+import androidx.credentials.GetCredentialResponse;
+import androidx.credentials.exceptions.GetCredentialException;
 
 import com.example.dijitalraf.R;
 import com.example.dijitalraf.core.constants.DatabasePaths;
@@ -20,11 +26,6 @@ import com.example.dijitalraf.data.repository.UserRepository;
 import com.example.dijitalraf.di.AppContainer;
 import com.example.dijitalraf.ui.home.HomeActivity;
 import com.example.dijitalraf.ui.util.UiMessages;
-import com.google.android.gms.auth.api.signin.GoogleSignIn;
-import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
-import com.google.android.gms.auth.api.signin.GoogleSignInClient;
-import com.google.android.gms.common.api.ApiException;
-import com.google.android.gms.tasks.Task;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.snackbar.Snackbar;
@@ -50,36 +51,6 @@ public class LoginActivity extends AppCompatActivity {
     private TextView tvGoToRegister;
     private AuthRepository authRepository;
     private UserRepository userRepository;
-    @Nullable
-    private GoogleSignInClient googleSignInClient;
-
-    private final ActivityResultLauncher<Intent> googleSignInLauncher =
-            registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), result -> {
-                if (result.getResultCode() != RESULT_OK) {
-                    UiMessages.snackbar(LoginActivity.this, R.string.google_sign_in_cancelled, Snackbar.LENGTH_SHORT);
-                    return;
-                }
-                if (result.getData() == null) {
-                    return;
-                }
-                Task<GoogleSignInAccount> task = GoogleSignIn.getSignedInAccountFromIntent(result.getData());
-                try {
-                    GoogleSignInAccount account = task.getResult(ApiException.class);
-                    if (account == null || account.getIdToken() == null) {
-                        UiMessages.snackbar(
-                                LoginActivity.this,
-                                R.string.google_sign_in_token_missing,
-                                Snackbar.LENGTH_LONG);
-                        return;
-                    }
-                    firebaseAuthWithGoogle(account.getIdToken());
-                } catch (ApiException e) {
-                    UiMessages.snackbar(
-                            LoginActivity.this,
-                            AuthUiMessages.forGoogleSignIn(e, LoginActivity.this),
-                            Snackbar.LENGTH_LONG);
-                }
-            });
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -90,6 +61,54 @@ public class LoginActivity extends AppCompatActivity {
         initComponents();
         maybeShowSnackMessageFromIntent();
         registerEventHandlers();
+    }
+
+    private void initComponents() {
+        AppContainer appContainer = AppContainer.from(this);
+        authRepository = appContainer.getAuthRepository();
+        userRepository = appContainer.getUserRepository();
+        tilEmail = findViewById(R.id.tilEmail);
+        tilPassword = findViewById(R.id.tilPassword);
+        etEmail = findViewById(R.id.etEmail);
+        etPassword = findViewById(R.id.etPassword);
+        btnLogin = findViewById(R.id.btnLogin);
+        btnGoogleSignIn = findViewById(R.id.btnGoogleSignIn);
+        tvForgotPassword = findViewById(R.id.tvForgotPassword);
+        tvGoToRegister = findViewById(R.id.tvGoToRegister);
+    }
+
+    private void registerEventHandlers() {
+        clearErrorOnTextChanged(etEmail, tilEmail);
+        clearErrorOnTextChanged(etPassword, tilPassword);
+
+        btnLogin.setOnClickListener(v -> loginUser());
+        tvForgotPassword.setOnClickListener(v -> sendPasswordResetEmail());
+        btnGoogleSignIn.setOnClickListener(v -> onGoogleSignInClicked());
+        tvGoToRegister.setOnClickListener(v -> {
+            Intent intent = new Intent(LoginActivity.this, RegisterActivity.class);
+            startActivity(intent);
+        });
+    }
+
+    private static void clearErrorOnTextChanged(
+            @NonNull TextInputEditText editText,
+            @NonNull TextInputLayout layout) {
+        editText.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+                // No-op.
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                layout.setError(null);
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+                // No-op.
+            }
+        });
     }
 
     private void maybeShowSnackMessageFromIntent() {
@@ -117,37 +136,6 @@ public class LoginActivity extends AppCompatActivity {
         }
     }
 
-    private void initComponents() {
-        AppContainer appContainer = AppContainer.from(this);
-        authRepository = appContainer.getAuthRepository();
-        userRepository = appContainer.getUserRepository();
-        tilEmail = findViewById(R.id.tilEmail);
-        tilPassword = findViewById(R.id.tilPassword);
-        etEmail = findViewById(R.id.etEmail);
-        etPassword = findViewById(R.id.etPassword);
-        btnLogin = findViewById(R.id.btnLogin);
-        btnGoogleSignIn = findViewById(R.id.btnGoogleSignIn);
-        tvForgotPassword = findViewById(R.id.tvForgotPassword);
-        tvGoToRegister = findViewById(R.id.tvGoToRegister);
-
-        if (GoogleSignInHelper.hasWebClientIdConfigured(this)) {
-            googleSignInClient = GoogleSignIn.getClient(this, GoogleSignInHelper.buildSignInOptions(this));
-        }
-    }
-
-    private void registerEventHandlers() {
-        btnLogin.setOnClickListener(v -> loginUser());
-
-        tvForgotPassword.setOnClickListener(v -> sendPasswordResetEmail());
-
-        btnGoogleSignIn.setOnClickListener(v -> onGoogleSignInClicked());
-
-        tvGoToRegister.setOnClickListener(v -> {
-            Intent intent = new Intent(LoginActivity.this, RegisterActivity.class);
-            startActivity(intent);
-        });
-    }
-
     private void onGoogleSignInClicked() {
         if (!GoogleSignInHelper.hasWebClientIdConfigured(this)) {
             new MaterialAlertDialogBuilder(this)
@@ -157,11 +145,40 @@ public class LoginActivity extends AppCompatActivity {
                     .show();
             return;
         }
-        if (googleSignInClient == null) {
-            googleSignInClient = GoogleSignIn.getClient(this, GoogleSignInHelper.buildSignInOptions(this));
-        }
-        googleSignInClient.signOut().addOnCompleteListener(this, unused ->
-                googleSignInLauncher.launch(googleSignInClient.getSignInIntent()));
+
+        String serverClientId = GoogleSignInHelper.trimServerClientIdOrEmpty(this);
+        GetCredentialRequest request = new GetCredentialRequest.Builder()
+                .addCredentialOption(GoogleSignInHelper.buildSignInWithGoogleOption(serverClientId))
+                .build();
+
+        CredentialManager credentialManager = CredentialManager.create(this);
+        credentialManager.getCredentialAsync(
+                this,
+                request,
+                null,
+                getMainExecutor(),
+                new CredentialManagerCallback<GetCredentialResponse, GetCredentialException>() {
+                    @Override
+                    public void onResult(@NonNull GetCredentialResponse result) {
+                        String idToken = GoogleSignInHelper.extractIdToken(result);
+                        if (idToken == null) {
+                            UiMessages.snackbar(
+                                    LoginActivity.this,
+                                    R.string.google_sign_in_token_missing,
+                                    Snackbar.LENGTH_LONG);
+                            return;
+                        }
+                        firebaseAuthWithGoogle(idToken);
+                    }
+
+                    @Override
+                    public void onError(@NonNull GetCredentialException e) {
+                        UiMessages.snackbar(
+                                LoginActivity.this,
+                                AuthUiMessages.forGoogleCredential(e, LoginActivity.this),
+                                Snackbar.LENGTH_LONG);
+                    }
+                });
     }
 
     private void firebaseAuthWithGoogle(String idToken) {

@@ -11,6 +11,11 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.content.ContextCompat;
+import androidx.credentials.ClearCredentialStateRequest;
+import androidx.credentials.CredentialManager;
+import androidx.credentials.CredentialManagerCallback;
+import androidx.credentials.exceptions.ClearCredentialException;
 import androidx.fragment.app.Fragment;
 
 import com.bumptech.glide.Glide;
@@ -25,7 +30,6 @@ import com.example.dijitalraf.locale.LanguagePreference;
 import com.example.dijitalraf.theme.NightModePreference;
 import com.example.dijitalraf.ui.auth.LoginActivity;
 import com.example.dijitalraf.ui.util.UiMessages;
-import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.button.MaterialButtonToggleGroup;
 import com.google.android.material.snackbar.Snackbar;
@@ -55,6 +59,11 @@ public class ProfileFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+        initComponents(view);
+        registerEventHandlers(view);
+    }
+
+    private void initComponents(@NonNull View view) {
         ivAvatar = view.findViewById(R.id.ivAvatar);
         tvProfileDisplayName = view.findViewById(R.id.tvProfileDisplayName);
         tvEmail = view.findViewById(R.id.tvEmail);
@@ -66,7 +75,9 @@ public class ProfileFragment extends Fragment {
         AppContainer appContainer = AppContainer.from(requireContext());
         authRepository = appContainer.getAuthRepository();
         userRepository = appContainer.getUserRepository();
+    }
 
+    private void registerEventHandlers(@NonNull View view) {
         setupThemeToggle(view);
         setupLanguageToggle(view);
 
@@ -267,9 +278,22 @@ public class ProfileFragment extends Fragment {
         };
 
         if (GoogleSignInHelper.hasWebClientIdConfigured(ctx)) {
-            GoogleSignIn.getClient(ctx, GoogleSignInHelper.buildSignInOptions(ctx))
-                    .signOut()
-                    .addOnCompleteListener(requireActivity(), t -> goLogin.run());
+            CredentialManager cm = CredentialManager.create(ctx.getApplicationContext());
+            cm.clearCredentialStateAsync(
+                    new ClearCredentialStateRequest(),
+                    null,
+                    ContextCompat.getMainExecutor(ctx),
+                    new CredentialManagerCallback<Void, ClearCredentialException>() {
+                        @Override
+                        public void onResult(Void unused) {
+                            goLogin.run();
+                        }
+
+                        @Override
+                        public void onError(@NonNull ClearCredentialException e) {
+                            goLogin.run();
+                        }
+                    });
         } else {
             goLogin.run();
         }

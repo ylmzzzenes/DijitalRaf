@@ -256,7 +256,8 @@
     <string name="google_sign_in_setup_message">Gehen Sie als Entwickler wie folgt vor:\\n\\n1) Firebase Console → Authentifizierung → Anmeldemethode → Google aktivieren.\\n2) Projekteinstellungen → Fügen Sie den Debug-/Release-SHA-1-Fingerabdruck zu Ihrer Anwendung hinzu.\\n3) Fügen Sie den Web-Client-ID-Wert aus demselben Abschnitt in das Feld „default_web_client_id“ in der Datei „google_signin_config.xml“ im Projekt ein.\\n\\nKompilieren Sie dann die Anwendung neu.</string>
     <string name="google_sign_in_cancelled">Die Google-Anmeldung wurde abgebrochen.</string>
     <string name="google_sign_in_error_developer">Fehler bei der Konfiguration der Google-Anmeldung. Überprüfen Sie die Einstellungen für SHA-1, google-services.json und Web-Client-ID (default_web_client_id).</string>
-    <string name="google_sign_in_error_generic">Die Google-Anmeldung ist fehlgeschlagen (Code: %1$d). Versuchen Sie es später noch einmal.</string>
+    <string name="google_sign_in_error_generic">Google-Anmeldung fehlgeschlagen: %1$s</string>
+    <string name="google_sign_in_no_account">Auf diesem Gerät wurde kein passendes Google-Konto gefunden oder keines ausgewählt.</string>
     <string name="google_sign_in_token_missing">Die Anmeldeinformationen von der Google-Anmeldung konnten nicht abgerufen werden. Versuchen Sie es erneut.</string>
     <string name="auth_error_invalid_credentials">Die E-Mail-Adresse oder das Passwort ist falsch.</string>
     <string name="auth_error_user_disabled">Dieses Konto wurde deaktiviert.</string>

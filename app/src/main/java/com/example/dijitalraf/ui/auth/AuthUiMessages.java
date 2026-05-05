@@ -4,15 +4,18 @@ import android.content.Context;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.credentials.exceptions.GetCredentialCancellationException;
+import androidx.credentials.exceptions.GetCredentialException;
+import androidx.credentials.exceptions.GetCredentialProviderConfigurationException;
+import androidx.credentials.exceptions.NoCredentialException;
 
 import com.example.dijitalraf.R;
-import com.google.android.gms.auth.api.signin.GoogleSignInStatusCodes;
-import com.google.android.gms.common.ConnectionResult;
-import com.google.android.gms.common.api.ApiException;
 import com.google.firebase.auth.FirebaseAuthException;
 
+import java.util.Locale;
+
 /**
- * Firebase Auth ve Google Sign-In hatalarını kullanıcıya anlaşılır Türkçe metne çevirir.
+ * Firebase Auth ve Google Credential Manager hatalarını kullanıcıya anlaşılır metne çevirir.
  */
 public final class AuthUiMessages {
 
@@ -20,17 +23,21 @@ public final class AuthUiMessages {
     }
 
     @NonNull
-    public static String forGoogleSignIn(@NonNull ApiException e, @NonNull Context context) {
-        switch (e.getStatusCode()) {
-            case GoogleSignInStatusCodes.SIGN_IN_CANCELLED:
-                return context.getString(R.string.google_sign_in_cancelled);
-            case ConnectionResult.DEVELOPER_ERROR:
-                return context.getString(R.string.google_sign_in_error_developer);
-            case GoogleSignInStatusCodes.NETWORK_ERROR:
-                return context.getString(R.string.auth_error_network);
-            default:
-                return context.getString(R.string.google_sign_in_error_generic, e.getStatusCode());
+    public static String forGoogleCredential(@NonNull GetCredentialException e, @NonNull Context context) {
+        if (e instanceof GetCredentialCancellationException) {
+            return context.getString(R.string.google_sign_in_cancelled);
         }
+        if (e instanceof GetCredentialProviderConfigurationException) {
+            return context.getString(R.string.google_sign_in_error_developer);
+        }
+        if (e instanceof NoCredentialException) {
+            return context.getString(R.string.google_sign_in_no_account);
+        }
+        String msg = e.getMessage() != null ? e.getMessage() : "";
+        if (msg.toLowerCase(Locale.ROOT).contains("network")) {
+            return context.getString(R.string.auth_error_network);
+        }
+        return context.getString(R.string.google_sign_in_error_generic, msg);
     }
 
     @NonNull

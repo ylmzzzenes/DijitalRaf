@@ -98,6 +98,13 @@ public class DashboardFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+        initComponents(view);
+        registerEventHandlers(savedInstanceState);
+        observeViewModel();
+        loadInitialContent();
+    }
+
+    private void initComponents(@NonNull View view) {
         viewModel = new ViewModelProvider(requireActivity()).get(BooksViewModel.class);
         dashboardPrefs = requireContext().getSharedPreferences(PREFS_DASHBOARD, Context.MODE_PRIVATE);
 
@@ -127,7 +134,6 @@ public class DashboardFragment extends Fragment {
         btnReadingGoalEdit = view.findViewById(R.id.btnReadingGoalEdit);
         tvReadingGoalSummary = view.findViewById(R.id.tvReadingGoalSummary);
         readingGoalProgress = view.findViewById(R.id.readingGoalProgress);
-        btnReadingGoalEdit.setOnClickListener(v -> showReadingGoalDialog());
 
         readAdapter = new DashboardBookRowAdapter(kitap -> {
             if (kitap.getId() != null) {
@@ -150,7 +156,10 @@ public class DashboardFragment extends Fragment {
         rvToReadBooks.setLayoutManager(
                 new LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false));
         rvToReadBooks.setAdapter(toReadAdapter);
+    }
 
+    private void registerEventHandlers(@Nullable Bundle savedInstanceState) {
+        btnReadingGoalEdit.setOnClickListener(v -> showReadingGoalDialog());
         if (savedInstanceState != null) {
             aiRecommendationsExpanded = savedInstanceState.getBoolean(STATE_AI_RECOMMENDATIONS_EXPANDED, false);
             aiChatExpanded = savedInstanceState.getBoolean(STATE_AI_CHAT_EXPANDED, false);
@@ -190,13 +199,16 @@ public class DashboardFragment extends Fragment {
             );
             return true;
         });
+    }
 
+    private void observeViewModel() {
+        viewModel.getBooks().observe(getViewLifecycleOwner(), this::applyBookRows);
+    }
+
+    private void loadInitialContent() {
         refreshAiRecommendationsBodyUi();
         loadChatPreviewFromPrefs();
-
         loadWelcomeFromRtdb();
-
-        viewModel.getBooks().observe(getViewLifecycleOwner(), this::applyBookRows);
     }
 
     @Override

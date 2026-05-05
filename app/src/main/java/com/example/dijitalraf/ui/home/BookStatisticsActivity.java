@@ -47,6 +47,12 @@ public class BookStatisticsActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_book_statistics);
 
+        initComponents();
+        registerEventHandlers();
+        observeViewModel();
+    }
+
+    private void initComponents() {
         toolbar = findViewById(R.id.toolbar);
         tvStatTotal = findViewById(R.id.tvStatTotal);
         tvStatReadValue = findViewById(R.id.tvStatReadValue);
@@ -59,14 +65,19 @@ public class BookStatisticsActivity extends AppCompatActivity {
         tvGenresEmpty = findViewById(R.id.tvGenresEmpty);
         layoutGenreBars = findViewById(R.id.layoutGenreBars);
 
+        booksViewModel = new ViewModelProvider(this).get(BooksViewModel.class);
+        booksViewModel.startListening();
+    }
+
+    private void registerEventHandlers() {
         setSupportActionBar(toolbar);
         if (getSupportActionBar() != null) {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         }
         toolbar.setNavigationOnClickListener(v -> getOnBackPressedDispatcher().onBackPressed());
+    }
 
-        booksViewModel = new ViewModelProvider(this).get(BooksViewModel.class);
-        booksViewModel.startListening();
+    private void observeViewModel() {
         booksViewModel.getBooksError().observe(this, event -> {
             if (event == null) {
                 return;

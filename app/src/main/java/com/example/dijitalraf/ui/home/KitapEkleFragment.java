@@ -44,6 +44,7 @@ public class KitapEkleFragment extends Fragment {
     private LinearProgressIndicator progressApi;
     private BooksViewModel booksViewModel;
     private OpenLibraryRepository openLibraryRepository;
+    private TextWatcher previewWatcher;
 
     private String selectedImageUrl = "";
     private String apiAciklama = "";
@@ -75,25 +76,30 @@ public class KitapEkleFragment extends Fragment {
             return;
         }
 
-        initViews(view);
+        initComponents(view);
         setupToolbar();
+        registerEventHandlers();
+        updatePreview();
+    }
 
+    private void initComponents(@NonNull View view) {
+        initViews(view);
         booksViewModel = new ViewModelProvider(requireActivity()).get(BooksViewModel.class);
         openLibraryRepository = AppContainer.from(requireContext()).getOpenLibraryRepository();
 
-        TextWatcher previewWatcher = new TextWatcher() {
+        previewWatcher = new TextWatcher() {
             @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
             @Override public void onTextChanged(CharSequence s, int start, int before, int count) {
                 updatePreview();
             }
             @Override public void afterTextChanged(Editable s) {}
         };
+    }
 
+    private void registerEventHandlers() {
         etKitapAdi.addTextChangedListener(previewWatcher);
         etYazar.addTextChangedListener(previewWatcher);
         etTur.addTextChangedListener(previewWatcher);
-
-        updatePreview();
 
         btnKaydet.setOnClickListener(v -> kitapKaydet());
         btnAra.setOnClickListener(v -> kitapAra());

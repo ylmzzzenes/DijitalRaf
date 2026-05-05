@@ -256,7 +256,8 @@
     <string name="google_sign_in_setup_message">As a developer, do the following:\\n\\n1) Firebase Console → Authentication → Sign-in method → ​​Enable Google.\\n2) Project settings → Add the debug/release SHA-1 fingerprint to your application.\\n3) Paste the Web client ID value from the same section into the default_web_client_id field in the google_signin_config.xml file in the project.\\n\\nThen recompile the application.</string>
     <string name="google_sign_in_cancelled">Google login has been cancelled.</string>
     <string name="google_sign_in_error_developer">Google login configuration error. Check SHA-1, google-services.json and Web client ID (default_web_client_id) settings.</string>
-    <string name="google_sign_in_error_generic">Google login failed (code: %1$d). Try again later.</string>
+    <string name="google_sign_in_error_generic">Google sign-in failed: %1$s</string>
+    <string name="google_sign_in_no_account">No suitable Google account was found on this device, or none was selected.</string>
     <string name="google_sign_in_token_missing">Could not retrieve credentials from Google login. Try again.</string>
     <string name="auth_error_invalid_credentials">The email or password is incorrect.</string>
     <string name="auth_error_user_disabled">This account has been disabled.</string>

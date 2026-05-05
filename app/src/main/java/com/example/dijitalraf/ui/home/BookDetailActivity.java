@@ -93,6 +93,12 @@ public class BookDetailActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_book_detail);
 
+        initComponents();
+        registerEventHandlers();
+        readArgumentsAndStart();
+    }
+
+    private void initComponents() {
         booksViewModel = new ViewModelProvider(this).get(BooksViewModel.class);
 
         toolbar = findViewById(R.id.toolbar);
@@ -115,13 +121,23 @@ public class BookDetailActivity extends AppCompatActivity {
         recyclerQuotes = findViewById(R.id.recyclerQuotes);
         tvQuotesEmpty = findViewById(R.id.tvQuotesEmpty);
         fabAddQuote = findViewById(R.id.fabAddQuote);
+    }
 
+    private void registerEventHandlers() {
         setSupportActionBar(toolbar);
         if (getSupportActionBar() != null) {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         }
         toolbar.setNavigationOnClickListener(v -> getOnBackPressedDispatcher().onBackPressed());
 
+        setupPersonalNoteActions();
+        setupRatingBarListener();
+        setupFavoriteButton();
+        setupReadSwitch();
+        setupQuotesSection();
+    }
+
+    private void readArgumentsAndStart() {
         String bookId = getIntent().getStringExtra(EXTRA_BOOK_ID);
         if (TextUtils.isEmpty(bookId)) {
             UiMessages.snackbarShortThenFinish(this, R.string.book_detail_load_error);
@@ -129,11 +145,6 @@ public class BookDetailActivity extends AppCompatActivity {
         }
 
         bookIdArg = bookId.trim();
-        setupPersonalNoteActions();
-        setupRatingBarListener();
-        setupFavoriteButton();
-        setupReadSwitch();
-        setupQuotesSection();
         attachBookRealtimeListener(bookIdArg);
     }
 

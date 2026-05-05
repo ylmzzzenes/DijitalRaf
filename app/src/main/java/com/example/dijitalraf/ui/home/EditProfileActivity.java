@@ -59,6 +59,8 @@ public class EditProfileActivity extends AppCompatActivity {
     private Uri pendingImageUri;
     @Nullable
     private String currentPhotoUrl;
+    @Nullable
+    private FirebaseUser currentAuthUser;
     private AuthRepository authRepository;
     private UserRepository userRepository;
     private StorageRepository storageRepository;
@@ -78,6 +80,12 @@ public class EditProfileActivity extends AppCompatActivity {
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_edit_profile);
 
+        initComponents();
+        registerEventHandlers();
+        loadCurrentUserProfile();
+    }
+
+    private void initComponents() {
         toolbar = findViewById(R.id.toolbar);
         ivAvatar = findViewById(R.id.ivAvatar);
         tilFirstName = findViewById(R.id.tilFirstName);
@@ -95,22 +103,29 @@ public class EditProfileActivity extends AppCompatActivity {
         authRepository = appContainer.getAuthRepository();
         userRepository = appContainer.getUserRepository();
         storageRepository = appContainer.getStorageRepository();
+    }
 
+    private void registerEventHandlers() {
         toolbar.setNavigationOnClickListener(v -> getOnBackPressedDispatcher().onBackPressed());
+        ivAvatar.setOnClickListener(v -> pickImageLauncher.launch("image/*"));
+        btnSaveProfile.setOnClickListener(v -> {
+            if (currentAuthUser != null) {
+                attemptSave(currentAuthUser);
+            }
+        });
+    }
 
+    private void loadCurrentUserProfile() {
         FirebaseUser user = authRepository.getCurrentUser();
         if (user == null) {
             UiMessages.snackbarShortThenFinish(this, R.string.chat_error_not_signed_in);
             return;
         }
+        currentAuthUser = user;
 
         tvEmailReadOnly.setText(!TextUtils.isEmpty(user.getEmail())
                 ? user.getEmail()
                 : getString(R.string.profile_email_unknown));
-
-        ivAvatar.setOnClickListener(v -> pickImageLauncher.launch("image/*"));
-
-        btnSaveProfile.setOnClickListener(v -> attemptSave(user));
 
         setLoading(true);
         loadProfile(user);

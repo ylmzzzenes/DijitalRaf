@@ -262,7 +262,8 @@
     <string name="google_sign_in_setup_message">Geliştirici olarak şunları yapın:\n\n1) Firebase Console → Authentication → Sign-in method → Google’ı etkinleştirin.\n2) Project settings → Uygulamanıza debug/release SHA-1 parmak izini ekleyin.\n3) Aynı bölümdeki Web client ID değerini projede google_signin_config.xml dosyasındaki default_web_client_id alanına yapıştırın.\n\nArdından uygulamayı yeniden derleyin.</string>
     <string name="google_sign_in_cancelled">Google girişi iptal edildi.</string>
     <string name="google_sign_in_error_developer">Google girişi yapılandırma hatası. SHA-1, google-services.json ve Web client ID (default_web_client_id) ayarlarını kontrol edin.</string>
-    <string name="google_sign_in_error_generic">Google girişi başarısız (kod: %1$d). Daha sonra tekrar deneyin.</string>
+    <string name="google_sign_in_error_generic">Google girişi başarısız: %1$s</string>
+    <string name="google_sign_in_no_account">Bu cihazda uygun Google hesabı bulunamadı veya hesap seçilmedi.</string>
     <string name="google_sign_in_token_missing">Google oturumundan kimlik bilgisi alınamadı. Tekrar deneyin.</string>
     <string name="auth_error_invalid_credentials">E-posta veya şifre hatalı.</string>
     <string name="auth_error_user_disabled">Bu hesap devre dışı bırakılmış.</string>

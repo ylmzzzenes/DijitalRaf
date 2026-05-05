@@ -50,10 +50,19 @@ public class HomeActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
 
+        initComponents();
+        registerEventHandlers();
+        observeViewModel();
+        restoreInitialState(savedInstanceState);
+        handleOpenAddBookIntent(getIntent());
+    }
+
+    private void initComponents() {
         bannerEmailVerification = findViewById(R.id.bannerEmailVerification);
         mainViewPager = findViewById(R.id.mainViewPager);
         bottomNav = findViewById(R.id.bottomNav);
         kitapEkleOverlay = findViewById(R.id.kitapEkleOverlay);
+        fabAddBook = findViewById(R.id.fabAddBook);
 
         booksViewModel = new ViewModelProvider(this).get(BooksViewModel.class);
         booksViewModel.startListening();
@@ -64,7 +73,9 @@ public class HomeActivity extends AppCompatActivity {
         mainViewPager.setUserInputEnabled(true);
 
         lastValidPagerPosition = 0;
+    }
 
+    private void registerEventHandlers() {
         bottomNav.setOnItemSelectedListener(item -> {
             if (syncingBottomNavFromPager) {
                 return true;
@@ -104,20 +115,6 @@ public class HomeActivity extends AppCompatActivity {
             }
         });
 
-        fabAddBook = findViewById(R.id.fabAddBook);
-        booksViewModel.getBooksError().observe(this, event -> {
-            if (event == null) {
-                return;
-            }
-            String msg = event.getContentIfNotHandled();
-            if (msg != null && !msg.isEmpty()) {
-                UiMessages.snackbar(
-                        HomeActivity.this,
-                        getString(R.string.books_sync_failed, msg),
-                        Snackbar.LENGTH_LONG,
-                        fabAddBook);
-            }
-        });
         fabAddBook.setOnClickListener(v -> {
             if (blockIfEmailUnverified()) {
                 return;
@@ -135,15 +132,31 @@ public class HomeActivity extends AppCompatActivity {
                 }
             }
         });
+    }
 
+    private void observeViewModel() {
+        booksViewModel.getBooksError().observe(this, event -> {
+            if (event == null) {
+                return;
+            }
+            String msg = event.getContentIfNotHandled();
+            if (msg != null && !msg.isEmpty()) {
+                UiMessages.snackbar(
+                        HomeActivity.this,
+                        getString(R.string.books_sync_failed, msg),
+                        Snackbar.LENGTH_LONG,
+                        fabAddBook);
+            }
+        });
+    }
+
+    private void restoreInitialState(@Nullable Bundle savedInstanceState) {
         if (savedInstanceState == null) {
             mainViewPager.setCurrentItem(0, false);
             applyBottomNavSelectionForPagerIndex(0);
         } else {
             mainViewPager.post(() -> applyBottomNavSelectionForPagerIndex(mainViewPager.getCurrentItem()));
         }
-
-        handleOpenAddBookIntent(getIntent());
     }
 
     @Override

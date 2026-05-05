@@ -40,6 +40,7 @@ public class LibraryFragment extends Fragment {
     private View emptyState;
     private RecyclerView recyclerBooks;
     private View progress;
+    private MaterialButton btnEmpty;
     private boolean listRead;
 
     public static LibraryFragment newInstance(boolean listReadBooks) {
@@ -67,7 +68,12 @@ public class LibraryFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+        initComponents(view);
+        registerEventHandlers();
+        observeViewModel();
+    }
 
+    private void initComponents(@NonNull View view) {
         viewModel = new ViewModelProvider(requireActivity()).get(BooksViewModel.class);
         filterViewModel = new ViewModelProvider(requireActivity()).get(LibraryFilterViewModel.class);
 
@@ -80,7 +86,7 @@ public class LibraryFragment extends Fragment {
 
         TextView tvEmptyTitle = view.findViewById(R.id.tvEmptyTitle);
         TextView tvEmptyMessage = view.findViewById(R.id.tvEmptyMessage);
-        MaterialButton btnEmpty = view.findViewById(R.id.btnEmptyAction);
+        btnEmpty = view.findViewById(R.id.btnEmptyAction);
         TextView tvInteractionNote = view.findViewById(R.id.tvInteractionNote);
 
         if (listRead) {
@@ -93,11 +99,6 @@ public class LibraryFragment extends Fragment {
             tvEmptyMessage.setText(R.string.empty_to_read_message);
             tvInteractionNote.setText(R.string.library_long_press_hint_to_read);
             btnEmpty.setVisibility(View.VISIBLE);
-            btnEmpty.setOnClickListener(v -> {
-                if (requireActivity() instanceof HomeActivity) {
-                    ((HomeActivity) requireActivity()).showKitapEkleOverlay();
-                }
-            });
         }
 
         recyclerBooks.setLayoutManager(new LinearLayoutManager(requireContext()));
@@ -135,9 +136,18 @@ public class LibraryFragment extends Fragment {
         });
 
         recyclerBooks.setAdapter(adapter);
+    }
 
+    private void registerEventHandlers() {
+        btnEmpty.setOnClickListener(v -> {
+            if (requireActivity() instanceof HomeActivity) {
+                ((HomeActivity) requireActivity()).showKitapEkleOverlay();
+            }
+        });
         setupSwipeActions();
+    }
 
+    private void observeViewModel() {
         viewModel.getLoading().observe(getViewLifecycleOwner(), loading -> {
             progress.setVisibility(Boolean.TRUE.equals(loading) ? View.VISIBLE : View.GONE);
             if (Boolean.TRUE.equals(loading)) {

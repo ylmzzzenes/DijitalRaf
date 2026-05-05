@@ -32,6 +32,7 @@ public class FavoritesFragment extends Fragment {
     private View emptyState;
     private RecyclerView recyclerBooks;
     private View progressLoading;
+    private MaterialButton btnEmpty;
 
     @Nullable
     @Override
@@ -43,6 +44,12 @@ public class FavoritesFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+        initComponents(view);
+        registerEventHandlers();
+        observeViewModel();
+    }
+
+    private void initComponents(@NonNull View view) {
         viewModel = new ViewModelProvider(requireActivity()).get(BooksViewModel.class);
         recyclerBooks = view.findViewById(R.id.recyclerBooks);
         emptyState = view.findViewById(R.id.emptyInclude);
@@ -52,13 +59,8 @@ public class FavoritesFragment extends Fragment {
         TextView tvEmptyMessage = view.findViewById(R.id.tvEmptyMessage);
         tvEmptyTitle.setText(R.string.empty_favorites_title);
         tvEmptyMessage.setText(R.string.empty_favorites_message);
-        MaterialButton btnEmpty = view.findViewById(R.id.btnEmptyAction);
+        btnEmpty = view.findViewById(R.id.btnEmptyAction);
         btnEmpty.setVisibility(View.VISIBLE);
-        btnEmpty.setOnClickListener(v -> {
-            if (requireActivity() instanceof HomeActivity) {
-                ((HomeActivity) requireActivity()).showKitapEkleOverlay();
-            }
-        });
 
         recyclerBooks.setLayoutManager(new LinearLayoutManager(requireContext()));
         recyclerBooks.setItemAnimator(new DefaultItemAnimator());
@@ -92,7 +94,14 @@ public class FavoritesFragment extends Fragment {
             MarkAsReadDialogHelper.runWithConfirmationIfMarkingRead(this, next, apply);
         });
         recyclerBooks.setAdapter(adapter);
+    }
 
+    private void registerEventHandlers() {
+        btnEmpty.setOnClickListener(v -> {
+            if (requireActivity() instanceof HomeActivity) {
+                ((HomeActivity) requireActivity()).showKitapEkleOverlay();
+            }
+        });
         ItemTouchHelper touchHelper = new ItemTouchHelper(new ItemTouchHelper.SimpleCallback(0,
                 ItemTouchHelper.LEFT) {
             @Override
@@ -120,7 +129,9 @@ public class FavoritesFragment extends Fragment {
             }
         });
         touchHelper.attachToRecyclerView(recyclerBooks);
+    }
 
+    private void observeViewModel() {
         viewModel.getLoading().observe(getViewLifecycleOwner(), loading -> {
             boolean busy = Boolean.TRUE.equals(loading);
             if (progressLoading != null) {

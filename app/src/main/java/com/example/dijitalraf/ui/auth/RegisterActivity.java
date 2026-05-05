@@ -2,10 +2,13 @@ package com.example.dijitalraf.ui.auth;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.text.Editable;
 import android.text.TextUtils;
+import android.text.TextWatcher;
 import android.widget.TextView;
 
 import androidx.activity.EdgeToEdge;
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.dijitalraf.R;
@@ -64,12 +67,38 @@ public class RegisterActivity extends AppCompatActivity {
     }
 
     private void registerEventHandlers() {
+        clearErrorOnTextChanged(etFullName, tilFullName);
+        clearErrorOnTextChanged(etEmail, tilEmail);
+        clearErrorOnTextChanged(etPassword, tilPassword);
+        clearErrorOnTextChanged(etConfirmPassword, tilConfirmPassword);
+
         btnRegister.setOnClickListener(v -> registerUser());
 
         tvGoToLogin.setOnClickListener(v -> {
             Intent intent = new Intent(RegisterActivity.this, LoginActivity.class);
             startActivity(intent);
             finish();
+        });
+    }
+
+    private static void clearErrorOnTextChanged(
+            @NonNull TextInputEditText editText,
+            @NonNull TextInputLayout layout) {
+        editText.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+                // No-op.
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                layout.setError(null);
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+                // No-op.
+            }
         });
     }
 

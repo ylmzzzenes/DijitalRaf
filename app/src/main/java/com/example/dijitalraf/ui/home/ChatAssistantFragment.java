@@ -54,6 +54,7 @@ public class ChatAssistantFragment extends Fragment {
     private RecyclerView recyclerChat;
     private LinearLayout emptyState;
     private MaterialCardView cardError;
+    private MaterialToolbar toolbar;
     private TextInputLayout tilMessage;
     private TextInputEditText etMessage;
     private MaterialButton btnSend;
@@ -69,18 +70,20 @@ public class ChatAssistantFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+        initComponents(view);
+        registerEventHandlers();
+        observeViewModel();
+        updateEmptyState();
+    }
+
+    private void initComponents(@NonNull View view) {
         viewModel = new ViewModelProvider(requireActivity()).get(BooksViewModel.class);
         aiRepository = AppContainer.from(requireContext()).getAiRepository();
         prefs = requireContext().getSharedPreferences(PREFS_DASHBOARD, Context.MODE_PRIVATE);
 
-        MaterialToolbar toolbar = view.findViewById(R.id.toolbar);
+        toolbar = view.findViewById(R.id.toolbar);
         toolbar.setNavigationIcon(AppCompatResources.getDrawable(requireContext(), R.drawable.ic_home_24));
         toolbar.setNavigationContentDescription(R.string.chat_nav_home);
-        toolbar.setNavigationOnClickListener(v -> {
-            if (getActivity() instanceof HomeActivity) {
-                ((HomeActivity) getActivity()).openHomeDashboard();
-            }
-        });
 
         recyclerChat = view.findViewById(R.id.recyclerChat);
         emptyState = view.findViewById(R.id.emptyState);
@@ -94,7 +97,14 @@ public class ChatAssistantFragment extends Fragment {
         lm.setStackFromEnd(true);
         recyclerChat.setLayoutManager(lm);
         recyclerChat.setAdapter(adapter);
+    }
 
+    private void registerEventHandlers() {
+        toolbar.setNavigationOnClickListener(v -> {
+            if (getActivity() instanceof HomeActivity) {
+                ((HomeActivity) getActivity()).openHomeDashboard();
+            }
+        });
         btnSend.setOnClickListener(v -> sendCurrentMessage());
         etMessage.setOnEditorActionListener((textView, actionId, event) -> {
             if (actionId == EditorInfo.IME_ACTION_SEND) {
@@ -103,10 +113,10 @@ public class ChatAssistantFragment extends Fragment {
             }
             return false;
         });
+    }
 
+    private void observeViewModel() {
         viewModel.getBooks().observe(getViewLifecycleOwner(), books -> updateEmptyState());
-
-        updateEmptyState();
     }
 
     private void updateEmptyState() {
