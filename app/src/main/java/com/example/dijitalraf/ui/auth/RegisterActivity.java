@@ -9,6 +9,7 @@ import android.widget.TextView;
 
 import androidx.activity.EdgeToEdge;
 import androidx.annotation.NonNull;
+import androidx.annotation.StringRes;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.dijitalraf.R;
@@ -67,10 +68,10 @@ public class RegisterActivity extends AppCompatActivity {
     }
 
     private void registerEventHandlers() {
-        clearErrorOnTextChanged(etFullName, tilFullName);
-        clearErrorOnTextChanged(etEmail, tilEmail);
-        clearErrorOnTextChanged(etPassword, tilPassword);
-        clearErrorOnTextChanged(etConfirmPassword, tilConfirmPassword);
+        addRequiredValidationWatcher(etFullName, tilFullName, R.string.error_full_name_empty);
+        addEmailValidationWatcher(etEmail, tilEmail);
+        addPasswordValidationWatcher();
+        addConfirmPasswordValidationWatcher();
 
         btnRegister.setOnClickListener(v -> registerUser());
 
@@ -81,7 +82,30 @@ public class RegisterActivity extends AppCompatActivity {
         });
     }
 
-    private static void clearErrorOnTextChanged(
+    private void addRequiredValidationWatcher(
+            @NonNull TextInputEditText editText,
+            @NonNull TextInputLayout layout,
+            @StringRes int emptyMessage) {
+        editText.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+                // No-op.
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                boolean empty = s == null || s.toString().trim().isEmpty();
+                layout.setError(empty ? getString(emptyMessage) : null);
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+                // No-op.
+            }
+        });
+    }
+
+    private void addEmailValidationWatcher(
             @NonNull TextInputEditText editText,
             @NonNull TextInputLayout layout) {
         editText.addTextChangedListener(new TextWatcher() {
@@ -92,7 +116,8 @@ public class RegisterActivity extends AppCompatActivity {
 
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
-                layout.setError(null);
+                Integer issue = EmailValidation.validateForForm(s != null ? s.toString() : "");
+                layout.setError(issue == null ? null : getString(issue));
             }
 
             @Override
@@ -100,6 +125,76 @@ public class RegisterActivity extends AppCompatActivity {
                 // No-op.
             }
         });
+    }
+
+    private void addPasswordValidationWatcher() {
+        etPassword.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+                // No-op.
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                validatePasswordRealtime(s != null ? s.toString() : "");
+                String confirm = textOf(etConfirmPassword);
+                if (!confirm.isEmpty()) {
+                    validateConfirmPasswordRealtime(confirm);
+                }
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+                // No-op.
+            }
+        });
+    }
+
+    private void addConfirmPasswordValidationWatcher() {
+        etConfirmPassword.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+                // No-op.
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                validateConfirmPasswordRealtime(s != null ? s.toString() : "");
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+                // No-op.
+            }
+        });
+    }
+
+    private void validatePasswordRealtime(@NonNull String rawPassword) {
+        String password = rawPassword.trim();
+        if (password.isEmpty()) {
+            tilPassword.setError(getString(R.string.error_password_empty));
+        } else if (password.length() < 6) {
+            tilPassword.setError(getString(R.string.error_password_short));
+        } else {
+            tilPassword.setError(null);
+        }
+    }
+
+    private void validateConfirmPasswordRealtime(@NonNull String rawConfirmPassword) {
+        String confirmPassword = rawConfirmPassword.trim();
+        String password = textOf(etPassword);
+        if (confirmPassword.isEmpty()) {
+            tilConfirmPassword.setError(getString(R.string.error_confirm_empty));
+        } else if (!password.equals(confirmPassword)) {
+            tilConfirmPassword.setError(getString(R.string.error_password_mismatch));
+        } else {
+            tilConfirmPassword.setError(null);
+        }
+    }
+
+    @NonNull
+    private static String textOf(@NonNull TextInputEditText editText) {
+        return editText.getText() != null ? editText.getText().toString().trim() : "";
     }
 
     private void registerUser() {

@@ -10,6 +10,7 @@ import android.widget.TextView;
 import androidx.activity.EdgeToEdge;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.StringRes;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.credentials.CredentialManager;
 import androidx.credentials.CredentialManagerCallback;
@@ -78,8 +79,8 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     private void registerEventHandlers() {
-        clearErrorOnTextChanged(etEmail, tilEmail);
-        clearErrorOnTextChanged(etPassword, tilPassword);
+        addEmailValidationWatcher(etEmail, tilEmail);
+        addRequiredValidationWatcher(etPassword, tilPassword, R.string.error_password_empty);
 
         btnLogin.setOnClickListener(v -> loginUser());
         tvForgotPassword.setOnClickListener(v -> sendPasswordResetEmail());
@@ -90,7 +91,7 @@ public class LoginActivity extends AppCompatActivity {
         });
     }
 
-    private static void clearErrorOnTextChanged(
+    private void addEmailValidationWatcher(
             @NonNull TextInputEditText editText,
             @NonNull TextInputLayout layout) {
         editText.addTextChangedListener(new TextWatcher() {
@@ -101,7 +102,31 @@ public class LoginActivity extends AppCompatActivity {
 
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
-                layout.setError(null);
+                Integer issue = EmailValidation.validateForForm(s != null ? s.toString() : "");
+                layout.setError(issue == null ? null : getString(issue));
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+                // No-op.
+            }
+        });
+    }
+
+    private void addRequiredValidationWatcher(
+            @NonNull TextInputEditText editText,
+            @NonNull TextInputLayout layout,
+            @StringRes int emptyMessage) {
+        editText.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+                // No-op.
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                boolean empty = s == null || s.toString().trim().isEmpty();
+                layout.setError(empty ? getString(emptyMessage) : null);
             }
 
             @Override
